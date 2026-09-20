@@ -1,56 +1,29 @@
-# dapl
-# Personal Daily Planner – روزمن
+# Personal Daily Planner v1.0
 
-A professional personal daily planner built with **Next.js** and **PWA**, designed to help users organize daily tasks, priorities, routines, and personal productivity.
+نسخه v1.0 با تمرکز بر پایداری کارهای روزمره و داشبورد.
 
-## ✨ Features
+## تغییرات این نسخه
+- Card مستقل و مینیمال «کارهای روزمره» در داشبورد، جدا از دسترسی سریع
+- نمایش Routineهای فعال امروز
+- ثبت چند Routine پشت سر هم
+- ویرایش Routine بدون گیر کردن فرم
+- حذف Routine با تأیید
+- فعال/غیرفعال کردن Routine
+- توضیحات برای Routine
+- انتخاب روزهای تکرار
+- انتخاب زمان یا «در طول روز»
+- اعمال Routineهای امروز و جلوگیری از Task تکراری
+- همگام‌سازی ذخیره‌سازی Routine و Task با localStorage
+- بهبود dark mode
+- منوی موبایل پنج‌گزینه‌ای با عنوان «تسک جدید»
+- قابلیت‌های قبلی: چندزبانه، تقویم میلادی/شمسی/قمری، Task edit/delete، فیلترها و Calendar modal
 
-- 📋 Daily task management
-- ⭐ Important tasks management
-- 🔥 Essential tasks management
-- ⏰ Time-based and all-day tasks
-- 🔗 Task prerequisites and dependencies
-- 📊 Task progress and activity tracking
-- 📝 Task completion notes
-- 📅 Future task planning
-- 🔄 Carry over unfinished tasks from previous days
-- 🗓️ Calendar with daily task counts
-- 📆 Gregorian, Jalali and Hijri calendars
-- 🌐 Persian, English and Arabic language support
-- ↔️ RTL / LTR support
-- 🔁 Daily routines and recurring activities
-- ✏️ Create, edit and delete tasks and routines
-- 🌙 Dark mode
-- 🔤 Small, Normal and Large font sizes
-- 📱 Fully responsive design
-- 📲 Progressive Web App (PWA)
-- 📥 Installable on mobile devices
-- 💾 Local data persistence
-- 🎨 Modern and professional UI/UX
+## اجرا
+```bash
+npm install
+npm run build
+npm start
+```
 
-## 🏗️ Technology Stack
-
-- **Next.js**
-- **React**
-- **JavaScript**
-- **CSS**
-- **PWA**
-- **Local Storage**
-
-## 📁 Project Structure
-
-```text
-personal-daily-planner-nextjs/
-├── app/
-│   ├── calendar/
-│   ├── routines/
-│   ├── settings/
-│   ├── planner.js
-│   └── ...
-├── public/
-│   ├── icons/
-│   ├── manifest.json
-│   └── ...
-├── package.json
-├── next.config.js
-└── README.md
+## نکته
+تاریخ‌های Task به صورت ISO ذخیره می‌شوند و نوع تقویم فقط نحوه نمایش را تغییر می‌دهد.
