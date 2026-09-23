@@ -1,29 +1,618 @@
-'use client';
-import {useEffect,useMemo,useState} from 'react';
-import {KEY,SETTINGS,seed,defaultSettings} from './data';
-import {tr,translations} from '../lib/i18n';
-import {formatDate,formatWeekday,isoToday} from '../lib/date';
+"use client";
 
-export default function Planner(){
- const [data,setData]=useState(seed),[settings,setSettings]=useState(defaultSettings),[date,setDate]=useState(isoToday),[modal,setModal]=useState(null),[filter,setFilter]=useState('all'),[hydrated,setHydrated]=useState(false),[dark,setDark]=useState(false),[collapsed,setCollapsed]=useState(false),[routines,setRoutines]=useState([]);
- useEffect(()=>{try{const x=localStorage.getItem(KEY);if(x)setData(JSON.parse(x));const s=localStorage.getItem(SETTINGS);if(s)setSettings({...defaultSettings,...JSON.parse(s)});setDark(localStorage.getItem('pdp-dark')==='1');const r=localStorage.getItem('personal-daily-planner-routines-v8');if(r)setRoutines(JSON.parse(r))}catch{}setHydrated(true)},[]);
- useEffect(()=>{if(hydrated){localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(SETTINGS,JSON.stringify(settings));localStorage.setItem('pdp-dark',dark?'1':'0');document.documentElement.lang=settings.language;document.documentElement.dir=translations[settings.language].dir;document.documentElement.classList.toggle('dark',dark)}},[data,settings,dark,hydrated]);
- useEffect(()=>{const x=localStorage.getItem('pdp-selected-date');if(x){setDate(x);localStorage.removeItem('pdp-selected-date')}if(new URLSearchParams(location.search).get('new')==='1')setModal('add')},[]);
- const t=k=>tr(settings.language,k);
- const todayWeekday=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date(date+'T12:00:00').getDay()];
- const todayRoutines=routines.filter(r=>r.enabled&&(r.days||[]).includes(todayWeekday));
-const tasks=useMemo(()=>data.tasks.filter(x=>x.date===date),[data.tasks,date]);
- const visibleTasks=useMemo(()=>tasks.filter(x=>filter==='remaining'?!x.completed:filter==='essential'?x.priority==='essential':filter==='important'?x.priority==='important':filter==='normal'?x.priority==='normal':true),[tasks,filter]);
- const done=tasks.filter(x=>x.completed).length,important=tasks.filter(x=>x.priority!=='normal').length,essential=tasks.filter(x=>x.priority==='essential').length,pct=tasks.length?Math.round(done/tasks.length*100):0;
- function toggle(task){if((task.prerequisites||[]).some(id=>!data.tasks.find(x=>x.id===id)?.completed))return;setData(d=>({...d,tasks:d.tasks.map(x=>x.id===task.id?{...x,completed:!x.completed,completedAt:!x.completed?new Date().toISOString():null}:x)}))}
- function saveTask(e){e.preventDefault();const f=new FormData(e.currentTarget),p=f.get('prerequisite'),priority=f.get('priority'),id=f.get('id');const current=tasks.filter(x=>x.priority!=='normal'&&String(x.id)!==String(id)).length,currentEssential=tasks.filter(x=>x.priority==='essential'&&String(x.id)!==String(id)).length;if(priority!=='normal'&&current>=7){alert(t('maxImportant'));return}if(priority==='essential'&&currentEssential>=3){alert(t('maxEssential'));return}const scheduleType=f.get('scheduleType');const task={id:id?Number(id):Date.now(),title:f.get('title'),description:f.get('description')||'',date,priority,scheduleType,startTime:scheduleType==='time'?(f.get('startTime')||''):'',endTime:scheduleType==='time'?(f.get('endTime')||''):'',completed:id?data.tasks.find(x=>x.id===Number(id))?.completed:false,activityUnit:f.get('unit'),activityValue:id?data.tasks.find(x=>x.id===Number(id))?.activityValue||0:0,prerequisites:p?[Number(p)]:[]};setData(d=>({...d,tasks:id?d.tasks.map(x=>x.id===Number(id)?{...x,...task}:x):[...d.tasks,task]}));setModal(null)}
- function removeTask(task){if(!window.confirm(t('confirmDeleteTask'))){return}setData(d=>({...d,tasks:d.tasks.filter(x=>x.id!==task.id).map(x=>({...x,prerequisites:(x.prerequisites||[]).filter(id=>id!==task.id)}))}));setModal(null)}
- function complete(e){e.preventDefault();const f=new FormData(e.currentTarget),id=Number(f.get('id'));setData(d=>({...d,tasks:d.tasks.map(x=>x.id===id?{...x,completed:true,activityValue:Number(f.get('value')||0),description:f.get('desc')||x.description,completedAt:new Date().toISOString()}:x)}));setModal(null)}
- function saveSettings(e){e.preventDefault();const f=new FormData(e.currentTarget);setSettings(s=>({...s,language:f.get('language'),calendar:f.get('calendar'),secondaryCalendar:f.get('secondaryCalendar'),firstDay:f.get('firstDay'),hijriMethod:f.get('hijriMethod')}));setModal(null)}
- const displayDate=formatDate(date,settings.calendar,settings.language),secondary=settings.secondaryCalendar!=='none'?formatDate(date,settings.secondaryCalendar,settings.language,true):'';
- return <div className={`appShell ${collapsed?'sideCollapsed':''}`}><aside className="sidebar"><div className="brand"><div className="brandMark">✓</div><div className="brandText"><b>روزمن</b><span>{t('planner')}</span></div><button className="collapseBtn" onClick={()=>setCollapsed(v=>!v)}>{collapsed?'»':'«'}</button></div><nav className="nav"><a className="active" href="/">⌂ <span>{t('today')}</span></a><a href="/calendar">▦ <span>{t('calendar')}</span></a><a href="/?new=1">＋ <span>{t('newTask')}</span></a><a href="/routines">↻ <span>{t('routines')}</span></a><a href="/settings">⚙ <span>{t('settings')}</span></a></nav><div className="sideFooter"><small>{t('today')}</small><strong>{displayDate}</strong></div></aside><div className="main"><header className="topbar"><div className="topLeft"><button className="mobileMenu" onClick={()=>setCollapsed(v=>!v)}>☰</button><span className="crumb">{t('planner')} / {t('today')}</span></div><div className="topActions"><button className="iconBtn" onClick={()=>setDark(v=>!v)}>{dark?'☀':'☾'}</button><button className="iconBtn" onClick={()=>setModal('settings')}>⚙</button><div className="avatar">م</div></div></header><main className="content"><div className="hero"><div><div className="kicker">{formatWeekday(date,settings.language)}، {displayDate}</div><h1>{t('focus')}</h1><p>{t('focusSub')}</p>{secondary&&<span className="secondaryDate">{secondary}</span>}</div><button className="primary" onClick={()=>setModal('add')}>+ {t('newTask')}</button></div><div className="dashboardGrid"><section className="card todayCard"><div className="cardHeader"><div><h2>{t('today')}</h2><p>{t('completedOf',{n:done,n2:tasks.length})}</p></div><span className="datePill">{displayDate}</span></div><div className="progressRow"><span>{t('progress')}</span><b>{pct}%</b></div><div className="progress"><i style={{width:`${pct}%`}}/></div><div className="filterBar"><button className={filter==='essential'?'on':''} onClick={()=>setFilter(filter==='essential'?'all':'essential')}>{t('essentialLabel')} <b>{essential}</b></button><button className={filter==='important'?'on':''} onClick={()=>setFilter(filter==='important'?'all':'important')}>{t('importantLabel')} <b>{tasks.filter(x=>x.priority==='important').length}</b></button><button className={filter==='normal'?'on':''} onClick={()=>setFilter(filter==='normal'?'all':'normal')}>{t('normal')} <b>{tasks.filter(x=>x.priority==='normal').length}</b></button><button className={filter==='remaining'?'on':''} onClick={()=>setFilter(filter==='remaining'?'all':'remaining')}>{t('remaining')}</button></div><div className="taskList">{visibleTasks.map(x=><Task key={x.id} t={x} data={data} toggle={toggle} complete={()=>setModal({type:'complete',id:x.id})} edit={()=>setModal({type:'edit',id:x.id})} remove={()=>removeTask(x)} lang={settings.language}/>)}{!visibleTasks.length&&<div className="empty">{t('noTasks')}</div>}</div></section><aside><div className="stats"><div className="stat purple"><div className="num">{tasks.length}</div><small>{t('total')}</small></div><div className="stat yellow"><div className="num">{important}/7</div><small>{t('important')}</small></div><div className="stat red"><div className="num">{essential}/3</div><small>{t('essential')}</small></div><div className="stat green"><div className="num">{done}</div><small>{t('done')}</small></div></div><div className="card quick"><div className="cardHeader"><h2>{t('quick')}</h2></div><div className="quickGrid"><button onClick={()=>setModal('add')}><b>+ {t('newTask')}</b></button><button onClick={()=>location.href='/calendar'}><b>▦ {t('calendar')}</b></button><button onClick={()=>location.href='/routines'}><b>↻ {t('routines')}</b></button><button onClick={()=>setModal('settings')}><b>⚙ {t('settings')}</b></button></div></div><div className="card routineMini"><div className="cardHeader"><div><h2>↻ {t('routines')}</h2><p>{todayRoutines.length} {t('routines')}</p></div><button className="ghost" onClick={()=>location.href='/routines'}>{t('edit')}</button></div><div className="routineMiniList">{todayRoutines.slice(0,5).map(r=>{const rt=tasks.find(x=>x.routineId===r.id);return <div className="routineMiniItem" key={r.id}><span className={`routineStatus ${rt?.completed?'done':''}`}>{rt?.completed?'✓':'○'}</span><div><b>{r.title}</b><small>{r.scheduleType==='time'?`${r.startTime} – ${r.endTime}`:t('day')}</small></div></div>})}{!todayRoutines.length&&<div className="empty">{t('noRoutines')}</div>}</div></div></aside></div></main><MobileNav lang={settings.language}/></div>{(modal==='add'||modal?.type==='edit')&&<TaskForm lang={settings.language} data={data} date={date} task={modal.type==='edit'?data.tasks.find(x=>x.id===modal.id):null} onClose={()=>setModal(null)} onSave={saveTask}/>} {modal?.type==='complete'&&<Modal title={t('result')} close={()=>setModal(null)}><form className="form" onSubmit={complete}><input type="hidden" name="id" value={modal.id}/><label>{t('activity')}<input name="value" type="number" min="0" placeholder="0"/></label><label>{t('description')}<textarea name="desc" rows="5"/></label><button className="primary">{t('saveResult')}</button></form></Modal>}{modal==='settings'&&<Modal title={t('settingsTitle')} close={()=>setModal(null)}><form className="form" onSubmit={saveSettings}><p className="formHint">{t('settingsSub')}</p><label>{t('language')}<select name="language" defaultValue={settings.language}>{Object.entries(translations).map(([k,v])=><option key={k} value={k}>{v.name}</option>)}</select></label><label>{t('calendarType')}<select name="calendar" defaultValue={settings.calendar}><option value="gregorian">{t('gregorian')}</option><option value="jalali">{t('jalali')}</option><option value="hijri">{t('hijri')}</option></select></label><label>{t('secondary')}<select name="secondaryCalendar" defaultValue={settings.secondaryCalendar}><option value="none">{t('noneCalendar')}</option><option value="gregorian">{t('gregorian')}</option><option value="jalali">{t('jalali')}</option><option value="hijri">{t('hijri')}</option></select></label><label>{t('firstDay')}<select name="firstDay" defaultValue={settings.firstDay}><option value="saturday">{t('saturday')}</option><option value="sunday">{t('sunday')}</option></select></label><label>{t('hijriMethod')}<select name="hijriMethod" defaultValue={settings.hijriMethod}><option value="ummalqura">{t('ummalqura')}</option></select></label><button className="primary">{t('save')}</button></form></Modal>}</div>
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  KEY,
+  SETTINGS,
+  seed,
+  defaultSettings,
+} from "./data";
+
+import {
+  formatDate,
+  isoToday,
+} from "../lib/date";
+
+import { tr } from "../lib/i18n";
+
+import AppSidebar from "../components/layout/AppSidebar";
+import MobileNav from "../components/layout/MobileNav";
+import Topbar from "../components/layout/Topbar";
+
+import CompletionModal from "../components/planner/CompletionModal";
+import DashboardHero from "../components/planner/DashboardHero";
+import DashboardSidebar from "../components/planner/DashboardSidebar";
+import SettingsModal from "../components/planner/SettingsModal";
+import TaskForm from "../components/planner/TaskForm";
+import TodayTasksCard from "../components/planner/TodayTasksCard";
+
+const ROUTINES_STORAGE_KEY =
+  "personal-daily-planner-routines-v8";
+
+const DARK_MODE_STORAGE_KEY = "pdp-dark";
+const SELECTED_DATE_STORAGE_KEY = "pdp-selected-date";
+
+const WEEKDAYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
+
+/* Controls planner data, settings and dashboard interactions. */
+export default function Planner() {
+  const [data, setData] = useState(seed);
+  const [settings, setSettings] =
+    useState(defaultSettings);
+  const [date, setDate] = useState(isoToday);
+  const [modal, setModal] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const [hydrated, setHydrated] = useState(false);
+  const [dark, setDark] = useState(false);
+  const [collapsed, setCollapsed] =
+    useState(false);
+  const [routines, setRoutines] = useState([]);
+
+  /* Returns translated text for the active language. */
+  function t(key, variables) {
+    return tr(settings.language, key, variables);
+  }
+
+  /* Loads saved planner data after the browser mounts. */
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(KEY);
+      const savedSettings =
+        localStorage.getItem(SETTINGS);
+      const savedRoutines = localStorage.getItem(
+        ROUTINES_STORAGE_KEY,
+      );
+
+      if (savedData) {
+        setData(JSON.parse(savedData));
+      }
+
+      if (savedSettings) {
+        setSettings({
+          ...defaultSettings,
+          ...JSON.parse(savedSettings),
+        });
+      }
+
+      if (savedRoutines) {
+        setRoutines(JSON.parse(savedRoutines));
+      }
+
+      setDark(
+        localStorage.getItem(
+          DARK_MODE_STORAGE_KEY,
+        ) === "1",
+      );
+    } catch (error) {
+      console.error(
+        "Could not load planner data.",
+        error,
+      );
+    }
+
+    setHydrated(true);
+  }, []);
+
+  /* Saves planner data and visual preferences locally. */
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(data),
+    );
+
+    localStorage.setItem(
+      SETTINGS,
+      JSON.stringify(settings),
+    );
+
+    localStorage.setItem(
+      DARK_MODE_STORAGE_KEY,
+      dark ? "1" : "0",
+    );
+
+    document.documentElement.lang =
+      settings.language;
+
+    document.documentElement.classList.toggle(
+      "dark",
+      dark,
+    );
+  }, [data, settings, dark, hydrated]);
+
+  /* Synchronizes planner state with the language provider. */
+  useEffect(() => {
+    function handleSettingsChange(event) {
+      setSettings((currentSettings) => ({
+        ...currentSettings,
+        ...event.detail,
+      }));
+    }
+
+    window.addEventListener(
+      "dapl:settings-changed",
+      handleSettingsChange,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "dapl:settings-changed",
+        handleSettingsChange,
+      );
+    };
+  }, []);
+
+  /* Restores calendar navigation and URL actions. */
+  useEffect(() => {
+    const selectedDate = localStorage.getItem(
+      SELECTED_DATE_STORAGE_KEY,
+    );
+
+    if (selectedDate) {
+      setDate(selectedDate);
+
+      localStorage.removeItem(
+        SELECTED_DATE_STORAGE_KEY,
+      );
+    }
+
+    const query = new URLSearchParams(
+      window.location.search,
+    );
+
+    if (query.get("new") === "1") {
+      setModal("add");
+    }
+  }, []);
+
+  const todayWeekday =
+    WEEKDAYS[
+      new Date(`${date}T12:00:00`).getDay()
+    ];
+
+  const todayRoutines = routines.filter(
+    (routine) =>
+      routine.enabled &&
+      (routine.days || []).includes(todayWeekday),
+  );
+
+  const tasks = useMemo(
+    () =>
+      data.tasks.filter(
+        (task) => task.date === date,
+      ),
+    [data.tasks, date],
+  );
+
+  const visibleTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (filter === "remaining") {
+        return !task.completed;
+      }
+
+      if (filter === "essential") {
+        return task.priority === "essential";
+      }
+
+      if (filter === "important") {
+        return task.priority === "important";
+      }
+
+      if (filter === "normal") {
+        return task.priority === "normal";
+      }
+
+      return true;
+    });
+  }, [tasks, filter]);
+
+  const completedCount = tasks.filter(
+    (task) => task.completed,
+  ).length;
+
+  const importantTotal = tasks.filter(
+    (task) => task.priority !== "normal",
+  ).length;
+
+  const importantCount = tasks.filter(
+    (task) => task.priority === "important",
+  ).length;
+
+  const essentialCount = tasks.filter(
+    (task) => task.priority === "essential",
+  ).length;
+
+  const normalCount = tasks.filter(
+    (task) => task.priority === "normal",
+  ).length;
+
+  const completionPercent = tasks.length
+    ? Math.round(
+        (completedCount / tasks.length) * 100,
+      )
+    : 0;
+
+  const displayDate = formatDate(
+    date,
+    settings.calendar,
+    settings.language,
+  );
+
+  const secondaryDate =
+    settings.secondaryCalendar !== "none"
+      ? formatDate(
+          date,
+          settings.secondaryCalendar,
+          settings.language,
+          true,
+        )
+      : "";
+
+  const editingTask =
+    modal?.type === "edit"
+      ? data.tasks.find(
+          (task) => task.id === modal.id,
+        )
+      : null;
+
+  /* Toggles task completion when prerequisites are finished. */
+  function toggleTask(task) {
+    const isBlocked = (
+      task.prerequisites || []
+    ).some((prerequisiteId) => {
+      const prerequisiteTask = data.tasks.find(
+        (item) => item.id === prerequisiteId,
+      );
+
+      return !prerequisiteTask?.completed;
+    });
+
+    if (isBlocked) {
+      return;
+    }
+
+    setData((currentData) => ({
+      ...currentData,
+      tasks: currentData.tasks.map((item) => {
+        if (item.id !== task.id) {
+          return item;
+        }
+
+        const completed = !item.completed;
+
+        return {
+          ...item,
+          completed,
+          completedAt: completed
+            ? new Date().toISOString()
+            : null,
+        };
+      }),
+    }));
+  }
+
+  /* Creates a new task or updates an existing task. */
+  function saveTask(event) {
+    event.preventDefault();
+
+    const form = new FormData(event.currentTarget);
+    const prerequisite = form.get("prerequisite");
+    const priority = form.get("priority");
+    const taskId = form.get("id");
+    const numericTaskId = taskId
+      ? Number(taskId)
+      : null;
+
+    const currentImportantCount = tasks.filter(
+      (task) =>
+        task.priority !== "normal" &&
+        String(task.id) !== String(taskId),
+    ).length;
+
+    const currentEssentialCount = tasks.filter(
+      (task) =>
+        task.priority === "essential" &&
+        String(task.id) !== String(taskId),
+    ).length;
+
+    if (
+      priority !== "normal" &&
+      currentImportantCount >= 7
+    ) {
+      window.alert(t("maxImportant"));
+      return;
+    }
+
+    if (
+      priority === "essential" &&
+      currentEssentialCount >= 3
+    ) {
+      window.alert(t("maxEssential"));
+      return;
+    }
+
+    const scheduleType = form.get("scheduleType");
+
+    const existingTask = numericTaskId
+      ? data.tasks.find(
+          (task) => task.id === numericTaskId,
+        )
+      : null;
+
+    const nextTask = {
+      id: numericTaskId || Date.now(),
+      title: form.get("title"),
+      description: form.get("description") || "",
+      date,
+      priority,
+      scheduleType,
+      startTime:
+        scheduleType === "time"
+          ? form.get("startTime") || ""
+          : "",
+      endTime:
+        scheduleType === "time"
+          ? form.get("endTime") || ""
+          : "",
+      completed: existingTask?.completed || false,
+      activityUnit: form.get("unit"),
+      activityValue:
+        existingTask?.activityValue || 0,
+      prerequisites: prerequisite
+        ? [Number(prerequisite)]
+        : [],
+    };
+
+    setData((currentData) => ({
+      ...currentData,
+      tasks: numericTaskId
+        ? currentData.tasks.map((task) =>
+            task.id === numericTaskId
+              ? {
+                  ...task,
+                  ...nextTask,
+                }
+              : task,
+          )
+        : [...currentData.tasks, nextTask],
+    }));
+
+    setModal(null);
+  }
+
+  /* Deletes a task and removes its prerequisite references. */
+  function removeTask(task) {
+    const confirmed = window.confirm(
+      t("confirmDeleteTask"),
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setData((currentData) => ({
+      ...currentData,
+      tasks: currentData.tasks
+        .filter((item) => item.id !== task.id)
+        .map((item) => ({
+          ...item,
+          prerequisites: (
+            item.prerequisites || []
+          ).filter(
+            (prerequisiteId) =>
+              prerequisiteId !== task.id,
+          ),
+        })),
+    }));
+
+    setModal(null);
+  }
+
+  /* Saves completion details for the selected task. */
+  function completeTask(event) {
+    event.preventDefault();
+
+    const form = new FormData(event.currentTarget);
+    const taskId = Number(form.get("id"));
+    const activityValue = Number(
+      form.get("value") || 0,
+    );
+    const description = form.get("desc");
+
+    setData((currentData) => ({
+      ...currentData,
+      tasks: currentData.tasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              completed: true,
+              activityValue,
+              description:
+                description || task.description,
+              completedAt:
+                new Date().toISOString(),
+            }
+          : task,
+      ),
+    }));
+
+    setModal(null);
+  }
+
+  /* Saves preferences and informs the language provider. */
+  function saveSettings(event) {
+    event.preventDefault();
+
+    const form = new FormData(event.currentTarget);
+
+    const nextSettings = {
+      language: form.get("language"),
+      calendar: form.get("calendar"),
+      secondaryCalendar: form.get(
+        "secondaryCalendar",
+      ),
+      firstDay: form.get("firstDay"),
+      hijriMethod: form.get("hijriMethod"),
+    };
+
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      ...nextSettings,
+    }));
+
+    window.dispatchEvent(
+      new CustomEvent("dapl:settings-changed", {
+        detail: nextSettings,
+      }),
+    );
+
+    setModal(null);
+  }
+
+  /* Opens the completion modal for a task. */
+  function openCompletionModal(taskId) {
+    setModal({
+      type: "complete",
+      id: taskId,
+    });
+  }
+
+  /* Opens the edit modal for a task. */
+  function openEditModal(taskId) {
+    setModal({
+      type: "edit",
+      id: taskId,
+    });
+  }
+
+  return (
+    <>
+      <div
+        className={`appShell ${
+          collapsed ? "sideCollapsed" : ""
+        }`}
+      >
+        <AppSidebar
+          collapsed={collapsed}
+          displayDate={displayDate}
+          lang={settings.language}
+          onToggle={() =>
+            setCollapsed((value) => !value)
+          }
+        />
+
+        <div className="main">
+          <Topbar
+            dark={dark}
+            lang={settings.language}
+            onToggleMenu={() =>
+              setCollapsed((value) => !value)
+            }
+            onToggleDark={() =>
+              setDark((value) => !value)
+            }
+            onOpenSettings={() =>
+              setModal("settings")
+            }
+          />
+
+          <main className="content">
+            <DashboardHero
+              date={date}
+              displayDate={displayDate}
+              secondaryDate={secondaryDate}
+              lang={settings.language}
+              onAddTask={() => setModal("add")}
+            />
+
+            <div className="dashboardGrid">
+              <TodayTasksCard
+                data={data}
+                tasks={tasks}
+                visibleTasks={visibleTasks}
+                displayDate={displayDate}
+                filter={filter}
+                completedCount={completedCount}
+                essentialCount={essentialCount}
+                importantCount={importantCount}
+                normalCount={normalCount}
+                completionPercent={
+                  completionPercent
+                }
+                lang={settings.language}
+                onFilterChange={setFilter}
+                onToggleTask={toggleTask}
+                onCompleteTask={
+                  openCompletionModal
+                }
+                onEditTask={openEditModal}
+                onRemoveTask={removeTask}
+              />
+
+              <DashboardSidebar
+                tasks={tasks}
+                todayRoutines={todayRoutines}
+                completedCount={completedCount}
+                essentialCount={essentialCount}
+                importantTotal={importantTotal}
+                lang={settings.language}
+                onAddTask={() => setModal("add")}
+                onOpenSettings={() =>
+                  setModal("settings")
+                }
+              />
+            </div>
+          </main>
+
+          <MobileNav lang={settings.language} />
+        </div>
+      </div>
+
+      {(modal === "add" ||
+        modal?.type === "edit") && (
+        <TaskForm
+          lang={settings.language}
+          data={data}
+          date={date}
+          task={editingTask}
+          onClose={() => setModal(null)}
+          onSave={saveTask}
+        />
+      )}
+
+      {modal?.type === "complete" && (
+        <CompletionModal
+          taskId={modal.id}
+          lang={settings.language}
+          onClose={() => setModal(null)}
+          onSubmit={completeTask}
+        />
+      )}
+
+      {modal === "settings" && (
+        <SettingsModal
+          settings={settings}
+          lang={settings.language}
+          onClose={() => setModal(null)}
+          onSubmit={saveSettings}
+        />
+      )}
+    </>
+  );
 }
-function TaskForm({lang,data,date,task,onClose,onSave}){const t=k=>tr(lang,k);return <Modal title={task?t('editTask'):t('addFor',{date:formatDate(date,'gregorian',lang)})} close={onClose}><form className="form" onSubmit={onSave}><input type="hidden" name="id" value={task?.id||''}/><label>{t('title')}<input name="title" required defaultValue={task?.title||''}/></label><label>{t('description')}<textarea name="description" rows="3" defaultValue={task?.description||''}/></label><label>{t('priority')}<select name="priority" defaultValue={task?.priority||'normal'}><option value="normal">{t('normal')}</option><option value="important">{t('importantLabel')}</option><option value="essential">{t('essentialLabel')}</option></select></label><label>{t('schedule')}<select name="scheduleType" defaultValue={task?.scheduleType||'day'} onChange={e=>{const box=e.currentTarget.form.querySelector('.timeFields');if(box)box.hidden=e.target.value!=='time'}}><option value="day">{t('day')}</option><option value="time">{t('atTime')}</option></select></label><div className="two timeFields" hidden={task?.scheduleType!=='time'}><label>{t('start')}<input name="startTime" type="time" defaultValue={task?.startTime||''}/></label><label>{t('end')}<input name="endTime" type="time" defaultValue={task?.endTime||''}/></label></div><label>{t('prerequisite')}<select name="prerequisite" defaultValue={task?.prerequisites?.[0]||''}><option value="">{t('none')}</option>{data.tasks.filter(x=>!x.completed&&x.date===date&&x.id!==task?.id).map(x=><option key={x.id} value={x.id}>{x.title}</option>)}</select></label><label>{t('unit')}<select name="unit" defaultValue={task?.activityUnit||'دقیقه'}><option>دقیقه</option><option>ساعت</option><option>درصد</option><option>مورد</option><option>صفحه</option></select></label><button className="primary">{t('save')}</button></form></Modal>}
-function Task({t,data,toggle,complete,edit,remove,lang}){const blocked=(t.prerequisites||[]).map(id=>data.tasks.find(x=>x.id===id)).find(x=>x&&!x.completed);const label={essential:tr(lang,'essentialLabel'),important:tr(lang,'importantLabel'),normal:tr(lang,'normal')};return <div className={`task ${t.completed?'done':''}`}><button className="check" onClick={()=>toggle(t)}>{t.completed?'✓':blocked?'🔒':'○'}</button><div className="taskInfo"><div className="taskTitle">{t.title}</div><div className="taskMeta">{t.scheduleType==='time'?`⏰ ${t.startTime} – ${t.endTime}`:`◷ ${tr(lang,'day')}`}{blocked?` · ${tr(lang,'prereqNeeds',{x:blocked.title})}`:''}</div>{t.description&&<div className="taskDesc">{t.description}</div>}</div><span className={`tag ${t.priority}`}>{label[t.priority]}</span><div className="taskActions"><button className="miniBtn" onClick={edit} title={tr(lang,'edit')}>✎</button><button className="miniBtn dangerBtn" onClick={remove} title={tr(lang,'delete')}>×</button>{!t.completed&&!blocked&&<button className="completeBtn" onClick={complete}>{tr(lang,'saveResult')}</button>}</div></div>}
-function Modal({title,children,close}){return <div className="overlay" onMouseDown={close}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modalHeader"><h2>{title}</h2><button onClick={close}>×</button></div>{children}</div></div>}
-function MobileNav({lang}){return <nav className="mobileNav"><a href="/">⌂<span>{tr(lang,'today')}</span></a><a href="/calendar">▦<span>{tr(lang,'calendar')}</span></a><a href="/?new=1" className="add">+<span>{tr(lang,'newTask')}</span></a><a href="/routines">↻<span>{tr(lang,'routines')}</span></a><a href="/settings">⚙<span>{tr(lang,'settings')}</span></a></nav>}
