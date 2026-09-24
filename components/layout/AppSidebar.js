@@ -1,21 +1,50 @@
-import { tr } from "../../lib/i18n";
+"use client";
 
-/* Displays the desktop sidebar and primary navigation. */
+import { useLanguage } from "../providers/LanguageProvider";
+
+const NAV_ITEMS = [
+  {
+    id: "today",
+    href: "/",
+    symbol: "⌂",
+  },
+  {
+    id: "calendar",
+    href: "/calendar",
+    symbol: "▦",
+  },
+  {
+    id: "newTask",
+    href: "/?new=1",
+    symbol: "＋",
+  },
+  {
+    id: "routines",
+    href: "/routines",
+    symbol: "↻",
+  },
+  {
+    id: "settings",
+    href: "/settings",
+    symbol: "⚙",
+  },
+];
+
+/* Displays the shared desktop navigation. */
 export default function AppSidebar({
+  activePage,
   collapsed,
   displayDate,
-  lang,
   onToggle,
 }) {
-  /* Returns translated text for the selected language. */
-  function t(key) {
-    return tr(lang, key);
-  }
+  const { t } = useLanguage();
 
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brandMark">✓</div>
+        <div className="brandMark">
+          ✓
+        </div>
 
         <div className="brandText">
           <b>{t("brandName")}</b>
@@ -33,31 +62,36 @@ export default function AppSidebar({
       </div>
 
       <nav className="nav">
-        <a className="active" href="/">
-          ⌂ <span>{t("today")}</span>
-        </a>
+        {NAV_ITEMS.map((item) => (
+          <a
+            key={item.id}
+            href={item.href}
+            className={
+              activePage === item.id
+                ? "active"
+                : ""
+            }
+          >
+            {item.symbol}
 
-        <a href="/calendar">
-          ▦ <span>{t("calendar")}</span>
-        </a>
-
-        <a href="/?new=1">
-          ＋ <span>{t("newTask")}</span>
-        </a>
-
-        <a href="/routines">
-          ↻ <span>{t("routines")}</span>
-        </a>
-
-        <a href="/settings">
-          ⚙ <span>{t("settings")}</span>
-        </a>
+            <span>
+              {t(item.id)}
+            </span>
+          </a>
+        ))}
       </nav>
 
-      <div className="sideFooter">
-        <small>{t("today")}</small>
-        <strong>{displayDate}</strong>
-      </div>
+      {displayDate && (
+        <div className="sideFooter">
+          <small>
+            {t("today")}
+          </small>
+
+          <strong>
+            {displayDate}
+          </strong>
+        </div>
+      )}
     </aside>
   );
 }

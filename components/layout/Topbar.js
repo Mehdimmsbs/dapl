@@ -1,21 +1,21 @@
-import { tr } from "../../lib/i18n";
-import LanguageSwitcher from "./LanguageSwitcher";
+"use client";
 
-/* Displays page navigation, language and appearance actions. */
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useLanguage } from "../providers/LanguageProvider";
+
+/* Displays shared language and appearance actions. */
 export default function Topbar({
-  dark,
-  lang,
+  activePage,
   onOpenSettings,
-  onToggleDark,
   onToggleMenu,
 }) {
-  /* Returns translated text for the selected language. */
-  function t(key) {
-    return tr(lang, key);
-  }
+  const {
+    dark,
+    t,
+    toggleDark,
+  } = useLanguage();
 
-  const brandName = t("brandName");
-  const avatarText = brandName
+  const avatarText = t("brandName")
     .trim()
     .slice(0, 1)
     .toUpperCase();
@@ -33,35 +33,50 @@ export default function Topbar({
         </button>
 
         <span className="crumb">
-          {t("planner")} / {t("today")}
+          {t("planner")} /{" "}
+          {t(activePage)}
         </span>
       </div>
 
       <div className="topActions">
-        {/* Allows the user to change the application language. */}
         <LanguageSwitcher />
 
         <button
           type="button"
           className="iconBtn"
-          onClick={onToggleDark}
+          onClick={toggleDark}
           aria-label={
-            dark ? t("lightMode") : t("darkMode")
+            dark
+              ? t("lightMode")
+              : t("darkMode")
           }
         >
           {dark ? "☀" : "☾"}
         </button>
 
-        <button
-          type="button"
-          className="iconBtn"
-          onClick={onOpenSettings}
-          aria-label={t("settings")}
-        >
-          ⚙
-        </button>
+        {onOpenSettings ? (
+          <button
+            type="button"
+            className="iconBtn"
+            onClick={onOpenSettings}
+            aria-label={t("settings")}
+          >
+            ⚙
+          </button>
+        ) : (
+          <a
+            className="iconBtn"
+            href="/settings"
+            aria-label={t("settings")}
+          >
+            ⚙
+          </a>
+        )}
 
-        <div className="avatar" aria-hidden="true">
+        <div
+          className="avatar"
+          aria-hidden="true"
+        >
           {avatarText}
         </div>
       </div>

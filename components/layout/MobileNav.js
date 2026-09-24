@@ -1,38 +1,68 @@
-import { tr } from "../../lib/i18n";
+"use client";
 
-/* Displays the main navigation on mobile devices. */
-export default function MobileNav({ lang }) {
-  /* Returns translated text for the active language. */
-  function t(key) {
-    return tr(lang, key);
-  }
+import { useLanguage } from "../providers/LanguageProvider";
+
+const NAV_ITEMS = [
+  {
+    id: "today",
+    href: "/",
+    symbol: "⌂",
+  },
+  {
+    id: "calendar",
+    href: "/calendar",
+    symbol: "▦",
+  },
+  {
+    id: "newTask",
+    href: "/?new=1",
+    symbol: "+",
+    add: true,
+  },
+  {
+    id: "routines",
+    href: "/routines",
+    symbol: "↻",
+  },
+  {
+    id: "settings",
+    href: "/settings",
+    symbol: "⚙",
+  },
+];
+
+/* Displays the shared mobile navigation. */
+export default function MobileNav({
+  activePage,
+}) {
+  const { t } = useLanguage();
 
   return (
     <nav className="mobileNav">
-      <a href="/">
-        ⌂
-        <span>{t("today")}</span>
-      </a>
+      {NAV_ITEMS.map((item) => {
+        const classNames = [
+          item.add ? "add" : "",
+          activePage === item.id
+            ? "active"
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
 
-      <a href="/calendar">
-        ▦
-        <span>{t("calendar")}</span>
-      </a>
+        return (
+          <a
+            key={item.id}
+            href={item.href}
+            className={classNames}
+          >
+            {item.symbol}
 
-      <a href="/?new=1" className="add">
-        +
-        <span>{t("newTask")}</span>
-      </a>
-
-      <a href="/routines">
-        ↻
-        <span>{t("routines")}</span>
-      </a>
-
-      <a href="/settings">
-        ⚙
-        <span>{t("settings")}</span>
-      </a>
+            <span>
+              {t(item.id)}
+            </span>
+          </a>
+        );
+      })}
     </nav>
   );
 }

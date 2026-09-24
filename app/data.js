@@ -1,5 +1,11 @@
-export const KEY = "personal-daily-planner-data-v5";
-export const SETTINGS = "personal-daily-planner-settings-v5";
+import { STORAGE_KEYS } from "../lib/storage";
+
+/* Keeps old imports compatible with the new storage layer. */
+export const KEY =
+  STORAGE_KEYS.planner;
+
+export const SETTINGS =
+  STORAGE_KEYS.settings;
 
 export const seed = {
   tasks: [],
@@ -9,6 +15,6 @@ export const defaultSettings = {
   language: "en",
   calendar: "gregorian",
   secondaryCalendar: "none",
-  firstDay: "sunday",
+  firstDay: "monday",
   hijriMethod: "ummalqura",
 };

@@ -2,16 +2,23 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
-import { SETTINGS, defaultSettings } from "../../app/data";
+import { defaultSettings } from "../../app/data";
 import { translations, tr } from "../../lib/i18n";
 import {
-  DEFAULT_LOCALE,
+  STORAGE_KEYS,
+  readStorage,
+  readStorageText,
+  writeStorage,
+  writeStorageText,
+} from "../../lib/storage";
+import {
   SUPPORTED_LOCALES,
   getLocaleConfig,
   normalizeLocale,
@@ -19,41 +26,62 @@ import {
 
 const LanguageContext = createContext(null);
 
-function readStoredSettings() {
-  try {
-    const storedSettings = localStorage.getItem(SETTINGS);
-
-    if (!storedSettings) {
-      return defaultSettings;
-    }
-
-    return {
-      ...defaultSettings,
-      ...JSON.parse(storedSettings),
-    };
-  } catch {
-    return defaultSettings;
-  }
-}
-
+/* Provides language, calendar and appearance settings globally. */
 export function LanguageProvider({ children }) {
-  const [locale, setLocale] = useState(DEFAULT_LOCALE);
+  const [settings, setSettings] =
+    useState(defaultSettings);
+
+  const [dark, setDark] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
+  /* Loads all global preferences after browser hydration. */
   useEffect(() => {
-    const storedSettings = readStoredSettings();
+    const storedSettings = readStorage(
+      STORAGE_KEYS.settings,
+      {},
+    );
 
-    setLocale(normalizeLocale(storedSettings.language));
+    setSettings({
+      ...defaultSettings,
+      ...storedSettings,
+      language: normalizeLocale(
+        storedSettings.language,
+      ),
+    });
+
+    setDark(
+      readStorageText(
+        STORAGE_KEYS.darkMode,
+      ) === "1",
+    );
+
     setHydrated(true);
   }, []);
 
+  /* Accepts settings updates from other mounted views. */
   useEffect(() => {
     function handleSettingsChange(event) {
-      const nextLocale = normalizeLocale(event.detail?.language);
-      setLocale(nextLocale);
+      const incomingSettings =
+        event.detail ??
+        readStorage(
+          STORAGE_KEYS.settings,
+          {},
+        );
+
+      setSettings((currentSettings) => ({
+        ...currentSettings,
+        ...incomingSettings,
+        language: normalizeLocale(
+          incomingSettings.language ??
+            currentSettings.language,
+        ),
+      }));
     }
 
-    window.addEventListener("dapl:settings-changed", handleSettingsChange);
+    window.addEventListener(
+      "dapl:settings-changed",
+      handleSettingsChange,
+    );
 
     return () => {
       window.removeEventListener(
@@ -63,81 +91,162 @@ export function LanguageProvider({ children }) {
     };
   }, []);
 
+  /* Saves preferences and updates the HTML document. */
   useEffect(() => {
     if (!hydrated) {
       return;
     }
 
-    const localeConfig = getLocaleConfig(locale);
-    const messages = translations[locale];
-
-    document.documentElement.lang = locale;
-    document.documentElement.dir = localeConfig.direction;
-    document.title = messages.metaTitle;
-
-    const description = document.querySelector(
-      'meta[name="description"]',
+    const locale = normalizeLocale(
+      settings.language,
     );
 
-    if (description) {
-      description.setAttribute(
-        "content",
-        messages.metaDescription,
+    const localeConfig =
+      getLocaleConfig(locale);
+
+    const messages =
+      translations[locale];
+
+    writeStorage(
+      STORAGE_KEYS.settings,
+      settings,
+    );
+
+    writeStorageText(
+      STORAGE_KEYS.darkMode,
+      dark ? "1" : "0",
+    );
+
+    document.documentElement.lang =
+      locale;
+
+    document.documentElement.dir =
+      localeConfig.direction;
+
+    document.documentElement.classList.toggle(
+      "dark",
+      dark,
+    );
+
+    document.title =
+      messages.metaTitle;
+
+    const description =
+      document.querySelector(
+        'meta[name="description"]',
       );
-    }
-  }, [locale, hydrated]);
 
-  function changeLocale(nextLocale) {
-    const normalizedLocale = normalizeLocale(nextLocale);
-    const localeConfig = getLocaleConfig(normalizedLocale);
-    const currentSettings = readStoredSettings();
-
-    const nextSettings = {
-      ...currentSettings,
-      language: normalizedLocale,
-      calendar: localeConfig.calendar,
-      secondaryCalendar: localeConfig.secondaryCalendar,
-      firstDay: localeConfig.firstDay,
-    };
-
-    localStorage.setItem(
-      SETTINGS,
-      JSON.stringify(nextSettings),
+    description?.setAttribute(
+      "content",
+      messages.metaDescription,
     );
+  }, [settings, dark, hydrated]);
 
-    setLocale(normalizedLocale);
+  /* Updates one or more global settings. */
+  const updateSettings = useCallback(
+    (nextSettings) => {
+      setSettings((currentSettings) => {
+        if (
+          typeof nextSettings ===
+          "function"
+        ) {
+          return nextSettings(
+            currentSettings,
+          );
+        }
 
-    window.dispatchEvent(
-      new CustomEvent("dapl:settings-changed", {
-        detail: nextSettings,
-      }),
-    );
-  }
-
-  const value = useMemo(
-    () => ({
-      locale,
-      direction: getLocaleConfig(locale).direction,
-      calendar: getLocaleConfig(locale).calendar,
-      languages: SUPPORTED_LOCALES.map((languageCode) => ({
-        code: languageCode,
-        name: translations[languageCode].languageName,
-      })),
-      changeLocale,
-      t: (key, variables) => tr(locale, key, variables),
-    }),
-    [locale],
+        return {
+          ...currentSettings,
+          ...nextSettings,
+        };
+      });
+    },
+    [],
   );
 
+  /* Changes the locale and its calendar defaults. */
+  const changeLocale = useCallback(
+    (nextLocale) => {
+      const locale =
+        normalizeLocale(nextLocale);
+
+      const localeConfig =
+        getLocaleConfig(locale);
+
+      updateSettings(
+        (currentSettings) => ({
+          ...currentSettings,
+          language: locale,
+          calendar:
+            localeConfig.calendar,
+          secondaryCalendar:
+            localeConfig.secondaryCalendar,
+          firstDay:
+            localeConfig.firstDay,
+        }),
+      );
+    },
+    [updateSettings],
+  );
+
+  const value = useMemo(() => {
+    const locale = normalizeLocale(
+      settings.language,
+    );
+
+    return {
+      locale,
+      settings,
+      updateSettings,
+      direction:
+        getLocaleConfig(locale).direction,
+      calendar: settings.calendar,
+
+      languages: SUPPORTED_LOCALES.map(
+        (languageCode) => ({
+          code: languageCode,
+          name:
+            translations[languageCode]
+              .languageName,
+        }),
+      ),
+
+      changeLocale,
+      dark,
+      setDark,
+
+      toggleDark: () => {
+        setDark(
+          (currentDark) => !currentDark,
+        );
+      },
+
+      hydrated,
+
+      t: (key, variables) =>
+        tr(locale, key, variables),
+    };
+  }, [
+    settings,
+    updateSettings,
+    changeLocale,
+    dark,
+    hydrated,
+  ]);
+
   return (
-    <LanguageContext.Provider value={value}>
+    <LanguageContext.Provider
+      value={value}
+    >
       {children}
     </LanguageContext.Provider>
   );
 }
 
+/* Returns the shared application language context. */
 export function useLanguage() {
-  const context = useContext(LanguageContext);
+  const context =
+    useContext(LanguageContext);
 
   if (!context) {
     throw new Error(
