@@ -1,32 +1,51 @@
-import Image from "next/image";
+"use client";
+
+import {
+    CalendarDays,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    CirclePlus,
+    House,
+    Menu,
+    Moon,
+    RefreshCw,
+    Settings,
+    Sun,
+} from "lucide-react";
 
 const ICONS = {
-    home: "/icons/home.png",
-    calendar: "/icons/calendar.png",
-    add: "/icons/new-task.png",
-    routines: "/icons/routines.png",
-    settings: "/icons/settings.png",
-    moon: "/icons/moon.png",
+    home: House,
+    calendar: CalendarDays,
+    add: CirclePlus,
+    routines: RefreshCw,
+    settings: Settings,
+    moon: Moon,
+    sun: Sun,
+    menu: Menu,
+    "chevron-left": ChevronLeft,
+    "chevron-right": ChevronRight,
+    "chevron-down": ChevronDown,
 };
 
 export default function AppIcon({
     name,
-    size = 22,
+    size = 25,
     className = "",
+    strokeWidth = 1.8,
 }) {
-    const src = ICONS[name];
+    const Icon = ICONS[name];
 
-    if (!src) {
+    if (!Icon) {
         return null;
     }
 
     return (
-        <Image
-            src={src}
-            alt=""
+        <Icon
             aria-hidden="true"
-            width={size}
-            height={size}
+            focusable="false"
+            size={size}
+            strokeWidth={strokeWidth}
             className={`appIcon ${className}`.trim()}
         />
     );
