@@ -1,105 +1,1369 @@
-'use client';
+"use client";
 
-import {useEffect,useMemo,useState} from 'react';
-import {KEY,SETTINGS,seed,defaultSettings} from '../data';
-import {tr,translations} from '../../lib/i18n';
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-const ROUTINES='personal-daily-planner-routines-v8';
-const days=['saturday','sunday','monday','tuesday','wednesday','thursday','friday'];
-const empty={id:null,title:'',description:'',priority:'normal',scheduleType:'day',startTime:'',endTime:'',unit:'دقیقه',enabled:true,days:[...days]};
+import {
+  KEY,
+  SETTINGS,
+  defaultSettings,
+  seed,
+} from "../data";
 
-function readJSON(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
-function writeJSON(key,value){try{localStorage.setItem(key,JSON.stringify(value));window.dispatchEvent(new Event('pdp-storage'));}catch{}}
+import LanguageSwitcher from "../../components/layout/LanguageSwitcher";
+import Modal from "../../components/ui/Modal";
 
-export default function Routines(){
- const [settings,setSettings]=useState(defaultSettings);
- const [routines,setRoutines]=useState([]);
- const [filter,setFilter]=useState('all');
- const [editing,setEditing]=useState(null);
- const [dark,setDark]=useState(false);
- const [hydrated,setHydrated]=useState(false);
+import {
+  tr,
+  translations,
+} from "../../lib/i18n";
 
- useEffect(()=>{
-   setSettings({...defaultSettings,...readJSON(SETTINGS,{})});
-   setRoutines(readJSON(ROUTINES,[]));
-   setDark(readJSON('pdp-dark',false)===true || localStorage.getItem('pdp-dark')==='1');
-   setHydrated(true);
- },[]);
- useEffect(()=>{if(hydrated)writeJSON(ROUTINES,routines)},[routines,hydrated]);
- useEffect(()=>{document.documentElement.lang=settings.language;document.documentElement.dir=translations[settings.language].dir;document.documentElement.classList.toggle('dark',dark);if(hydrated)localStorage.setItem('pdp-dark',dark?'1':'0')},[settings.language,dark,hydrated]);
+const ROUTINES_STORAGE_KEY =
+  "personal-daily-planner-routines-v8";
 
- const t=k=>tr(settings.language,k);
- const visible=useMemo(()=>filter==='all'?routines:routines.filter(r=>(r.days||[]).includes(filter)),[routines,filter]);
+const DARK_MODE_STORAGE_KEY =
+  "pdp-dark";
 
- function openNew(){setEditing({...empty,id:null,days:[...days]})}
- function saveRoutine(form){
-   const clean={
-     ...form,
-     id:form.id || Date.now(),
-     title:String(form.title||'').trim(),
-     description:String(form.description||'').trim(),
-     days:Array.isArray(form.days)&&form.days.length?form.days:[...days],
-     startTime:form.scheduleType==='time'?form.startTime:'',
-     endTime:form.scheduleType==='time'?form.endTime:''
-   };
-   if(!clean.title || !clean.days.length)return;
-   setRoutines(prev=>form.id?prev.map(r=>String(r.id)===String(form.id)?clean:r):[...prev,clean]);
-   setEditing(null);
- }
- function deleteRoutine(id){
-   if(!window.confirm(t('confirmDeleteRoutine')))return;
-   setRoutines(prev=>prev.filter(r=>String(r.id)!==String(id)));
- }
- function toggleRoutine(id){setRoutines(prev=>prev.map(r=>String(r.id)===String(id)?{...r,enabled:!r.enabled}:r))}
- function applyToday(){
-   const now=new Date();
-   const iso=now.toISOString().slice(0,10);
-   const weekday=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][now.getDay()];
-   const db=readJSON(KEY,seed);
-   const additions=routines
-     .filter(r=>r.enabled&&(r.days||[]).includes(weekday))
-     .filter(r=>!db.tasks.some(task=>task.date===iso&&String(task.routineId)===String(r.id)))
-     .map((r,i)=>({
-       id:Date.now()+i,title:r.title,description:r.description||'',date:iso,priority:r.priority,
-       scheduleType:r.scheduleType,startTime:r.scheduleType==='time'?r.startTime:'',endTime:r.scheduleType==='time'?r.endTime:'',
-       completed:false,activityUnit:r.unit,activityValue:0,prerequisites:[],source:'routine',routineId:r.id
-     }));
-   if(!additions.length){window.alert(t('routineNothing'));return}
-   writeJSON(KEY,{...db,tasks:[...db.tasks,...additions]});
-   window.alert(t('routineApplied',{n:additions.length}));
- }
- return <div className="appShell">
-   <aside className="sidebar"><div className="brand"><div className="brandMark">✓</div><div className="brandText"><b>روزمن</b><span>{t('planner')}</span></div><button className="collapseBtn" onClick={()=>document.body.classList.toggle('sidebarCollapsed')}>«</button></div>
-   <nav className="nav"><a href="/">⌂ <span>{t('today')}</span></a><a href="/calendar">▦ <span>{t('calendar')}</span></a><a href="/?new=1">＋ <span>{t('newTask')}</span></a><a className="active" href="/routines">↻ <span>{t('routines')}</span></a><a href="/settings">⚙ <span>{t('settings')}</span></a></nav></aside>
-   <div className="main"><header className="topbar"><div className="topLeft"><button className="mobileMenu" onClick={()=>setDark(v=>v)}>☰</button><span className="crumb">{t('planner')} / {t('routines')}</span></div><button className="iconBtn" onClick={()=>setDark(v=>!v)}>{dark?'☀':'☾'}</button></header>
-   <main className="content"><div className="hero"><div><div className="kicker">{t('routines')}</div><h1>{t('routineTitle')}</h1><p>{t('routineSub')}</p></div><div className="heroActions"><button className="ghost" onClick={applyToday}>↻ {t('applyToday')}</button><button className="primary" onClick={openNew}>＋ {t('newRoutine')}</button></div></div>
-   <section className="card routinesPage"><div className="routineFilters"><button className={filter==='all'?'on':''} onClick={()=>setFilter('all')}>{t('allDays')}</button>{days.map(d=><button key={d} className={filter===d?'on':''} onClick={()=>setFilter(d)}>{t(d)}</button>)}</div>
-   <div className="routineList">{visible.map(r=><div className={`routineItem ${r.enabled?'':'disabled'}`} key={r.id}>
-     <div className="routineMain"><div className="routineIcon">↻</div><div><b>{r.title}</b><span>{r.scheduleType==='time'?`${r.startTime} – ${r.endTime}`:t('day')} · {(r.days||[]).map(d=>t(d)).join('، ')}</span>{r.description&&<small className="routineDesc">{r.description}</small>}</div></div>
-     <div className="routineActions"><span className={`tag ${r.priority}`}>{r.priority==='essential'?t('essentialLabel'):r.priority==='important'?t('importantLabel'):t('normal')}</span><button type="button" className="miniBtn" onClick={()=>toggleRoutine(r.id)}>{r.enabled?'✓':'○'}</button><button type="button" className="miniBtn" onClick={()=>setEditing({...r})}>✎</button><button type="button" className="miniBtn dangerBtn" onClick={()=>deleteRoutine(r.id)}>×</button></div>
-   </div>)}{!visible.length&&<div className="empty">{t('noRoutines')}</div>}</div></section></main><MobileNav lang={settings.language}/></div>
-   {editing&&<RoutineModal key={`${editing.id??'new'}-${editing._open||0}`} lang={settings.language} routine={editing} onClose={()=>setEditing(null)} onSave={saveRoutine}/>}</div>
+const ROUTINE_DAYS = [
+  "saturday",
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+];
+
+const JAVASCRIPT_WEEKDAYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
+
+const ACTIVITY_UNITS = [
+  "minute",
+  "hour",
+  "percent",
+  "item",
+  "page",
+];
+
+/* Converts legacy localized values into stable identifiers. */
+const LEGACY_UNIT_MAP = {
+  "\u062f\u0642\u06cc\u0642\u0647":
+    "minute",
+  "\u0633\u0627\u0639\u062a":
+    "hour",
+  "\u062f\u0631\u0635\u062f":
+    "percent",
+  "\u0645\u0648\u0631\u062f":
+    "item",
+  "\u0635\u0641\u062d\u0647":
+    "page",
+};
+
+/* Creates a fresh routine form value. */
+function createEmptyRoutine() {
+  return {
+    id: null,
+    title: "",
+    description: "",
+    priority: "normal",
+    scheduleType: "day",
+    startTime: "",
+    endTime: "",
+    unit: "minute",
+    enabled: true,
+    days: [...ROUTINE_DAYS],
+  };
 }
 
-function RoutineModal({lang,routine,onClose,onSave}){
- const t=k=>tr(lang,k);
- const [form,setForm]=useState(()=>({...empty,...routine,days:[...(routine.days||days)]}));
- function change(e){const {name,value,type,checked}=e.target;setForm(f=>({...f,[name]:type==='checkbox'?checked:value}))}
- function toggleDay(day){setForm(f=>({...f,days:f.days.includes(day)?f.days.filter(x=>x!==day):[...f.days,day]}))}
- function submit(e){e.preventDefault();onSave({...form,title:form.title.trim(),description:form.description.trim()})}
- return <div className="overlay" onMouseDown={onClose}><div className="modal" onMouseDown={e=>e.stopPropagation()}>
-   <div className="modalHeader"><h2>{routine.id?t('editRoutine'):t('newRoutine')}</h2><button type="button" onClick={onClose}>×</button></div>
-   <form className="form" onSubmit={submit}>
-    <label>{t('title')}<input name="title" value={form.title} onChange={change} required autoFocus/></label>
-    <label>{t('routineDescription')}<textarea name="description" rows="3" value={form.description} onChange={change}/></label>
-    <label>{t('priority')}<select name="priority" value={form.priority} onChange={change}><option value="normal">{t('normal')}</option><option value="important">{t('importantLabel')}</option><option value="essential">{t('essentialLabel')}</option></select></label>
-    <label>{t('schedule')}<select name="scheduleType" value={form.scheduleType} onChange={change}><option value="day">{t('day')}</option><option value="time">{t('atTime')}</option></select></label>
-    {form.scheduleType==='time'&&<div className="two"><label>{t('start')}<input name="startTime" type="time" value={form.startTime} onChange={change} required/></label><label>{t('end')}<input name="endTime" type="time" value={form.endTime} onChange={change} required/></label></div>}
-    <label>{t('unit')}<select name="unit" value={form.unit} onChange={change}><option>دقیقه</option><option>ساعت</option><option>درصد</option><option>مورد</option><option>صفحه</option></select></label>
-    <div className="weekPicker"><b>{t('routineDays')}</b>{days.map(d=><button type="button" key={d} className={`dayChoice ${form.days.includes(d)?'on':''}`} onClick={()=>toggleDay(d)}>{t(d)}</button>)}</div>
-    <label className="switchRow"><span>{t('enabled')}</span><input name="enabled" type="checkbox" checked={form.enabled} onChange={change}/></label>
-    <button className="primary" type="submit">{t('save')}</button>
-   </form>
- </div></div>
+/* Returns a stable activity unit identifier. */
+function normalizeUnit(unit) {
+  if (ACTIVITY_UNITS.includes(unit)) {
+    return unit;
+  }
+
+  return (
+    LEGACY_UNIT_MAP[unit] ||
+    "minute"
+  );
 }
-function MobileNav({lang}){return <nav className="mobileNav"><a href="/">⌂<span>{tr(lang,'today')}</span></a><a href="/calendar">▦<span>{tr(lang,'calendar')}</span></a><a href="/?new=1" className="add">+<span>{tr(lang,'newTask')}</span></a><a className="active" href="/routines">↻<span>{tr(lang,'routines')}</span></a><a href="/settings">⚙<span>{tr(lang,'settings')}</span></a></nav>}
+
+/* Safely reads JSON from local storage. */
+function readJson(key, fallback) {
+  try {
+    const storedValue =
+      localStorage.getItem(key);
+
+    return storedValue
+      ? JSON.parse(storedValue)
+      : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/* Safely writes JSON and notifies other views. */
+function writeJson(key, value) {
+  try {
+    localStorage.setItem(
+      key,
+      JSON.stringify(value),
+    );
+
+    window.dispatchEvent(
+      new Event("pdp-storage"),
+    );
+  } catch {
+    /* Keeps the UI usable when storage is unavailable. */
+  }
+}
+
+/* Returns today's local date in ISO format. */
+function getLocalIsoDate() {
+  const now = new Date();
+
+  const localDate = new Date(
+    now.getTime() -
+    now.getTimezoneOffset() *
+    60000,
+  );
+
+  return localDate
+    .toISOString()
+    .slice(0, 10);
+}
+
+/* Manages recurring routines and daily tasks. */
+export default function RoutinesPage() {
+  const [settings, setSettings] =
+    useState(defaultSettings);
+
+  const [routines, setRoutines] =
+    useState([]);
+
+  const [filter, setFilter] =
+    useState("all");
+
+  const [
+    editingRoutine,
+    setEditingRoutine,
+  ] = useState(null);
+
+  const [dark, setDark] =
+    useState(false);
+
+  const [collapsed, setCollapsed] =
+    useState(false);
+
+  const [hydrated, setHydrated] =
+    useState(false);
+
+  /* Returns translated text for the active language. */
+  function t(
+    key,
+    variables = {},
+  ) {
+    return tr(
+      settings.language,
+      key,
+      variables,
+    );
+  }
+
+  /* Formats routine days for the active language. */
+  function formatRoutineDays(
+    routineDays,
+  ) {
+    const translatedDays =
+      routineDays.map((day) =>
+        t(day),
+      );
+
+    try {
+      return new Intl.ListFormat(
+        settings.language,
+        {
+          style: "long",
+          type: "conjunction",
+        },
+      ).format(translatedDays);
+    } catch {
+      return translatedDays.join(
+        ", ",
+      );
+    }
+  }
+
+  /* Loads settings and routines after hydration. */
+  useEffect(() => {
+    const storedSettings =
+      readJson(SETTINGS, {});
+
+    const storedRoutines =
+      readJson(
+        ROUTINES_STORAGE_KEY,
+        [],
+      );
+
+    setSettings({
+      ...defaultSettings,
+      ...storedSettings,
+    });
+
+    setRoutines(
+      storedRoutines.map(
+        (routine) => ({
+          ...routine,
+          unit: normalizeUnit(
+            routine.unit,
+          ),
+        }),
+      ),
+    );
+
+    setDark(
+      localStorage.getItem(
+        DARK_MODE_STORAGE_KEY,
+      ) === "1",
+    );
+
+    setHydrated(true);
+  }, []);
+
+  /* Reacts to global settings changes. */
+  useEffect(() => {
+    function handleSettingsChange(
+      event,
+    ) {
+      const updatedSettings =
+        event.detail ||
+        readJson(SETTINGS, {});
+
+      setSettings(
+        (currentSettings) => ({
+          ...currentSettings,
+          ...updatedSettings,
+        }),
+      );
+    }
+
+    window.addEventListener(
+      "dapl:settings-changed",
+      handleSettingsChange,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "dapl:settings-changed",
+        handleSettingsChange,
+      );
+    };
+  }, []);
+
+  /* Saves routines after initial loading. */
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    writeJson(
+      ROUTINES_STORAGE_KEY,
+      routines,
+    );
+  }, [routines, hydrated]);
+
+  /* Applies direction and dark mode. */
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    const language =
+      translations[
+      settings.language
+      ] || translations.en;
+
+    document.documentElement.lang =
+      settings.language;
+
+    document.documentElement.dir =
+      language.dir;
+
+    document.documentElement.classList.toggle(
+      "dark",
+      dark,
+    );
+
+    localStorage.setItem(
+      DARK_MODE_STORAGE_KEY,
+      dark ? "1" : "0",
+    );
+  }, [
+    settings.language,
+    dark,
+    hydrated,
+  ]);
+
+  const visibleRoutines =
+    useMemo(() => {
+      if (filter === "all") {
+        return routines;
+      }
+
+      return routines.filter(
+        (routine) =>
+          (
+            routine.days || []
+          ).includes(filter),
+      );
+    }, [routines, filter]);
+
+  /* Opens a fresh routine form. */
+  function openNewRoutine() {
+    setEditingRoutine(
+      createEmptyRoutine(),
+    );
+  }
+
+  /* Creates or updates a routine. */
+  function saveRoutine(form) {
+    const normalizedRoutine = {
+      ...form,
+
+      id:
+        form.id ||
+        Date.now(),
+
+      title: String(
+        form.title || "",
+      ).trim(),
+
+      description: String(
+        form.description || "",
+      ).trim(),
+
+      unit: normalizeUnit(
+        form.unit,
+      ),
+
+      days:
+        Array.isArray(
+          form.days,
+        ) && form.days.length
+          ? form.days
+          : [...ROUTINE_DAYS],
+
+      startTime:
+        form.scheduleType ===
+          "time"
+          ? form.startTime
+          : "",
+
+      endTime:
+        form.scheduleType ===
+          "time"
+          ? form.endTime
+          : "",
+    };
+
+    if (
+      !normalizedRoutine.title ||
+      !normalizedRoutine.days
+        .length
+    ) {
+      return;
+    }
+
+    setRoutines(
+      (currentRoutines) => {
+        if (!form.id) {
+          return [
+            ...currentRoutines,
+            normalizedRoutine,
+          ];
+        }
+
+        return currentRoutines.map(
+          (routine) =>
+            String(
+              routine.id,
+            ) ===
+              String(form.id)
+              ? normalizedRoutine
+              : routine,
+        );
+      },
+    );
+
+    setEditingRoutine(null);
+  }
+
+  /* Deletes a routine after confirmation. */
+  function deleteRoutine(
+    routineId,
+  ) {
+    const confirmed =
+      window.confirm(
+        t(
+          "confirmDeleteRoutine",
+        ),
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setRoutines(
+      (currentRoutines) =>
+        currentRoutines.filter(
+          (routine) =>
+            String(
+              routine.id,
+            ) !==
+            String(routineId),
+        ),
+    );
+  }
+
+  /* Enables or disables a routine. */
+  function toggleRoutine(
+    routineId,
+  ) {
+    setRoutines(
+      (currentRoutines) =>
+        currentRoutines.map(
+          (routine) =>
+            String(
+              routine.id,
+            ) ===
+              String(routineId)
+              ? {
+                ...routine,
+                enabled:
+                  !routine.enabled,
+              }
+              : routine,
+        ),
+    );
+  }
+
+  /* Creates today's tasks from active routines. */
+  function applyToday() {
+    const now = new Date();
+
+    const today =
+      getLocalIsoDate();
+
+    const weekday =
+      JAVASCRIPT_WEEKDAYS[
+      now.getDay()
+      ];
+
+    const plannerData =
+      readJson(KEY, seed);
+
+    const existingTasks =
+      Array.isArray(
+        plannerData.tasks,
+      )
+        ? plannerData.tasks
+        : [];
+
+    const newTasks = routines
+      .filter(
+        (routine) =>
+          routine.enabled &&
+          (
+            routine.days || []
+          ).includes(weekday),
+      )
+      .filter(
+        (routine) =>
+          !existingTasks.some(
+            (task) =>
+              task.date ===
+              today &&
+              String(
+                task.routineId,
+              ) ===
+              String(
+                routine.id,
+              ),
+          ),
+      )
+      .map(
+        (
+          routine,
+          index,
+        ) => ({
+          id:
+            Date.now() +
+            index,
+
+          title:
+            routine.title,
+
+          description:
+            routine.description ||
+            "",
+
+          date: today,
+
+          priority:
+            routine.priority,
+
+          scheduleType:
+            routine.scheduleType,
+
+          startTime:
+            routine.scheduleType ===
+              "time"
+              ? routine.startTime
+              : "",
+
+          endTime:
+            routine.scheduleType ===
+              "time"
+              ? routine.endTime
+              : "",
+
+          completed: false,
+
+          activityUnit:
+            normalizeUnit(
+              routine.unit,
+            ),
+
+          activityValue: 0,
+          prerequisites: [],
+          source: "routine",
+
+          routineId:
+            routine.id,
+        }),
+      );
+
+    if (!newTasks.length) {
+      window.alert(
+        t("routineNothing"),
+      );
+
+      return;
+    }
+
+    writeJson(KEY, {
+      ...plannerData,
+
+      tasks: [
+        ...existingTasks,
+        ...newTasks,
+      ],
+    });
+
+    window.alert(
+      t("routineApplied", {
+        n: newTasks.length,
+      }),
+    );
+  }
+
+  return (
+    <div
+      className={`appShell ${collapsed
+          ? "sideCollapsed"
+          : ""
+        }`}
+    >
+      {/* Displays desktop navigation. */}
+      <aside className="sidebar">
+        <div className="brand">
+          <div className="brandMark">
+            ✓
+          </div>
+
+          <div className="brandText">
+            <b>
+              {t("brandName")}
+            </b>
+
+            <span>
+              {t("planner")}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="collapseBtn"
+            onClick={() =>
+              setCollapsed(
+                (current) =>
+                  !current,
+              )
+            }
+            aria-label={t(
+              "toggleSidebar",
+            )}
+          >
+            {collapsed
+              ? "»"
+              : "«"}
+          </button>
+        </div>
+
+        <nav className="nav">
+          <a href="/">
+            ⌂{" "}
+            <span>
+              {t("today")}
+            </span>
+          </a>
+
+          <a href="/calendar">
+            ▦{" "}
+            <span>
+              {t("calendar")}
+            </span>
+          </a>
+
+          <a href="/?new=1">
+            ＋{" "}
+            <span>
+              {t("newTask")}
+            </span>
+          </a>
+
+          <a
+            className="active"
+            href="/routines"
+          >
+            ↻{" "}
+            <span>
+              {t("routines")}
+            </span>
+          </a>
+
+          <a href="/settings">
+            ⚙{" "}
+            <span>
+              {t("settings")}
+            </span>
+          </a>
+        </nav>
+      </aside>
+
+      <div className="main">
+        {/* Displays language and theme controls. */}
+        <header className="topbar">
+          <div className="topLeft">
+            <button
+              type="button"
+              className="mobileMenu"
+              onClick={() =>
+                setCollapsed(
+                  (current) =>
+                    !current,
+                )
+              }
+              aria-label={t(
+                "toggleSidebar",
+              )}
+            >
+              ☰
+            </button>
+
+            <span className="crumb">
+              {t("planner")} /{" "}
+              {t("routines")}
+            </span>
+          </div>
+
+          <div className="topActions">
+            <LanguageSwitcher />
+
+            <button
+              type="button"
+              className="iconBtn"
+              onClick={() =>
+                setDark(
+                  (current) =>
+                    !current,
+                )
+              }
+              aria-label={
+                dark
+                  ? t(
+                    "lightMode",
+                  )
+                  : t(
+                    "darkMode",
+                  )
+              }
+            >
+              {dark
+                ? "☀"
+                : "☾"}
+            </button>
+          </div>
+        </header>
+
+        <main className="content">
+          {/* Displays the routines page heading. */}
+          <div className="hero">
+            <div>
+              <div className="kicker">
+                {t("routines")}
+              </div>
+
+              <h1>
+                {t(
+                  "routineTitle",
+                )}
+              </h1>
+
+              <p>
+                {t(
+                  "routineSub",
+                )}
+              </p>
+            </div>
+
+            <div className="heroActions">
+              <button
+                type="button"
+                className="ghost"
+                onClick={
+                  applyToday
+                }
+              >
+                ↻{" "}
+                {t(
+                  "applyToday",
+                )}
+              </button>
+
+              <button
+                type="button"
+                className="primary"
+                onClick={
+                  openNewRoutine
+                }
+              >
+                ＋{" "}
+                {t(
+                  "newRoutine",
+                )}
+              </button>
+            </div>
+          </div>
+
+          <section className="card routinesPage">
+            {/* Filters routines by weekday. */}
+            <div className="routineFilters">
+              <button
+                type="button"
+                className={
+                  filter === "all"
+                    ? "on"
+                    : ""
+                }
+                onClick={() =>
+                  setFilter(
+                    "all",
+                  )
+                }
+              >
+                {t("allDays")}
+              </button>
+
+              {ROUTINE_DAYS.map(
+                (day) => (
+                  <button
+                    type="button"
+                    key={day}
+                    className={
+                      filter ===
+                        day
+                        ? "on"
+                        : ""
+                    }
+                    onClick={() =>
+                      setFilter(
+                        day,
+                      )
+                    }
+                  >
+                    {t(day)}
+                  </button>
+                ),
+              )}
+            </div>
+
+            {/* Displays matching routines. */}
+            <div className="routineList">
+              {visibleRoutines.map(
+                (routine) => (
+                  <div
+                    className={`routineItem ${routine.enabled
+                        ? ""
+                        : "disabled"
+                      }`}
+                    key={
+                      routine.id
+                    }
+                  >
+                    <div className="routineMain">
+                      <div className="routineIcon">
+                        ↻
+                      </div>
+
+                      <div>
+                        <b>
+                          {
+                            routine.title
+                          }
+                        </b>
+
+                        <span>
+                          {routine.scheduleType ===
+                            "time"
+                            ? `${routine.startTime} – ${routine.endTime}`
+                            : t(
+                              "day",
+                            )}
+
+                          {" · "}
+
+                          {formatRoutineDays(
+                            routine.days ||
+                            [],
+                          )}
+                        </span>
+
+                        {routine.description && (
+                          <small className="routineDesc">
+                            {
+                              routine.description
+                            }
+                          </small>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="routineActions">
+                      <span
+                        className={`tag ${routine.priority}`}
+                      >
+                        {routine.priority ===
+                          "essential"
+                          ? t(
+                            "essentialLabel",
+                          )
+                          : routine.priority ===
+                            "important"
+                            ? t(
+                              "importantLabel",
+                            )
+                            : t(
+                              "normal",
+                            )}
+                      </span>
+
+                      <button
+                        type="button"
+                        className="miniBtn"
+                        onClick={() =>
+                          toggleRoutine(
+                            routine.id,
+                          )
+                        }
+                        title={t(
+                          "enabled",
+                        )}
+                      >
+                        {routine.enabled
+                          ? "✓"
+                          : "○"}
+                      </button>
+
+                      <button
+                        type="button"
+                        className="miniBtn"
+                        onClick={() =>
+                          setEditingRoutine(
+                            {
+                              ...routine,
+                            },
+                          )
+                        }
+                        title={t(
+                          "edit",
+                        )}
+                      >
+                        ✎
+                      </button>
+
+                      <button
+                        type="button"
+                        className="miniBtn dangerBtn"
+                        onClick={() =>
+                          deleteRoutine(
+                            routine.id,
+                          )
+                        }
+                        title={t(
+                          "delete",
+                        )}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ),
+              )}
+
+              {!visibleRoutines.length && (
+                <div className="empty">
+                  {t(
+                    "noRoutines",
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+        </main>
+
+        <RoutinesMobileNav
+          lang={
+            settings.language
+          }
+        />
+      </div>
+
+      {/* Displays the routine form modal. */}
+      {editingRoutine && (
+        <RoutineModal
+          key={
+            editingRoutine.id ||
+            "new-routine"
+          }
+          lang={
+            settings.language
+          }
+          routine={
+            editingRoutine
+          }
+          onClose={() =>
+            setEditingRoutine(
+              null,
+            )
+          }
+          onSave={
+            saveRoutine
+          }
+        />
+      )}
+    </div>
+  );
+}
+
+/* Displays the routine creation and editing form. */
+function RoutineModal({
+  lang,
+  routine,
+  onClose,
+  onSave,
+}) {
+  const [form, setForm] =
+    useState(() => ({
+      ...createEmptyRoutine(),
+      ...routine,
+
+      unit: normalizeUnit(
+        routine.unit,
+      ),
+
+      days: [
+        ...(
+          routine.days ||
+          ROUTINE_DAYS
+        ),
+      ],
+    }));
+
+  /* Returns translated form text. */
+  function t(
+    key,
+    variables = {},
+  ) {
+    return tr(
+      lang,
+      key,
+      variables,
+    );
+  }
+
+  /* Updates one routine form field. */
+  function handleChange(event) {
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = event.target;
+
+    setForm(
+      (currentForm) => ({
+        ...currentForm,
+
+        [name]:
+          type ===
+            "checkbox"
+            ? checked
+            : value,
+      }),
+    );
+  }
+
+  /* Adds or removes one repeat day. */
+  function toggleDay(day) {
+    setForm(
+      (currentForm) => ({
+        ...currentForm,
+
+        days:
+          currentForm.days.includes(
+            day,
+          )
+            ? currentForm.days.filter(
+              (
+                currentDay,
+              ) =>
+                currentDay !==
+                day,
+            )
+            : [
+              ...currentForm.days,
+              day,
+            ],
+      }),
+    );
+  }
+
+  /* Validates and submits the routine form. */
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    onSave({
+      ...form,
+
+      title:
+        form.title.trim(),
+
+      description:
+        form.description.trim(),
+    });
+  }
+
+  return (
+    <Modal
+      title={
+        routine.id
+          ? t(
+            "editRoutine",
+          )
+          : t(
+            "newRoutine",
+          )
+      }
+      close={onClose}
+    >
+      <form
+        className="form"
+        onSubmit={
+          handleSubmit
+        }
+      >
+        <label>
+          {t("title")}
+
+          <input
+            name="title"
+            value={form.title}
+            onChange={
+              handleChange
+            }
+            required
+            autoFocus
+          />
+        </label>
+
+        <label>
+          {t(
+            "routineDescription",
+          )}
+
+          <textarea
+            name="description"
+            rows="3"
+            value={
+              form.description
+            }
+            onChange={
+              handleChange
+            }
+          />
+        </label>
+
+        <label>
+          {t("priority")}
+
+          <select
+            name="priority"
+            value={
+              form.priority
+            }
+            onChange={
+              handleChange
+            }
+          >
+            <option value="normal">
+              {t("normal")}
+            </option>
+
+            <option value="important">
+              {t(
+                "importantLabel",
+              )}
+            </option>
+
+            <option value="essential">
+              {t(
+                "essentialLabel",
+              )}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          {t("schedule")}
+
+          <select
+            name="scheduleType"
+            value={
+              form.scheduleType
+            }
+            onChange={
+              handleChange
+            }
+          >
+            <option value="day">
+              {t("day")}
+            </option>
+
+            <option value="time">
+              {t("atTime")}
+            </option>
+          </select>
+        </label>
+
+        {form.scheduleType ===
+          "time" && (
+            <div className="two timeFields">
+              <label>
+                {t("start")}
+
+                <input
+                  name="startTime"
+                  type="time"
+                  value={
+                    form.startTime
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+              </label>
+
+              <label>
+                {t("end")}
+
+                <input
+                  name="endTime"
+                  type="time"
+                  value={
+                    form.endTime
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+              </label>
+            </div>
+          )}
+
+        <label>
+          {t("unit")}
+
+          {/* Stores stable values and translates labels. */}
+          <select
+            name="unit"
+            value={form.unit}
+            onChange={
+              handleChange
+            }
+          >
+            <option value="minute">
+              {t(
+                "unitMinute",
+              )}
+            </option>
+
+            <option value="hour">
+              {t(
+                "unitHour",
+              )}
+            </option>
+
+            <option value="percent">
+              {t(
+                "unitPercent",
+              )}
+            </option>
+
+            <option value="item">
+              {t(
+                "unitItem",
+              )}
+            </option>
+
+            <option value="page">
+              {t(
+                "unitPage",
+              )}
+            </option>
+          </select>
+        </label>
+
+        <div className="weekPicker">
+          <b>
+            {t(
+              "routineDays",
+            )}
+          </b>
+
+          {ROUTINE_DAYS.map(
+            (day) => (
+              <button
+                type="button"
+                key={day}
+                className={`dayChoice ${form.days.includes(
+                  day,
+                )
+                    ? "on"
+                    : ""
+                  }`}
+                onClick={() =>
+                  toggleDay(
+                    day,
+                  )
+                }
+              >
+                {t(day)}
+              </button>
+            ),
+          )}
+        </div>
+
+        <label className="switchRow">
+          <span>
+            {t("enabled")}
+          </span>
+
+          <input
+            name="enabled"
+            type="checkbox"
+            checked={
+              form.enabled
+            }
+            onChange={
+              handleChange
+            }
+          />
+        </label>
+
+        <button
+          className="primary"
+          type="submit"
+        >
+          {t("save")}
+        </button>
+      </form>
+    </Modal>
+  );
+}
+
+/* Displays mobile navigation for the routines page. */
+function RoutinesMobileNav({
+  lang,
+}) {
+  /* Returns translated navigation text. */
+  function t(key) {
+    return tr(lang, key);
+  }
+
+  return (
+    <nav className="mobileNav">
+      <a href="/">
+        ⌂
+        <span>
+          {t("today")}
+        </span>
+      </a>
+
+      <a href="/calendar">
+        ▦
+        <span>
+          {t("calendar")}
+        </span>
+      </a>
+
+      <a
+        href="/?new=1"
+        className="add"
+      >
+        +
+        <span>
+          {t("newTask")}
+        </span>
+      </a>
+
+      <a
+        className="active"
+        href="/routines"
+      >
+        ↻
+        <span>
+          {t("routines")}
+        </span>
+      </a>
+
+      <a href="/settings">
+        ⚙
+        <span>
+          {t("settings")}
+        </span>
+      </a>
+    </nav>
+  );
+}
