@@ -1,0 +1,36 @@
+.choiceGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px
+}
+
+.choice {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 13px;
+    padding: 16px;
+    text-align: right
+}
+
+.choice:hover {
+    border-color: #c7c9ef;
+    background: var(--primarySoft)
+}
+
+.choice b {
+    display: block;
+    font-size: 12px
+}
+
+.choice span {
+    font-size: 9px;
+    color: var(--muted)
+}
+
+.empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px
+}
+

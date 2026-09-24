@@ -1,0 +1,15 @@
+/* Keeps every interface icon visually consistent. */
+.appIcon {
+    display: block;
+    flex: 0 0 auto;
+    color: currentColor;
+    transition:
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+button:hover .appIcon,
+a:hover .appIcon {
+    transform: translateY(-1px);
+}
+

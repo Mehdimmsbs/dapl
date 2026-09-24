@@ -1,0 +1,120 @@
+.mobileNav {
+    display: none
+}
+
+.calendarWrap {
+    padding: 22px
+}
+
+.calendarToolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px
+}
+
+.monthTitle {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.monthTitle h1 {
+    font-size: 21px;
+    margin: 0
+}
+
+.monthTitle span {
+    font-size: 10px;
+    color: var(--muted)
+}
+
+.monthActions {
+    display: flex;
+    gap: 7px
+}
+
+.ghost {
+    border: 1px solid var(--line);
+    background: #fff;
+    color: #667085;
+    border-radius: 9px;
+    padding: 8px 11px;
+    font-size: 10px
+}
+
+.calGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 7px
+}
+
+.calHead {
+    text-align: center;
+    color: #9aa2b1;
+    font-size: 10px;
+    padding: 5px
+}
+
+.calDay {
+    min-height: 105px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    padding: 9px;
+    position: relative;
+    text-align: right
+}
+
+.calDay:hover {
+    border-color: #c9cced
+}
+
+.calDay.selected {
+    border: 2px solid var(--primary);
+    background: #fbfbff
+}
+
+.calDay.muted {
+    background: #fafafa;
+    color: #b4bac5
+}
+
+.dayNum {
+    font-weight: 700;
+    font-size: 11px
+}
+
+.dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 15px
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cfd3dd
+}
+
+.dot.p {
+    background: var(--primary)
+}
+
+.dot.r {
+    background: var(--danger)
+}
+
+.dot.g {
+    background: var(--success)
+}
+
+.count {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    color: var(--muted);
+    font-size: 9px
+}
+

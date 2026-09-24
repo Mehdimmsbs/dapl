@@ -3,8 +3,6 @@ import {
   Noto_Sans_Arabic,
 } from "next/font/google";
 
-import "./globals.css";
-import "./theme.css";
 import "../styles/main.scss";
 
 import PWARegister from "../components/pwa/PWARegister";
@@ -89,4 +87,4 @@ export default function RootLayout({
       </body>
     </html>
   );
-}clear
+}

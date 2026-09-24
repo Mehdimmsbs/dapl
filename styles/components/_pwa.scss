@@ -1,0 +1,19 @@
+.pwaInstallButton {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 999px;
+    color: #fff;
+    background: #5b5cf6;
+    box-shadow: 0 12px 30px rgb(40 45 90 / 22%);
+    cursor: pointer;
+}
+
+[dir="rtl"] .pwaInstallButton {
+    right: auto;
+    left: 20px;
+}

@@ -1,18 +1,41 @@
-/* Loads the complete Aurora design system. */
-@use "./abstracts/tokens";
-
+/* Foundation styles */
+@use "./abstracts/foundation-tokens";
 @use "./base/global";
-@use "./base/typography";
+@use "./layout/foundation";
+@use "./pages/dashboard";
+@use "./pages/calendar-foundation";
+@use "./components/choices";
+@use "./layout/legacy-responsive";
+@use "./components/utilities";
+@use "./components/planner";
+@use "./pages/routines";
+@use "./components/routine-dashboard";
+@use "./base/font-sizing";
+@use "./components/pwa";
 
+/* Aurora design system */
+@use "./abstracts/aurora-tokens";
+@use "./base/aurora-typography";
+@use "./components/aurora-icons";
+@use "./layout/aurora-sidebar";
+@use "./layout/aurora-header";
+@use "./layout/aurora-content";
+@use "./pages/aurora-calendar";
+@use "./layout/aurora-mobile-nav";
+
+/* Project-specific UX overrides */
+@use "./abstracts/tokens";
+@use "./base/typography";
 @use "./components/buttons";
 @use "./components/icons";
-
 @use "./layout/shell";
 @use "./layout/header";
 @use "./layout/sidebar";
 @use "./layout/mobile-nav";
 @use "./layout/responsive";
-
 @use "./pages/calendar";
-
 @use "./themes/dark";
+
+/* Shared modal styles must load last */
+@use "./components/forms";
+@use "./components/modal";

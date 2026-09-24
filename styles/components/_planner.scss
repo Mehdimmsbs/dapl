@@ -1,0 +1,234 @@
+/* v0.6 fixes */
+.collapseBtn {
+    margin-inline-start: auto;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 8px
+}
+
+.brand {
+    position: relative
+}
+
+.sideCollapsed .sidebar {
+    width: 82px
+}
+
+.sideCollapsed .brandText,
+.sideCollapsed .nav span,
+.sideCollapsed .sideFooter {
+    display: none
+}
+
+.sideCollapsed .brand {
+    justify-content: center
+}
+
+.sideCollapsed .collapseBtn {
+    position: absolute;
+    bottom: -5px;
+    right: -4px
+}
+
+.mobileMenu {
+    display: none;
+    border: 0;
+    background: transparent;
+    font-size: 18px;
+    color: var(--muted)
+}
+
+.topLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px
+}
+
+.filterBar {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-top: 17px
+}
+
+.filterBar button {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--muted);
+    border-radius: 9px;
+    padding: 7px 10px;
+    font-size: 10px
+}
+
+.filterBar button b {
+    margin-inline-start: 4px
+}
+
+.filterBar button.on {
+    background: var(--primarySoft);
+    color: var(--primary);
+    border-color: #cfd2f6
+}
+
+.taskActions {
+    display: flex;
+    gap: 5px;
+    align-items: center
+}
+
+.miniBtn {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 11px;
+    color: var(--muted)
+}
+
+.taskDesc {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+.full {
+    width: 100%;
+    margin-top: 12px
+}
+
+.calendarTaskList {
+    display: grid;
+    gap: 8px;
+    max-height: 50vh;
+    overflow: auto
+}
+
+.calendarTask {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 11px;
+    background: var(--surface2)
+}
+
+.calendarTask b {
+    display: block;
+    font-size: 12px
+}
+
+.calendarTask span {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 4px;
+    display: block
+}
+
+.routinePlaceholder,
+.settingsPage {
+    padding: 35px;
+    text-align: center
+}
+
+.routinePlaceholder>div {
+    font-size: 35px;
+    color: var(--primary)
+}
+
+.routinePlaceholder p {
+    color: var(--muted);
+    font-size: 12px
+}
+
+.switchRow {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between
+}
+
+.switchRow input {
+    width: 20px !important
+}
+
+.dark {
+    --bg: #111318;
+    --surface: #191c23;
+    --surface2: #222630;
+    --text: #f1f3f7;
+    --muted: #9da5b5;
+    --line: #303642;
+    --primarySoft: #27294a;
+    --dangerSoft: #38242a;
+    --successSoft: #1d342d;
+    --warningSoft: #3a3020;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .25)
+}
+
+.dark .sidebar,
+.dark .topbar {
+    background: #171a20
+}
+
+.dark .task,
+.dark .calDay,
+.dark .modal,
+.dark .choice,
+.dark .ghost,
+.dark .form input,
+.dark .form select,
+.dark .form textarea,
+.dark .completeBtn,
+.dark .miniBtn,
+.dark .iconBtn,
+.dark .filterBar button {
+    background: var(--surface)
+}
+
+.dark .mobileNav {
+    background: rgba(23, 26, 32, .96)
+}
+
+.dark .calBlank {
+    background: #15181e
+}
+
+.dark .task:hover {
+    border-color: #414857
+}
+
+@media(max-width:900px) {
+    .mobileMenu {
+        display: block
+    }
+
+    .mobileNav {
+        grid-template-columns: repeat(5, 1fr)
+    }
+
+    .sideCollapsed .sidebar {
+        display: none
+    }
+}
+
+@media(max-width:560px) {
+    .taskActions .completeBtn {
+        padding: 5px 6px
+    }
+
+    .taskDesc {
+        max-width: 150px
+    }
+
+    .filterBar {
+        gap: 5px
+    }
+
+    .filterBar button {
+        padding: 6px 8px
+    }
+}
+

@@ -1,0 +1,252 @@
+/* Aurora top navigation */
+.topbar {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 20;
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 2.5rem;
+    color: var(--color-text-primary);
+    background: rgba(250, 252, 255, 0.68);
+    border: 0;
+    border-bottom: 1px solid rgba(223, 230, 243, 0.55);
+    backdrop-filter: blur(24px);
+}
+
+.topLeft,
+.topActions {
+    display: flex;
+    align-items: center;
+}
+
+.topLeft {
+    min-width: 0;
+    gap: 0.875rem;
+}
+
+.topActions {
+    gap: 0.75rem;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-label);
+    white-space: nowrap;
+}
+
+.breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: var(--color-primary-600);
+}
+
+.breadcrumb strong {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-semibold);
+}
+
+.languageSwitcher {
+    position: relative;
+    min-width: 7.75rem;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+}
+
+.languageSwitcher select {
+    width: 100%;
+    height: 100%;
+    padding:
+        0 2.5rem 0 1rem;
+    appearance: none;
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    outline: none;
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    box-shadow: var(--shadow-small);
+}
+
+html[dir="rtl"] .languageSwitcher select {
+    padding:
+        0 1rem 0 2.5rem;
+}
+
+.languageSwitcher select:hover {
+    border-color: var(--color-border-hover);
+}
+
+.languageSwitcher select:focus {
+    border-color: var(--color-primary-500);
+    box-shadow: var(--shadow-focus);
+}
+
+.languageChevron {
+    position: absolute;
+    inset-inline-end: 0.875rem;
+    color: var(--color-text-secondary);
+    pointer-events: none;
+}
+
+.topbarDivider {
+    width: 1px;
+    height: 1.75rem;
+    margin-inline: 0.125rem;
+    background: var(--color-border);
+}
+
+.iconBtn {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-small);
+}
+
+.iconBtn:hover {
+    color: var(--color-primary-600);
+    border-color: var(--color-border-hover);
+    transform: translateY(-1px);
+}
+
+.profileButton {
+    min-width: 4.125rem;
+    height: 2.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 0;
+    text-decoration: none;
+}
+
+.avatar {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+    color: white;
+    background:
+        linear-gradient(135deg,
+            #45d8b0,
+            #329b78);
+    border-radius: 50%;
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-bold);
+    box-shadow:
+        0 8px 20px rgba(50, 155, 120, 0.22);
+}
+
+.profileButton:hover .avatar {
+    transform: translateY(-1px);
+    box-shadow:
+        0 10px 24px rgba(50, 155, 120, 0.3);
+}
+
+.profileChevron {
+    transition: transform var(--transition-fast);
+}
+
+.profileButton:hover .profileChevron {
+    transform: translateY(2px);
+}
+
+.mobileMenu {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: none;
+    place-items: center;
+    padding: 0;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-medium);
+}
+
+/* Screen-reader-only accessible content */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+}
+
+html.dark .topbar {
+    background: rgba(14, 21, 48, 0.76);
+}
+
+html.dark .languageSwitcher select,
+html.dark .iconBtn {
+    color: var(--color-text-primary);
+    background: rgba(21, 30, 61, 0.82);
+}
+
+@media (max-width: 900px) {
+    .topbar {
+        height: 4.25rem;
+        padding-inline: 1rem;
+    }
+
+    .mobileMenu {
+        display: grid;
+    }
+
+    .breadcrumb {
+        display: none;
+    }
+
+    .topbarDivider,
+    .profileChevron {
+        display: none;
+    }
+
+    .languageSwitcher {
+        min-width: 6.5rem;
+        height: 2.5rem;
+    }
+
+    .iconBtn,
+    .avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .profileButton {
+        min-width: auto;
+        height: 2.5rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .topActions {
+        gap: 0.5rem;
+    }
+
+    .languageSwitcher {
+        min-width: 5.75rem;
+    }
+}
+

@@ -1,0 +1,48 @@
+/* Aurora page content */
+.main {
+    min-width: 0;
+    flex: 1;
+    background: transparent;
+}
+
+.content {
+    width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding: 1.5rem 2.5rem 4rem;
+}
+
+.hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: 1.5rem;
+    padding-inline: 0.875rem;
+}
+
+.kicker {
+    margin-bottom: 0.625rem;
+    color: var(--color-primary-600);
+    font-size: var(--font-size-caption);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-page-title);
+    font-weight: var(--font-weight-extrabold);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.045em;
+}
+
+.hero p {
+    max-width: 38rem;
+    margin: 0.625rem 0 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-body);
+}
+

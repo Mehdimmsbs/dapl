@@ -1,0 +1,108 @@
+/* v1.0 routine dashboard + robust dark surfaces */
+.routineMini {
+    margin-top: 18px;
+    padding: 17px
+}
+
+.routineMiniList {
+    display: grid;
+    gap: 6px
+}
+
+.routineMiniItem {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--surface2)
+}
+
+.routineMiniItem b {
+    display: block;
+    font-size: 11px
+}
+
+.routineMiniItem small {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    margin-top: 2px
+}
+
+.routineStatus {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: var(--primarySoft);
+    color: var(--primary);
+    font-weight: 800;
+    flex: none
+}
+
+.routineStatus.done {
+    background: var(--successSoft);
+    color: var(--success)
+}
+
+.routineDesc {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    margin-top: 5px;
+    line-height: 1.6
+}
+
+.dark body {
+    background: var(--bg);
+    color: var(--text)
+}
+
+.dark .topbar {
+    color: var(--text)
+}
+
+.dark .hero h1,
+.dark .cardHeader h2,
+.dark .taskTitle,
+.dark .routineMiniItem b,
+.dark .routineMain b {
+    color: var(--text)
+}
+
+.dark .dayChoice {
+    background: var(--surface2);
+    color: var(--text)
+}
+
+.dark .routineMiniItem {
+    background: var(--surface2)
+}
+
+.sidebarCollapsed .sidebar {
+    width: 82px
+}
+
+.sidebarCollapsed .brandText,
+.sidebarCollapsed .nav span,
+.sidebarCollapsed .sideFooter {
+    display: none
+}
+
+.sidebarCollapsed .brand {
+    justify-content: center
+}
+
+@media(max-width:900px) {
+    .routineMini {
+        margin-top: 14px
+    }
+
+    .routineMiniItem {
+        padding: 8px
+    }
+}
+

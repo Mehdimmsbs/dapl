@@ -1,0 +1,66 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(18, 24, 40, .45);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    z-index: 30
+}
+
+.modal {
+    width: min(530px, 100%);
+    background: #fff;
+    border-radius: 18px;
+    padding: 21px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, .2)
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px
+}
+
+.modalHeader h2 {
+    font-size: 16px;
+    margin: 0
+}
+
+.modalHeader button {
+    border: 0;
+    background: #f3f4f6;
+    border-radius: 9px;
+    width: 32px;
+    height: 32px
+}
+
+.modalHeader button {
+    position: relative;
+    z-index: 2;
+
+    display: grid;
+    place-items: center;
+
+    color: var(--color-text-primary, #101936);
+    background: var(--color-primary-50, #f4f5ff);
+
+    -webkit-text-fill-color: var(--color-text-primary, #101936);
+
+    border: 1px solid var(--color-border, #dfe6f3);
+    cursor: pointer;
+    opacity: 1;
+}
+
+.modalHeader button:hover {
+    color: var(--color-primary-700, #3137d7);
+    background: var(--color-primary-100, #e9ebff);
+    -webkit-text-fill-color: var(--color-primary-700, #3137d7);
+}
+
+html.dark .modalHeader button {
+    color: #f5f7ff;
+    background: #252d67;
+    -webkit-text-fill-color: #f5f7ff;
+}
