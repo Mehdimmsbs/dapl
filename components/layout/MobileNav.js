@@ -1,63 +1,69 @@
 "use client";
 
 import { useLanguage } from "../providers/LanguageProvider";
+import AppIcon from "../ui/AppIcon";
 
 const NAV_ITEMS = [
   {
     id: "today",
     href: "/",
-    symbol: "⌂",
+    icon: "home",
   },
   {
     id: "calendar",
     href: "/calendar",
-    symbol: "▦",
+    icon: "calendar",
   },
   {
     id: "newTask",
     href: "/?new=1",
-    symbol: "+",
-    add: true,
+    icon: "add",
+    featured: true,
   },
   {
     id: "routines",
     href: "/routines",
-    symbol: "↻",
+    icon: "routine",
   },
   {
     id: "settings",
     href: "/settings",
-    symbol: "⚙",
+    icon: "settings",
   },
 ];
 
-/* Displays the shared mobile navigation. */
-export default function MobileNav({
-  activePage,
-}) {
+/* Displays the shared Aurora mobile navigation. */
+export default function MobileNav({ activePage }) {
   const { t } = useLanguage();
 
   return (
-    <nav className="mobileNav">
+    <nav
+      className="mobileNav"
+      aria-label={t("planner")}
+    >
       {NAV_ITEMS.map((item) => {
-        const classNames = [
-          item.add ? "add" : "",
-          activePage === item.id
-            ? "active"
-            : "",
-        ]
-          .filter(Boolean)
-          .join(" ");
+        const isActive = activePage === item.id;
+
+        const className = [
+          isActive ? "active" : "",
+          item.featured ? "featured" : "",
+        ].filter(Boolean).join(" ");
 
         return (
           <a
             key={item.id}
             href={item.href}
-            className={classNames}
+            className={className}
+            aria-current={isActive ? "page" : undefined}
           >
-            {item.symbol}
+            <span className="mobileNavIcon">
+              <AppIcon
+                name={item.icon}
+                size={item.featured ? 25 : 21}
+              />
+            </span>
 
-            <span>
+            <span className="mobileNavLabel">
               {t(item.id)}
             </span>
           </a>

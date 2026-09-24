@@ -1,0 +1,90 @@
+/* Global Aurora design tokens */
+:root {
+    /* Brand */
+    --primary-50: #f4f5ff;
+    --primary-100: #e9ebff;
+    --primary-200: #d7daff;
+    --primary-300: #b8bdff;
+    --primary-400: #8e93ff;
+    --primary-500: #6267ff;
+    --primary-600: #4248f5;
+    --primary-700: #3037d7;
+
+    /* Status */
+    --mint-500: #36b58a;
+    --coral-500: #ff6474;
+    --lavender-500: #766ef8;
+    --amber-500: #f3a64a;
+
+    /* Surfaces */
+    --app-background: #f5f8ff;
+    --sidebar-background: rgba(249, 251, 255, 0.96);
+    --card-background: rgba(255, 255, 255, 0.94);
+    --surface-muted: #f6f8fc;
+
+    /* Text */
+    --text-primary: #101936;
+    --text-secondary: #66759a;
+    --text-tertiary: #8e9ab8;
+    --text-inverse: #ffffff;
+
+    /* Borders */
+    --border-default: #dfe6f3;
+    --border-hover: #c8d2e7;
+    --border-focus: #6267ff;
+
+    /* Aurora */
+    --aurora-purple: rgba(112, 115, 255, 0.3);
+    --aurora-blue: rgba(115, 164, 255, 0.2);
+    --aurora-mint: rgba(81, 226, 205, 0.28);
+
+    /* Typography */
+    --font-caption: 0.75rem;
+    --font-label: 0.8125rem;
+    --font-small: 0.875rem;
+    --font-body: 1rem;
+    --font-heading-small: 1.25rem;
+    --font-heading: 1.5rem;
+    --font-page-title: clamp(2.25rem, 3vw, 3rem);
+
+    --weight-regular: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+    --weight-extrabold: 800;
+
+    /* Radius */
+    --radius-sm: 0.625rem;
+    --radius-md: 0.875rem;
+    --radius-lg: 1.125rem;
+    --radius-xl: 1.5rem;
+    --radius-round: 999px;
+
+    /* Shadows */
+    --shadow-sm:
+        0 5px 18px rgba(49, 55, 130, 0.07);
+
+    --shadow-card:
+        0 24px 70px rgba(49, 55, 130, 0.09);
+
+    --focus-ring:
+        0 0 0 4px rgba(98, 103, 255, 0.14);
+
+    /* Layout */
+    --sidebar-width: 17rem;
+    --header-height: 4.875rem;
+    --content-width: 100rem;
+
+    /* Compatibility with old CSS */
+    --bg: var(--app-background);
+    --surface: var(--card-background);
+    --surface2: var(--surface-muted);
+    --text: var(--text-primary);
+    --muted: var(--text-secondary);
+    --line: var(--border-default);
+    --primary: var(--primary-600);
+    --primarySoft: var(--primary-100);
+    --danger: var(--coral-500);
+    --success: var(--mint-500);
+    --warning: var(--amber-500);
+}

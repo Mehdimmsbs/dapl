@@ -1,0 +1,66 @@
+.topbar {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 76px;
+    padding-inline: 40px;
+
+    background: transparent !important;
+    border: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+
+.topbar::before,
+.topbar::after {
+    content: none !important;
+}
+
+.crumb {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: #58709d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.hero {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 18px;
+}
+
+.hero .kicker {
+    margin-bottom: 14px;
+
+    color: #4f46ff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.hero h1 {
+    margin: 0;
+
+    color: #0b1437;
+    font-size: clamp(38px, 4vw, 54px);
+    font-weight: 750;
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+}
+
+.hero p {
+    margin: 12px 0 0;
+
+    color: #687ca5;
+    font-size: 17px;
+    line-height: 1.55;
+}

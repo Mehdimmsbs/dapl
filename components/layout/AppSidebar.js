@@ -1,36 +1,37 @@
 "use client";
 
 import { useLanguage } from "../providers/LanguageProvider";
+import AppIcon from "../ui/AppIcon";
+import BrandLogo from "../ui/BrandLogo";
 
 const NAV_ITEMS = [
   {
+    id: "newTask",
+    href: "/?new=1",
+    icon: "add",
+  },
+  {
     id: "today",
     href: "/",
-    symbol: "⌂",
+    icon: "home",
   },
   {
     id: "calendar",
     href: "/calendar",
-    symbol: "▦",
-  },
-  {
-    id: "newTask",
-    href: "/?new=1",
-    symbol: "＋",
+    icon: "calendar",
   },
   {
     id: "routines",
     href: "/routines",
-    symbol: "↻",
+    icon: "routines",
   },
   {
     id: "settings",
     href: "/settings",
-    symbol: "⚙",
+    icon: "settings",
   },
 ];
 
-/* Displays the shared desktop navigation. */
 export default function AppSidebar({
   activePage,
   collapsed,
@@ -42,22 +43,30 @@ export default function AppSidebar({
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brandMark">
-          ✓
-        </div>
+        <a
+          href="/"
+          className="brandIdentity"
+          aria-label={t("brandName")}
+        >
+          <BrandLogo />
 
-        <div className="brandText">
-          <b>{t("brandName")}</b>
-          <span>{t("planner")}</span>
-        </div>
+          <div className="brandText">
+            <strong>{t("brandName")}</strong>
+            <span>{t("planner")}</span>
+          </div>
+        </a>
 
         <button
           type="button"
           className="collapseBtn"
           onClick={onToggle}
           aria-label={t("toggleSidebar")}
+          aria-expanded={!collapsed}
         >
-          {collapsed ? "»" : "«"}
+          <AppIcon
+            name={collapsed ? "chevron-right" : "chevron-left"}
+            size={18}
+          />
         </button>
       </div>
 
@@ -66,30 +75,19 @@ export default function AppSidebar({
           <a
             key={item.id}
             href={item.href}
-            className={
-              activePage === item.id
-                ? "active"
-                : ""
-            }
+            className={activePage === item.id ? "active" : ""}
           >
-            {item.symbol}
+            <AppIcon name={item.icon} />
 
-            <span>
-              {t(item.id)}
-            </span>
+            <span>{t(item.id)}</span>
           </a>
         ))}
       </nav>
 
       {displayDate && (
         <div className="sideFooter">
-          <small>
-            {t("today")}
-          </small>
-
-          <strong>
-            {displayDate}
-          </strong>
+          <small>{t("today")}</small>
+          <strong>{displayDate}</strong>
         </div>
       )}
     </aside>

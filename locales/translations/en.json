@@ -69,6 +69,7 @@
   "settingsTitle": "Display settings",
   "settingsSub": "Change the language and calendar without changing stored dates.",
   "close": "Close",
+  "monthView": "Month",
   "monthPrev": "Previous month",
   "monthNext": "Next month",
   "monthToday": "Today",

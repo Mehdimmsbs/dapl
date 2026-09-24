@@ -1,0 +1,26 @@
+.appIcon {
+    display: block;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    object-fit: contain;
+}
+
+.nav .appIcon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    transform: scale(1.4);
+    transform-origin: center;
+}
+
+.nav a.active .appIcon {
+    filter:
+        brightness(0) saturate(100%) invert(28%) sepia(99%) saturate(5900%) hue-rotate(241deg) brightness(101%) contrast(103%);
+}
+
+.themeButton .appIcon {
+    width: 25px;
+    height: 25px;
+    transform: scale(1.3);
+}

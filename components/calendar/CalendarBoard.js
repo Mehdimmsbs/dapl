@@ -5,6 +5,8 @@ import {
     monthTitle,
     weekdayNameIndex,
 } from "../../lib/date";
+
+import AppIcon from "../ui/AppIcon";
 import { useLanguage } from "../providers/LanguageProvider";
 
 const WEEKDAYS = [
@@ -17,11 +19,10 @@ const WEEKDAYS = [
     "saturday",
 ];
 
-/* Renders the calendar toolbar, weekdays and day cells. */
+/* Renders the Aurora calendar month board. */
 export default function CalendarBoard({
     anchor,
     cells,
-    days,
     selected,
     settings,
     tasksByDate,
@@ -30,154 +31,171 @@ export default function CalendarBoard({
     onToday,
 }) {
     const { t } = useLanguage();
-
-    const weekStartIndex =
-        weekdayNameIndex(
-            settings.firstDay,
-        );
+    const weekStartIndex = weekdayNameIndex(
+        settings.firstDay,
+    );
 
     return (
         <section className="card calendarWrap">
-            <div className="calendarToolbar">
-                <div className="monthTitle">
-                    <h1>
+            <header className="calendarToolbar">
+                <div className="calendarTitleGroup">
+                    <h2>
                         {monthTitle(
                             anchor,
                             settings.calendar,
                             settings.language,
                         )}
-                    </h1>
+                    </h2>
 
-                    <span>
-                        {days.length} {t("days")}
-                    </span>
+                    <div className="calendarPager">
+                        <button
+                            type="button"
+                            className="calendarArrow"
+                            onClick={() => onShiftMonth(-1)}
+                            aria-label={t("monthPrev")}
+                        >
+                            <AppIcon
+                                name="chevron-left"
+                                size={18}
+                            />
+                        </button>
+
+                        <button
+                            type="button"
+                            className="calendarTodayButton"
+                            onClick={onToday}
+                        >
+                            {t("monthToday")}
+                        </button>
+
+                        <button
+                            type="button"
+                            className="calendarArrow"
+                            onClick={() => onShiftMonth(1)}
+                            aria-label={t("monthNext")}
+                        >
+                            <AppIcon
+                                name="chevron-right"
+                                size={18}
+                            />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="monthActions">
+                <div className="calendarViewActions">
                     <button
                         type="button"
-                        className="ghost"
-                        onClick={() => {
-                            onShiftMonth(-1);
-                        }}
+                        className="calendarViewButton active"
+                    >
+                        {t("monthView")}
+                    </button>
+
+                    <button
+                        type="button"
+                        className="calendarViewButton"
+                        onClick={() => onShiftMonth(-1)}
                     >
                         {t("monthPrev")}
                     </button>
 
                     <button
                         type="button"
-                        className="ghost"
-                        onClick={onToday}
-                    >
-                        {t("monthToday")}
-                    </button>
-
-                    <button
-                        type="button"
-                        className="ghost"
-                        onClick={() => {
-                            onShiftMonth(1);
-                        }}
+                        className="calendarViewButton"
+                        onClick={() => onShiftMonth(1)}
                     >
                         {t("monthNext")}
                     </button>
                 </div>
-            </div>
+            </header>
 
             <div className="calGrid">
-                {WEEKDAYS.map(
-                    (_, index) => {
-                        const weekday =
-                            WEEKDAYS[
-                            (
-                                weekStartIndex +
-                                index
-                            ) % 7
-                            ];
+                {WEEKDAYS.map((_, index) => {
+                    const weekday =
+                        WEEKDAYS[
+                        (weekStartIndex + index) % 7
+                        ];
 
+                    return (
+                        <div
+                            className="calHead"
+                            key={weekday}
+                        >
+                            {t(weekday)}
+                        </div>
+                    );
+                })}
+
+                {cells.map((date, index) => {
+                    if (!date) {
                         return (
                             <div
-                                className="calHead"
-                                key={weekday}
-                            >
-                                {t(weekday)}
-                            </div>
+                                className="calBlank"
+                                key={`blank-${index}`}
+                                aria-hidden="true"
+                            />
                         );
-                    },
-                )}
+                    }
 
-                {cells.map(
-                    (date, index) => {
-                        if (!date) {
-                            return (
+                    const tasks = tasksByDate[date] ?? [];
+                    const isSelected = date === selected;
+
+                    return (
+                        <button
+                            type="button"
+                            key={date}
+                            className={[
+                                "calDay",
+                                isSelected ? "selected" : "",
+                                tasks.length ? "hasTasks" : "",
+                            ].filter(Boolean).join(" ")}
+                            onClick={() => onChooseDate(date)}
+                            aria-pressed={isSelected}
+                        >
+                            <span className="dayNum">
+                                {
+                                    calendarParts(
+                                        date,
+                                        settings.calendar,
+                                        settings.language,
+                                    ).day
+                                }
+                            </span>
+
+                            {tasks.length > 0 && (
                                 <div
-                                    className="calBlank"
-                                    key={`blank-${index}`}
-                                />
-                            );
-                        }
+                                    className="calendarTaskIndicators"
+                                    aria-label={t("dayCount", {
+                                        n: tasks.length,
+                                    })}
+                                >
+                                    {tasks
+                                        .slice(0, 2)
+                                        .map((task) => (
+                                            <span
+                                                key={task.id}
+                                                className={[
+                                                    "calendarTaskIndicator",
+                                                    task.priority || "normal",
+                                                    task.completed
+                                                        ? "completed"
+                                                        : "",
+                                                ].filter(Boolean).join(" ")}
+                                            >
+                                                <i />
+                                                <b />
+                                            </span>
+                                        ))}
 
-                        const tasks =
-                            tasksByDate[date] ??
-                            [];
-
-                        return (
-                            <button
-                                type="button"
-                                key={date}
-                                className={`calDay ${date === selected
-                                        ? "selected"
-                                        : ""
-                                    }`}
-                                onClick={() => {
-                                    onChooseDate(date);
-                                }}
-                            >
-                                <span className="dayNum">
-                                    {
-                                        calendarParts(
-                                            date,
-                                            settings.calendar,
-                                        ).day
-                                    }
-                                </span>
-
-                                <div className="dots">
-                                    {tasks.some(
-                                        (task) =>
-                                            task.priority ===
-                                            "essential",
-                                    ) && (
-                                            <i className="dot r" />
-                                        )}
-
-                                    {tasks.some(
-                                        (task) =>
-                                            task.priority ===
-                                            "important",
-                                    ) && (
-                                            <i className="dot p" />
-                                        )}
-
-                                    {tasks.some(
-                                        (task) =>
-                                            task.completed,
-                                    ) && (
-                                            <i className="dot g" />
-                                        )}
+                                    {tasks.length > 2 && (
+                                        <span className="calendarMoreTasks">
+                                            +{tasks.length - 2}
+                                        </span>
+                                    )}
                                 </div>
-
-                                {tasks.length > 0 && (
-                                    <span className="count">
-                                        {t("dayCount", {
-                                            n: tasks.length,
-                                        })}
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    },
-                )}
+                            )}
+                        </button>
+                    );
+                })}
             </div>
         </section>
     );

@@ -1,9 +1,12 @@
 "use client";
 
 import { useLanguage } from "../providers/LanguageProvider";
+import AppIcon from "../ui/AppIcon";
 
-/* Renders the language selector and updates the active locale. */
-export default function LanguageSwitcher({ className = "" }) {
+/* Renders the Aurora language selector. */
+export default function LanguageSwitcher({
+  className = "",
+}) {
   const {
     locale,
     languages,
@@ -11,7 +14,7 @@ export default function LanguageSwitcher({ className = "" }) {
     t,
   } = useLanguage();
 
-  /* Passes the selected language to the global language provider. */
+  /* Updates the active application language. */
   function handleLanguageChange(event) {
     changeLocale(event.target.value);
   }
@@ -35,6 +38,12 @@ export default function LanguageSwitcher({ className = "" }) {
           </option>
         ))}
       </select>
+
+      <AppIcon
+        name="chevron-down"
+        size={16}
+        className="languageChevron"
+      />
     </label>
   );
 }
