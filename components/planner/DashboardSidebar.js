@@ -1,14 +1,20 @@
 import { tr } from "../../lib/i18n";
+import CarryOverCard from "./CarryOverCard";
 
 /* Displays statistics, quick actions and today's routines. */
 export default function DashboardSidebar({
   tasks,
   todayRoutines,
+  carryTasks,
+  carryToday,
+  carryTomorrow,
+  calendar,
   completedCount,
   essentialCount,
   importantTotal,
   lang,
   onAddTask,
+  onCarryTask,
   onOpenSettings,
 }) {
   /* Returns translated text for the active language. */
@@ -45,6 +51,14 @@ export default function DashboardSidebar({
           <small>{t("done")}</small>
         </div>
       </div>
+      <CarryOverCard
+        tasks={carryTasks}
+        today={carryToday}
+        tomorrow={carryTomorrow}
+        calendar={calendar}
+        lang={lang}
+        onMoveTask={onCarryTask}
+      />
 
       <div className="card quick">
         <div className="cardHeader">
@@ -119,11 +133,10 @@ export default function DashboardSidebar({
                   key={routine.id}
                 >
                   <span
-                    className={`routineStatus ${
-                      routineTask?.completed
-                        ? "done"
-                        : ""
-                    }`}
+                    className={`routineStatus ${routineTask?.completed
+                      ? "done"
+                      : ""
+                      }`}
                   >
                     {routineTask?.completed
                       ? "✓"

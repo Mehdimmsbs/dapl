@@ -5,17 +5,22 @@ export default function TaskItem({
   task,
   data,
   toggle,
+  details,
   complete,
   edit,
   remove,
   lang,
 }) {
-  /* Finds an unfinished prerequisite that blocks this task. */
   const blockedTask = (task.prerequisites || [])
-    .map((id) => data.tasks.find((item) => item.id === id))
-    .find((item) => item && !item.completed);
+    .map((id) =>
+      data.tasks.find(
+        (item) => item.id === id,
+      ),
+    )
+    .find(
+      (item) => item && !item.completed,
+    );
 
-  /* Creates translated labels for each priority. */
   const priorityLabels = {
     essential: tr(lang, "essentialLabel"),
     important: tr(lang, "importantLabel"),
@@ -29,11 +34,17 @@ export default function TaskItem({
         className="check"
         onClick={() => toggle(task)}
       >
-        {task.completed ? "✓" : blockedTask ? "🔒" : "○"}
+        {task.completed
+          ? "✓"
+          : blockedTask
+            ? "🔒"
+            : "○"}
       </button>
 
       <div className="taskInfo">
-        <div className="taskTitle">{task.title}</div>
+        <div className="taskTitle">
+          {task.title}
+        </div>
 
         <div className="taskMeta">
           {task.scheduleType === "time"
@@ -42,8 +53,8 @@ export default function TaskItem({
 
           {blockedTask
             ? ` · ${tr(lang, "prereqNeeds", {
-                x: blockedTask.title,
-              })}`
+              x: blockedTask.title,
+            })}`
             : ""}
         </div>
 
@@ -59,6 +70,15 @@ export default function TaskItem({
       </span>
 
       <div className="taskActions">
+        <button
+          type="button"
+          className="miniBtn"
+          onClick={details}
+          title={tr(lang, "taskDetails")}
+        >
+          ⓘ
+        </button>
+
         <button
           type="button"
           className="miniBtn"

@@ -6,6 +6,7 @@
   "planner": "المخطط الشخصي",
   "today": "اليوم",
   "calendar": "التقويم",
+  "taskDate": "تاريخ المهمة",
   "tasks": "جميع المهام",
   "routines": "الروتينات",
   "settings": "الإعدادات",
@@ -102,5 +103,18 @@
   "prereqNeeds": "المتطلب السابق: {x}",
   "dayCount": "{n} مهام",
   "doneCount": "{n} مكتملة",
-  "toggleSidebar": "فتح وإغلاق الشريط الجانبي"
+  "toggleSidebar": "فتح وإغلاق الشريط الجانبي",
+  "carryOver": "ترحيل المهام",
+  "carryWindow": "المهام المتبقية من الأيام الثلاثة الأخيرة",
+  "moveToToday": "نقل إلى اليوم",
+  "moveToTomorrow": "نقل إلى الغد",
+  "noCarryTasks": "لا توجد مهام متبقية للترحيل.",
+  "taskDetails": "تفاصيل المهمة",
+  "status": "الحالة",
+  "carriedFrom": "التاريخ الأصلي",
+  "fontSize": "حجم الخط",
+  "fontSmall": "صغير",
+  "fontMedium": "متوسط",
+  "installApp": "تثبيت التطبيق",
+  "fontLarge": "كبير"
 }

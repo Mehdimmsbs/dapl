@@ -116,6 +116,28 @@ export default function SettingsModal({
             </option>
           </select>
         </label>
+        <label>
+          {t("fontSize")}
+
+          <select
+            name="fontSize"
+            defaultValue={
+              settings.fontSize || "medium"
+            }
+          >
+            <option value="small">
+              {t("fontSmall")}
+            </option>
+
+            <option value="medium">
+              {t("fontMedium")}
+            </option>
+
+            <option value="large">
+              {t("fontLarge")}
+            </option>
+          </select>
+        </label>
 
         <button className="primary">
           {t("save")}

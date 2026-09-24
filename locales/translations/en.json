@@ -76,6 +76,7 @@
   "remaining": "Remaining only",
   "editTask": "Edit task",
   "edit": "Edit",
+  "taskDate": "Task date",
   "delete": "Delete",
   "confirmDeleteTask": "Delete this task?",
   "confirmDeleteRoutine": "Delete this routine?",
@@ -102,5 +103,18 @@
   "prereqNeeds": "Prerequisite: {x}",
   "dayCount": "{n} tasks",
   "doneCount": "{n} completed",
-  "toggleSidebar": "Toggle sidebar"
+  "toggleSidebar": "Toggle sidebar",
+  "carryOver": "Carry over",
+  "carryWindow": "Remaining tasks from the last three days",
+  "moveToToday": "Move to today",
+  "moveToTomorrow": "Move to tomorrow",
+  "noCarryTasks": "No remaining tasks to carry over.",
+  "taskDetails": "Task details",
+  "status": "Status",
+  "carriedFrom": "Originally scheduled for",
+  "fontSize": "Font size",
+  "fontSmall": "Small",
+  "fontMedium": "Medium",
+  "fontLarge": "Large",
+  "installApp": "Install app"
 }
