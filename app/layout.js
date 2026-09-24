@@ -7,6 +7,7 @@ import "./globals.css";
 import "./theme.css";
 import "../styles/main.scss";
 
+import PWARegister from "../components/pwa/PWARegister";
 import { LanguageProvider } from "../components/providers/LanguageProvider";
 import defaultMessages from "../locales/translations/en.json";
 import {
@@ -17,7 +18,13 @@ import {
 /* Loads the main Latin font used across the application. */
 const uiFont = Noto_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+  ],
   variable: "--font-ui",
   display: "swap",
 });
@@ -25,29 +32,61 @@ const uiFont = Noto_Sans({
 /* Loads the matching Arabic and Persian font. */
 const arabicFont = Noto_Sans_Arabic({
   subsets: ["arabic"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+  ],
   variable: "--font-arabic",
   display: "swap",
 });
 
-const defaultLocaleConfig = getLocaleConfig(DEFAULT_LOCALE);
+const defaultLocaleConfig =
+  getLocaleConfig(DEFAULT_LOCALE);
 
 export const metadata = {
   title: defaultMessages.metaTitle,
   description: defaultMessages.metaDescription,
+  applicationName: "My Day",
+  manifest: "/manifest.webmanifest",
+
+  icons: {
+    icon: "/icons/my-day-logo.png",
+    apple: "/icons/my-day-logo.png",
+  },
+
+  appleWebApp: {
+    capable: true,
+    title: "My Day",
+    statusBarStyle: "default",
+  },
 };
 
-/* Provides shared language and typography settings. */
-export default function RootLayout({ children }) {
+export const viewport = {
+  themeColor: "#5b5cf6",
+  colorScheme: "light dark",
+};
+
+/* Provides language, typography and PWA settings. */
+export default function RootLayout({
+  children,
+}) {
   return (
     <html
       lang={DEFAULT_LOCALE}
       dir={defaultLocaleConfig.direction}
       suppressHydrationWarning
     >
-      <body className={`${uiFont.variable} ${arabicFont.variable}`}>
-        <LanguageProvider>{children}</LanguageProvider>
+      <body
+        className={`${uiFont.variable} ${arabicFont.variable}`}
+      >
+        <LanguageProvider>
+          {children}
+          <PWARegister />
+        </LanguageProvider>
       </body>
     </html>
   );
-}
+}clear

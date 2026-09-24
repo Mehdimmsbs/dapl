@@ -16,6 +16,7 @@ export default function TodayTasksCard({
   lang,
   onFilterChange,
   onToggleTask,
+  onViewTask,
   onCompleteTask,
   onEditTask,
   onRemoveTask,
@@ -113,6 +114,7 @@ export default function TodayTasksCard({
             task={task}
             data={data}
             toggle={onToggleTask}
+            details={() => onViewTask(task.id)}
             complete={() => onCompleteTask(task.id)}
             edit={() => onEditTask(task.id)}
             remove={() => onRemoveTask(task)}

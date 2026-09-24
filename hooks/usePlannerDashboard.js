@@ -9,6 +9,7 @@ import {
 import { seed } from "../app/data";
 import { useLanguage } from "../components/providers/LanguageProvider";
 import {
+    addDays,
     formatDate,
     getLocalIsoDate,
 } from "../lib/date";
@@ -109,6 +110,35 @@ export default function usePlannerDashboard() {
         );
     }, [data.tasks, date]);
 
+    const carryToday =
+        getLocalIsoDate();
+
+    const carryTomorrow =
+        addDays(carryToday, 1);
+
+    const carryFrom =
+        addDays(carryToday, -2);
+
+    const carryTasks = useMemo(() => {
+        return data.tasks
+            .filter(
+                (task) =>
+                    !task.completed &&
+                    task.date >= carryFrom &&
+                    task.date <= carryToday,
+            )
+            .sort(
+                (firstTask, secondTask) =>
+                    firstTask.date.localeCompare(
+                        secondTask.date,
+                    ),
+            );
+    }, [
+        data.tasks,
+        carryFrom,
+        carryToday,
+    ]);
+
     const visibleTasks = useMemo(() => {
         return tasks.filter((task) => {
             if (filter === "remaining") {
@@ -193,6 +223,14 @@ export default function usePlannerDashboard() {
             )
             : null;
 
+    const detailsTask =
+        modal?.type === "details"
+            ? data.tasks.find(
+                (task) =>
+                    task.id === modal.id,
+            )
+            : null;
+
     /* Toggles a task when all prerequisites are complete. */
     function toggleTask(task) {
         const isBlocked =
@@ -243,6 +281,7 @@ export default function usePlannerDashboard() {
     }
 
     /* Creates a new task or updates an existing task. */
+    /* Creates a new task or updates an existing task. */
     function saveTask(event) {
         event.preventDefault();
 
@@ -250,12 +289,6 @@ export default function usePlannerDashboard() {
             new FormData(
                 event.currentTarget,
             );
-
-        const prerequisite =
-            form.get("prerequisite");
-
-        const priority =
-            form.get("priority");
 
         const taskId =
             form.get("id");
@@ -265,15 +298,37 @@ export default function usePlannerDashboard() {
                 ? Number(taskId)
                 : null;
 
-        const otherTasks =
-            tasks.filter(
+        const existingTask =
+            numericTaskId
+                ? data.tasks.find(
+                    (task) =>
+                        task.id ===
+                        numericTaskId,
+                )
+                : null;
+
+        const taskDate =
+            form.get("date") ||
+            existingTask?.date ||
+            date;
+
+        const priority =
+            form.get("priority");
+
+        /*
+         * Priority limits must be calculated for the
+         * task's selected date, not the dashboard date.
+         */
+        const otherTasksOnDate =
+            data.tasks.filter(
                 (task) =>
+                    task.date === taskDate &&
                     String(task.id) !==
                     String(taskId),
             );
 
         const importantTasks =
-            otherTasks.filter(
+            otherTasksOnDate.filter(
                 (task) =>
                     task.priority !== "normal",
             );
@@ -290,7 +345,7 @@ export default function usePlannerDashboard() {
         }
 
         const essentialTasks =
-            otherTasks.filter(
+            otherTasksOnDate.filter(
                 (task) =>
                     task.priority ===
                     "essential",
@@ -307,17 +362,33 @@ export default function usePlannerDashboard() {
             return;
         }
 
-        const scheduleType =
-            form.get("scheduleType");
+        const prerequisiteValue =
+            form.get("prerequisite");
 
-        const existingTask =
-            numericTaskId
+        const prerequisiteId =
+            prerequisiteValue
+                ? Number(prerequisiteValue)
+                : null;
+
+        /*
+         * Accepts the prerequisite only when it belongs
+         * to the same date and is not the current task.
+         */
+        const validPrerequisite =
+            prerequisiteId
                 ? data.tasks.find(
                     (task) =>
                         task.id ===
+                        prerequisiteId &&
+                        task.date ===
+                        taskDate &&
+                        task.id !==
                         numericTaskId,
                 )
                 : null;
+
+        const scheduleType =
+            form.get("scheduleType");
 
         const nextTask = {
             id:
@@ -325,13 +396,17 @@ export default function usePlannerDashboard() {
                 Date.now(),
 
             title:
-                form.get("title"),
+                String(
+                    form.get("title") || "",
+                ).trim(),
 
             description:
-                form.get("description") ||
-                "",
+                String(
+                    form.get("description") ||
+                    "",
+                ).trim(),
 
-            date,
+            date: taskDate,
             priority,
             scheduleType,
 
@@ -352,21 +427,22 @@ export default function usePlannerDashboard() {
                 false,
 
             activityUnit:
-                form.get("unit"),
+                form.get("unit") ||
+                "minute",
 
             activityValue:
                 existingTask?.activityValue ||
                 0,
 
             prerequisites:
-                prerequisite
-                    ? [
-                        Number(
-                            prerequisite,
-                        ),
-                    ]
+                validPrerequisite
+                    ? [validPrerequisite.id]
                     : [],
         };
+
+        if (!nextTask.title) {
+            return;
+        }
 
         setData((currentData) => ({
             ...currentData,
@@ -389,6 +465,83 @@ export default function usePlannerDashboard() {
         }));
 
         setModal(null);
+    }
+
+    /* Moves an unfinished task to today or tomorrow. */
+    function carryTask(
+        taskId,
+        targetDate,
+    ) {
+        if (
+            targetDate !== carryToday &&
+            targetDate !== carryTomorrow
+        ) {
+            return;
+        }
+
+        setData((currentData) => {
+            const sourceTask =
+                currentData.tasks.find(
+                    (task) =>
+                        String(task.id) ===
+                        String(taskId),
+                );
+
+            if (
+                !sourceTask ||
+                sourceTask.completed ||
+                sourceTask.date === targetDate
+            ) {
+                return currentData;
+            }
+
+            return {
+                ...currentData,
+
+                tasks:
+                    currentData.tasks.map(
+                        (task) => {
+                            if (
+                                String(task.id) ===
+                                String(taskId)
+                            ) {
+                                return {
+                                    ...task,
+                                    date: targetDate,
+
+                                    carriedFromDate:
+                                        task.carriedFromDate ||
+                                        task.date,
+
+                                    carriedOverAt:
+                                        new Date()
+                                            .toISOString(),
+
+                                    prerequisites: [],
+                                };
+                            }
+
+                            return {
+                                ...task,
+
+                                prerequisites:
+                                    (
+                                        task.prerequisites ||
+                                        []
+                                    ).filter(
+                                        (
+                                            prerequisiteId,
+                                        ) =>
+                                            String(
+                                                prerequisiteId,
+                                            ) !==
+                                            String(taskId),
+                                    ),
+                            };
+                        },
+                    ),
+            };
+        });
     }
 
     /* Deletes a task and removes prerequisite references. */
@@ -503,6 +656,10 @@ export default function usePlannerDashboard() {
 
             hijriMethod:
                 form.get("hijriMethod"),
+
+            fontSize:
+                form.get("fontSize") ||
+                "medium",
         });
 
         setModal(null);
@@ -517,22 +674,38 @@ export default function usePlannerDashboard() {
         tasks,
         visibleTasks,
         todayRoutines,
+        carryTasks,
+        carryToday,
+        carryTomorrow,
         completedCount,
         importantTotal,
         importantCount,
         essentialCount,
         normalCount,
-        completionPercent,
+        completionPercent, carryTasks,
+        carryToday,
+        carryTomorrow,
         displayDate,
         secondaryDate,
         editingTask,
+        detailsTask,
         setFilter,
         setModal,
         toggleTask,
         saveTask,
+        carryTask,
         removeTask,
         completeTask,
         saveSettings,
+
+        /* Opens the task details modal. */
+        openDetailsModal:
+            (taskId) => {
+                setModal({
+                    type: "details",
+                    id: taskId,
+                });
+            },
 
         /* Opens the task completion modal. */
         openCompletionModal:

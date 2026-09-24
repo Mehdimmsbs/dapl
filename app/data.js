@@ -13,6 +13,7 @@ export const seed = {
 
 export const defaultSettings = {
   language: "en",
+  fontSize: "medium",
   calendar: "gregorian",
   secondaryCalendar: "none",
   firstDay: "monday",

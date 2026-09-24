@@ -7,6 +7,7 @@
   "today": "Heute",
   "monthView": "Monat",
   "calendar": "Kalender",
+  "taskDate": "Aufgabendatum",
   "tasks": "Alle Aufgaben",
   "routines": "Routinen",
   "settings": "Einstellungen",
@@ -103,5 +104,18 @@
   "prereqNeeds": "Voraussetzung: {x}",
   "dayCount": "{n} Aufgaben",
   "doneCount": "{n} erledigt",
-  "toggleSidebar": "Seitenleiste umschalten"
+  "carryOver": "Übertragen",
+  "carryWindow": "Offene Aufgaben der letzten drei Tage",
+  "moveToToday": "Auf heute verschieben",
+  "moveToTomorrow": "Auf morgen verschieben",
+  "noCarryTasks": "Keine offenen Aufgaben zum Übertragen.",
+  "toggleSidebar": "Seitenleiste umschalten",
+  "taskDetails": "Aufgabendetails",
+  "status": "Status",
+  "carriedFrom": "Ursprünglich geplant für",
+  "fontSize": "Schriftgröße",
+  "fontSmall": "Klein",
+  "fontMedium": "Mittel",
+  "installApp": "App installieren",
+  "fontLarge": "Groß"
 }

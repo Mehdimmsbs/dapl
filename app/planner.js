@@ -8,6 +8,7 @@ import SettingsModal from "../components/planner/SettingsModal";
 import TaskForm from "../components/planner/TaskForm";
 import TodayTasksCard from "../components/planner/TodayTasksCard";
 import usePlannerDashboard from "../hooks/usePlannerDashboard";
+import TaskDetailsModal from "../components/planner/TaskDetailsModal";
 
 /* Composes the dashboard from focused components. */
 export default function Planner() {
@@ -52,6 +53,9 @@ export default function Planner() {
               tasks={planner.tasks}
               visibleTasks={
                 planner.visibleTasks
+              }
+              onViewTask={
+                planner.openDetailsModal
               }
               displayDate={
                 planner.displayDate
@@ -99,6 +103,18 @@ export default function Planner() {
               todayRoutines={
                 planner.todayRoutines
               }
+              carryTasks={
+                planner.carryTasks
+              }
+              carryToday={
+                planner.carryToday
+              }
+              carryTomorrow={
+                planner.carryTomorrow
+              }
+              calendar={
+                settings.calendar
+              }
               completedCount={
                 planner.completedCount
               }
@@ -112,10 +128,11 @@ export default function Planner() {
                 settings.language
               }
               onAddTask={() => {
-                planner.setModal(
-                  "add",
-                );
+                planner.setModal("add");
               }}
+              onCarryTask={
+                planner.carryTask
+              }
               onOpenSettings={() => {
                 planner.setModal(
                   "settings",
@@ -133,6 +150,7 @@ export default function Planner() {
       ) && (
           <TaskForm
             lang={settings.language}
+            calendar={settings.calendar}
             data={planner.data}
             date={planner.date}
             task={
@@ -144,6 +162,29 @@ export default function Planner() {
             onSave={
               planner.saveTask
             }
+          />
+        )}
+
+      {planner.modal?.type === "details" &&
+        planner.detailsTask && (
+          <TaskDetailsModal
+            task={planner.detailsTask}
+            data={planner.data}
+            calendar={settings.calendar}
+            lang={settings.language}
+            onClose={() => {
+              planner.setModal(null);
+            }}
+            onEdit={() => {
+              planner.openEditModal(
+                planner.detailsTask.id,
+              );
+            }}
+            onRemove={() => {
+              planner.removeTask(
+                planner.detailsTask,
+              );
+            }}
           />
         )}
 

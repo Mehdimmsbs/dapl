@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { tr } from "../../lib/i18n";
 import { formatDate } from "../../lib/date";
 import Modal from "../ui/Modal";
@@ -5,18 +8,21 @@ import Modal from "../ui/Modal";
 /* Displays the form for creating or editing a task. */
 export default function TaskForm({
   lang,
+  calendar = "gregorian",
   data,
   date,
   task,
   onClose,
   onSave,
 }) {
-  /* Returns translated text for the selected language. */
+  const [taskDate, setTaskDate] = useState(
+    task?.date || date,
+  );
+
   function t(key, variables) {
     return tr(lang, key, variables);
   }
 
-  /* Shows time inputs only when time scheduling is selected. */
   function handleScheduleChange(event) {
     const timeFields =
       event.currentTarget.form.querySelector(".timeFields");
@@ -26,11 +32,22 @@ export default function TaskForm({
     }
   }
 
+  function handleDateChange(event) {
+    setTaskDate(event.target.value);
+  }
+
   const modalTitle = task
     ? t("editTask")
     : t("addFor", {
-        date: formatDate(date, "gregorian", lang),
-      });
+      date: formatDate(taskDate, calendar, lang),
+    });
+
+  const availablePrerequisites = data.tasks.filter(
+    (item) =>
+      !item.completed &&
+      item.date === taskDate &&
+      String(item.id) !== String(task?.id),
+  );
 
   return (
     <Modal title={modalTitle} close={onClose}>
@@ -46,6 +63,7 @@ export default function TaskForm({
           <input
             name="title"
             required
+            autoFocus
             defaultValue={task?.title || ""}
           />
         </label>
@@ -60,15 +78,30 @@ export default function TaskForm({
         </label>
 
         <label>
+          {t("taskDate")}
+          <input
+            name="date"
+            type="date"
+            required
+            value={taskDate}
+            onChange={handleDateChange}
+          />
+        </label>
+
+        <label>
           {t("priority")}
           <select
             name="priority"
             defaultValue={task?.priority || "normal"}
           >
-            <option value="normal">{t("normal")}</option>
+            <option value="normal">
+              {t("normal")}
+            </option>
+
             <option value="important">
               {t("importantLabel")}
             </option>
+
             <option value="essential">
               {t("essentialLabel")}
             </option>
@@ -82,8 +115,13 @@ export default function TaskForm({
             defaultValue={task?.scheduleType || "day"}
             onChange={handleScheduleChange}
           >
-            <option value="day">{t("day")}</option>
-            <option value="time">{t("atTime")}</option>
+            <option value="day">
+              {t("day")}
+            </option>
+
+            <option value="time">
+              {t("atTime")}
+            </option>
           </select>
         </label>
 
@@ -116,20 +154,15 @@ export default function TaskForm({
             name="prerequisite"
             defaultValue={task?.prerequisites?.[0] || ""}
           >
-            <option value="">{t("none")}</option>
+            <option value="">
+              {t("none")}
+            </option>
 
-            {data.tasks
-              .filter(
-                (item) =>
-                  !item.completed &&
-                  item.date === date &&
-                  item.id !== task?.id,
-              )
-              .map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.title}
-                </option>
-              ))}
+            {availablePrerequisites.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.title}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -139,15 +172,29 @@ export default function TaskForm({
             name="unit"
             defaultValue={task?.activityUnit || "minute"}
           >
-            <option value="minute">{t("unitMinute")}</option>
-            <option value="hour">{t("unitHour")}</option>
-            <option value="percent">{t("unitPercent")}</option>
-            <option value="item">{t("unitItem")}</option>
-            <option value="page">{t("unitPage")}</option>
+            <option value="minute">
+              {t("unitMinute")}
+            </option>
+
+            <option value="hour">
+              {t("unitHour")}
+            </option>
+
+            <option value="percent">
+              {t("unitPercent")}
+            </option>
+
+            <option value="item">
+              {t("unitItem")}
+            </option>
+
+            <option value="page">
+              {t("unitPage")}
+            </option>
           </select>
         </label>
 
-        <button className="primary">
+        <button className="primary" type="submit">
           {t("save")}
         </button>
       </form>

@@ -26,6 +26,18 @@ import {
 
 const LanguageContext = createContext(null);
 
+const FONT_SIZES = [
+  "small",
+  "medium",
+  "large",
+];
+
+function normalizeFontSize(fontSize) {
+  return FONT_SIZES.includes(fontSize)
+    ? fontSize
+    : "medium";
+}
+
 /* Provides language, calendar and appearance settings globally. */
 export function LanguageProvider({ children }) {
   const [settings, setSettings] =
@@ -44,8 +56,13 @@ export function LanguageProvider({ children }) {
     setSettings({
       ...defaultSettings,
       ...storedSettings,
+
       language: normalizeLocale(
         storedSettings.language,
+      ),
+
+      fontSize: normalizeFontSize(
+        storedSettings.fontSize,
       ),
     });
 
@@ -71,9 +88,15 @@ export function LanguageProvider({ children }) {
       setSettings((currentSettings) => ({
         ...currentSettings,
         ...incomingSettings,
+
         language: normalizeLocale(
           incomingSettings.language ??
-            currentSettings.language,
+          currentSettings.language,
+        ),
+
+        fontSize: normalizeFontSize(
+          incomingSettings.fontSize ??
+          currentSettings.fontSize,
         ),
       }));
     }
@@ -122,6 +145,11 @@ export function LanguageProvider({ children }) {
 
     document.documentElement.dir =
       localeConfig.direction;
+
+    document.documentElement.dataset.fontSize =
+      normalizeFontSize(
+        settings.fontSize,
+      );
 
     document.documentElement.classList.toggle(
       "dark",
