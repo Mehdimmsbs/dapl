@@ -1,88 +1,222 @@
-'use client';
-import {useEffect,useMemo,useState} from 'react';
-import {KEY,SETTINGS,seed,defaultSettings} from './data';
-import {tr,translations} from '../lib/i18n';
-import {formatDate,formatWeekday,isoToday,addDays} from '../lib/date';
+"use client";
 
-const ROUTINES='personal-daily-planner-routines-v8';
+import AppShell from "../components/layout/AppShell";
+import CompletionModal from "../components/planner/CompletionModal";
+import DashboardHero from "../components/planner/DashboardHero";
+import DashboardSidebar from "../components/planner/DashboardSidebar";
+import SettingsModal from "../components/planner/SettingsModal";
+import TaskForm from "../components/planner/TaskForm";
+import TodayTasksCard from "../components/planner/TodayTasksCard";
+import usePlannerDashboard from "../hooks/usePlannerDashboard";
+import TaskDetailsModal from "../components/planner/TaskDetailsModal";
 
-export default function Planner(){
- const [data,setData]=useState(seed),[settings,setSettings]=useState(defaultSettings),[date,setDate]=useState(isoToday),[modal,setModal]=useState(null),[filter,setFilter]=useState('all'),[hydrated,setHydrated]=useState(false),[dark,setDark]=useState(false),[collapsed,setCollapsed]=useState(false),[mobileOpen,setMobileOpen]=useState(false),[routines,setRoutines]=useState([]);
- useEffect(()=>{try{const x=localStorage.getItem(KEY);if(x)setData(JSON.parse(x));const s=localStorage.getItem(SETTINGS);if(s)setSettings({...defaultSettings,...JSON.parse(s)});setDark(localStorage.getItem('pdp-dark')==='1');const r=localStorage.getItem(ROUTINES);if(r)setRoutines(JSON.parse(r))}catch{}setHydrated(true)},[]);
- useEffect(()=>{if(!hydrated)return;localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(SETTINGS,JSON.stringify(settings));localStorage.setItem('pdp-dark',dark?'1':'0');document.documentElement.lang=settings.language;document.documentElement.dir=translations[settings.language].dir;document.documentElement.classList.toggle('dark',dark);document.documentElement.classList.remove('font-small','font-medium','font-large');document.documentElement.classList.add(`font-${settings.fontSize||'small'}`)},[data,settings,dark,hydrated]);
- useEffect(()=>{const params=new URLSearchParams(location.search);const selected=localStorage.getItem('pdp-selected-date');if(selected){setDate(selected);localStorage.removeItem('pdp-selected-date')}if(params.get('new')==='1')setModal('add');if(params.get('settings')==='1')setModal('settings')},[]);
- const t=k=>tr(settings.language,k);
- const tasks=useMemo(()=>data.tasks.filter(x=>x.date===date),[data.tasks,date]);
- const visibleTasks=useMemo(()=>tasks.filter(x=>filter==='remaining'?!x.completed:filter==='essential'?x.priority==='essential':filter==='important'?x.priority==='important':filter==='normal'?x.priority==='normal':true),[tasks,filter]);
- const done=tasks.filter(x=>x.completed).length,important=tasks.filter(x=>x.priority!=='normal').length,essential=tasks.filter(x=>x.priority==='essential').length,pct=tasks.length?Math.round(done/tasks.length*100):0;
- const weekday=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date(date+'T12:00:00').getDay()];
- const todayRoutines=routines.filter(r=>r.enabled&&(r.days||[]).includes(weekday));
- const carryWindow=useMemo(()=>{const today=isoToday;const from=addDays(today,-2);const to=addDays(today,1);return data.tasks.filter(x=>!x.completed&&x.date>=from&&x.date<=today).sort((a,b)=>a.date.localeCompare(b.date))},[data.tasks]);
- function toggle(task){if((task.prerequisites||[]).some(id=>!data.tasks.find(x=>x.id===id)?.completed))return;setData(d=>({...d,tasks:d.tasks.map(x=>x.id===task.id?{...x,completed:!x.completed,completedAt:!x.completed?new Date().toISOString():null}:x)}))}
- function saveTask(form){
-   const {id,title,description,priority,scheduleType,startTime,endTime,prerequisite,unit,targetDate,carryId}=form;
-   const source=carryId?data.tasks.find(x=>String(x.id)===String(carryId)):null;
-   const existing=id?data.tasks.find(x=>String(x.id)===String(id)):null;
-   const target=targetDate||date;
-   const count=data.tasks.filter(x=>x.date===target&&String(x.id)!==String(id)&&x.priority!=='normal').length;
-   const essentialCount=data.tasks.filter(x=>x.date===target&&String(x.id)!==String(id)&&x.priority==='essential').length;
-   if(priority!=='normal'&&count>=7){alert(t('maxImportant'));return false}
-   if(priority==='essential'&&essentialCount>=3){alert(t('maxEssential'));return false}
-   if(!title.trim())return false;
-   const base=source||existing;
-   const task={id:existing?.id||Date.now(),title:title.trim(),description:description.trim(),date:target,priority,scheduleType,startTime:scheduleType==='time'?startTime:'',endTime:scheduleType==='time'?endTime:'',completed:source?false:(existing?.completed||false),activityUnit:unit,activityValue:source?0:(existing?.activityValue||0),prerequisites:source?[]:(prerequisite?[Number(prerequisite)]:[]),routineId:existing?.routineId,source:existing?.source,carriedFromDate:source?source.date:existing?.carriedFromDate,carriedOverAt:source?new Date().toISOString():existing?.carriedOverAt};
-   setData(d=>{let tasks=d.tasks;if(source){tasks=tasks.map(x=>x.id===source.id?task:x)}else if(existing){tasks=tasks.map(x=>x.id===existing.id?task:x)}else tasks=[...tasks,task];return {...d,tasks}});
-   setDate(target);setModal(null);return true;
- }
- function removeTask(task){if(!window.confirm(t('confirmDeleteTask')))return;setData(d=>({...d,tasks:d.tasks.filter(x=>x.id!==task.id).map(x=>({...x,prerequisites:(x.prerequisites||[]).filter(id=>id!==task.id)}))}));setModal(null)}
- function complete(e){e.preventDefault();const f=new FormData(e.currentTarget),id=Number(f.get('id'));setData(d=>({...d,tasks:d.tasks.map(x=>x.id===id?{...x,completed:true,activityValue:Number(f.get('value')||0),description:String(f.get('desc')||x.description),completedAt:new Date().toISOString()}:x)}));setModal(null)}
- function saveSettings(e){e.preventDefault();const f=new FormData(e.currentTarget);setSettings(s=>({...s,language:f.get('language'),calendar:f.get('calendar'),secondaryCalendar:f.get('secondaryCalendar'),firstDay:f.get('firstDay'),hijriMethod:f.get('hijriMethod'),fontSize:f.get('fontSize')}));setModal(null)}
- const displayDate=formatDate(date,settings.calendar,settings.language),secondary=settings.secondaryCalendar!=='none'?formatDate(date,settings.secondaryCalendar,settings.language,true):'';
- const openDetails=task=>setModal({type:'details',id:task.id});
- return <div className={`appShell ${collapsed?'sideCollapsed':''}`}>
-  <aside className="sidebar"><div className="brand"><div className="brandMark">✓</div><div className="brandText"><b>روزمن</b><span>{t('planner')}</span></div><button className="collapseBtn" onClick={()=>setCollapsed(v=>!v)}>{collapsed?'»':'«'}</button></div><nav className="nav"><a className="active" href="/">⌂ <span>{t('today')}</span></a><a href="/calendar">▦ <span>{t('calendar')}</span></a><a href="/?new=1">＋ <span>{t('newTask')}</span></a><a href="/routines">↻ <span>{t('routines')}</span></a><a href="/?settings=1">⚙ <span>{t('settings')}</span></a></nav><div className="sideFooter"><small>{t('today')}</small><strong>{displayDate}</strong></div></aside>
-  {mobileOpen&&<><div className="drawerBackdrop" onClick={()=>setMobileOpen(false)}/><aside className="mobileDrawer"><div className="brand"><div className="brandMark">✓</div><div className="brandText"><b>روزمن</b><span>{t('planner')}</span></div><button className="drawerClose" onClick={()=>setMobileOpen(false)}>×</button></div><nav className="nav"><a className="active" href="/">⌂ <span>{t('today')}</span></a><a href="/calendar">▦ <span>{t('calendar')}</span></a><a href="/?new=1">＋ <span>{t('newTask')}</span></a><a href="/routines">↻ <span>{t('routines')}</span></a><a href="/?settings=1">⚙ <span>{t('settings')}</span></a></nav></aside></>}
-  <div className="main"><header className="topbar"><div className="topLeft"><button className="mobileMenu" onClick={()=>setMobileOpen(true)}>☰</button><span className="crumb">{t('planner')} / {t('today')}</span></div><div className="topActions"><button className="iconBtn" onClick={()=>setDark(v=>!v)}>{dark?'☀':'☾'}</button><button className="iconBtn" onClick={()=>setModal('settings')}>⚙</button><div className="avatar">م</div></div></header>
-   <main className="content"><div className="hero"><div><div className="kicker">{formatWeekday(date,settings.language)}، {displayDate}</div><h1>{t('focus')}</h1><p>{t('focusSub')}</p>{secondary&&<span className="secondaryDate">{secondary}</span>}</div><button className="primary" onClick={()=>setModal('add')}>+ {t('newTask')}</button></div>
-   <div className="dashboardGrid"><section className="card todayCard"><div className="cardHeader"><div><h2>{t('today')}</h2><p>{t('completedOf',{n:done,n2:tasks.length})}</p></div><span className="datePill">{displayDate}</span></div><div className="progressRow"><span>{t('progress')}</span><b>{pct}%</b></div><div className="progress"><i style={{width:`${pct}%`}}/></div><div className="filterBar"><button className={filter==='essential'?'on':''} onClick={()=>setFilter(filter==='essential'?'all':'essential')}>{t('essentialLabel')} <b>{essential}</b></button><button className={filter==='important'?'on':''} onClick={()=>setFilter(filter==='important'?'all':'important')}>{t('importantLabel')} <b>{tasks.filter(x=>x.priority==='important').length}</b></button><button className={filter==='normal'?'on':''} onClick={()=>setFilter(filter==='normal'?'all':'normal')}>{t('normal')} <b>{tasks.filter(x=>x.priority==='normal').length}</b></button><button className={filter==='remaining'?'on':''} onClick={()=>setFilter(filter==='remaining'?'all':'remaining')}>{t('remaining')}</button></div><div className="taskList">{visibleTasks.map(x=><Task key={x.id} t={x} data={data} toggle={toggle} openDetails={()=>openDetails(x)} complete={()=>setModal({type:'complete',id:x.id})} edit={()=>setModal({type:'edit',id:x.id})} remove={()=>removeTask(x)} lang={settings.language}/>)}{!visibleTasks.length&&<div className="empty">{t('noTasks')}</div>}</div></section>
-   <aside>
-   {carryWindow.length>0&&<div className="card carryMini"><div className="cardHeader"><div><h2>↻ {t('carryOver')}</h2><p>{t('carryWindow')}</p></div><button className="ghost" onClick={()=>setModal('add-carry')}>{t('move')}</button></div><div className="carryMiniList">{carryWindow.slice(0,5).map(x=><div className="carryMiniItem" key={x.id}><div><b>{x.title}</b><small>{formatDate(x.date,settings.calendar,settings.language)}</small></div><button className="miniBtn" onClick={()=>setModal({type:'edit',id:x.id})}>✎</button></div>)}</div></div>}<div className="stats"><div className="stat purple"><div className="num">{tasks.length}</div><small>{t('total')}</small></div><div className="stat yellow"><div className="num">{important}/7</div><small>{t('important')}</small></div><div className="stat red"><div className="num">{essential}/3</div><small>{t('essential')}</small></div><div className="stat green"><div className="num">{done}</div><small>{t('done')}</small></div></div>
-   <div className="card quick"><div className="cardHeader"><h2>{t('quick')}</h2></div><div className="quickGrid"><button type="button" onClick={()=>setModal('add')}><b>＋</b><span>{t('newTask')}</span></button><button type="button" onClick={()=>location.href='/calendar'}><b>▦</b><span>{t('calendar')}</span></button><button type="button" onClick={()=>location.href='/routines'}><b>↻</b><span>{t('routines')}</span></button><button type="button" onClick={()=>setModal('settings')}><b>⚙</b><span>{t('settings')}</span></button></div></div>
-   <div className="card routineMini"><div className="cardHeader"><div><h2>↻ {t('routines')}</h2><p>{todayRoutines.length} {t('routines')}</p></div><button className="ghost" onClick={()=>location.href='/routines'}>{t('edit')}</button></div><div className="routineMiniList">{todayRoutines.slice(0,5).map(r=>{const rt=tasks.find(x=>x.routineId===r.id);return <div className="routineMiniItem" key={r.id}><span className={`routineStatus ${rt?.completed?'done':''}`}>{rt?.completed?'✓':'○'}</span><div><b>{r.title}</b><small>{r.scheduleType==='time'?`${r.startTime} – ${r.endTime}`:t('day')}</small></div></div>})}{!todayRoutines.length&&<div className="empty">{t('noRoutines')}</div>}</div></div>
-   </aside></div></main><MobileNav lang={settings.language}/></div>
-  {modal&&(modal==='add'||modal==='add-carry'||modal?.type==='edit')&&<TaskForm lang={settings.language} data={data} date={date} task={modal.type==='edit'?data.tasks.find(x=>x.id===modal.id):null} initialMode={modal==='add-carry'?'carry':'new'} calendar={settings.calendar} onClose={()=>setModal(null)} onSave={saveTask}/>} 
-  {modal?.type==='complete'&&<Modal title={t('result')} close={()=>setModal(null)}><form className="form" onSubmit={complete}><input type="hidden" name="id" value={modal.id}/><label>{t('activity')}<input name="value" type="number" min="0" placeholder="0"/></label><label>{t('description')}<textarea name="desc" rows="5"/></label><button className="primary">{t('saveResult')}</button></form></Modal>}
-  {modal==='settings'&&<SettingsModal lang={settings.language} settings={settings} dark={dark} onDark={setDark} onClose={()=>setModal(null)} onSave={saveSettings}/>} 
-  {modal?.type==='details'&&<TaskDetails lang={settings.language} calendar={settings.calendar} task={data.tasks.find(x=>x.id===modal.id)} data={data} onClose={()=>setModal(null)} edit={()=>setModal({type:'edit',id:modal.id})} remove={()=>removeTask(data.tasks.find(x=>x.id===modal.id))} complete={()=>setModal({type:'complete',id:modal.id})}/>} 
- </div>
+/* Composes the dashboard from focused components. */
+export default function Planner() {
+  const planner =
+    usePlannerDashboard();
+
+  const { settings } = planner;
+
+  return (
+    <>
+      <AppShell
+        activePage="today"
+        displayDate={
+          planner.displayDate
+        }
+        onOpenSettings={() => {
+          planner.setModal(
+            "settings",
+          );
+        }}
+      >
+        <main className="content">
+          <DashboardHero
+            date={planner.date}
+            displayDate={
+              planner.displayDate
+            }
+            secondaryDate={
+              planner.secondaryDate
+            }
+            lang={
+              settings.language
+            }
+            onAddTask={() => {
+              planner.setModal("add");
+            }}
+          />
+
+          <div className="dashboardGrid">
+            <TodayTasksCard
+              data={planner.data}
+              tasks={planner.tasks}
+              visibleTasks={
+                planner.visibleTasks
+              }
+              onViewTask={
+                planner.openDetailsModal
+              }
+              displayDate={
+                planner.displayDate
+              }
+              filter={
+                planner.filter
+              }
+              completedCount={
+                planner.completedCount
+              }
+              essentialCount={
+                planner.essentialCount
+              }
+              importantCount={
+                planner.importantCount
+              }
+              normalCount={
+                planner.normalCount
+              }
+              completionPercent={
+                planner.completionPercent
+              }
+              lang={
+                settings.language
+              }
+              onFilterChange={
+                planner.setFilter
+              }
+              onToggleTask={
+                planner.toggleTask
+              }
+              onCompleteTask={
+                planner.openCompletionModal
+              }
+              onEditTask={
+                planner.openEditModal
+              }
+              onRemoveTask={
+                planner.removeTask
+              }
+            />
+
+            <DashboardSidebar
+              tasks={planner.tasks}
+              todayRoutines={
+                planner.todayRoutines
+              }
+              carryTasks={
+                planner.carryTasks
+              }
+              carryToday={
+                planner.carryToday
+              }
+              carryTomorrow={
+                planner.carryTomorrow
+              }
+              calendar={
+                settings.calendar
+              }
+              completedCount={
+                planner.completedCount
+              }
+              essentialCount={
+                planner.essentialCount
+              }
+              importantTotal={
+                planner.importantTotal
+              }
+              lang={
+                settings.language
+              }
+              onAddTask={() => {
+                planner.setModal("add");
+              }}
+              onCarryTask={
+                planner.carryTask
+              }
+              onOpenSettings={() => {
+                planner.setModal(
+                  "settings",
+                );
+              }}
+            />
+          </div>
+        </main>
+      </AppShell>
+
+      {(
+        planner.modal === "add" ||
+        planner.modal?.type ===
+        "edit"
+      ) && (
+          <TaskForm
+            lang={settings.language}
+            calendar={settings.calendar}
+            data={planner.data}
+            date={planner.date}
+            task={
+              planner.editingTask
+            }
+            onClose={() => {
+              planner.setModal(null);
+            }}
+            onSave={
+              planner.saveTask
+            }
+          />
+        )}
+
+      {planner.modal?.type === "details" &&
+        planner.detailsTask && (
+          <TaskDetailsModal
+            task={planner.detailsTask}
+            data={planner.data}
+            calendar={settings.calendar}
+            lang={settings.language}
+            onClose={() => {
+              planner.setModal(null);
+            }}
+            onEdit={() => {
+              planner.openEditModal(
+                planner.detailsTask.id,
+              );
+            }}
+            onRemove={() => {
+              planner.removeTask(
+                planner.detailsTask,
+              );
+            }}
+          />
+        )}
+
+      {planner.modal?.type ===
+        "complete" && (
+          <CompletionModal
+            lang={settings.language}
+            taskId={
+              planner.modal.id
+            }
+            onClose={() => {
+              planner.setModal(null);
+            }}
+            onSubmit={
+              planner.completeTask
+            }
+          />
+        )}
+
+      {planner.modal ===
+        "settings" && (
+          <SettingsModal
+            lang={settings.language}
+            settings={settings}
+            onClose={() => {
+              planner.setModal(null);
+            }}
+            onSubmit={
+              planner.saveSettings
+            }
+          />
+        )}
+    </>
+  );
 }
-
-function TaskForm({lang,data,date,task,initialMode='new',calendar='jalali',onClose,onSave}){
- const t=k=>tr(lang,k); const initial=task||{};
- const [targetDate,setTargetDate]=useState(initial.date||(initialMode==='carry'?isoToday:date)),[mode,setMode]=useState(initialMode),[carryId,setCarryId]=useState(''),[title,setTitle]=useState(initial.title||''),[description,setDescription]=useState(initial.description||''),[priority,setPriority]=useState(initial.priority||'normal'),[scheduleType,setScheduleType]=useState(initial.scheduleType||'day'),[startTime,setStartTime]=useState(initial.startTime||''),[endTime,setEndTime]=useState(initial.endTime||''),[prerequisite,setPrerequisite]=useState(initial.prerequisites?.[0]||''),[unit,setUnit]=useState(initial.activityUnit||'دقیقه');
- const overdueTasks=useMemo(()=>{const today=isoToday;const from=addDays(today,-2);return data.tasks.filter(x=>!x.completed&&x.date>=from&&x.date<=today&&x.id!==initial.id).sort((a,b)=>a.date.localeCompare(b.date))},[data.tasks,initial.id]);
- function chooseCarry(id){setCarryId(id);const x=overdueTasks.find(v=>String(v.id)===String(id));if(x){setTitle(x.title||'');setDescription(x.description||'');setPriority(x.priority||'normal');setScheduleType(x.scheduleType||'day');setStartTime(x.startTime||'');setEndTime(x.endTime||'');setUnit(x.activityUnit||'دقیقه');setPrerequisite('')}}
- function submit(e){e.preventDefault();onSave({id:task?.id||'',title,description,priority,scheduleType,startTime,endTime,prerequisite,unit,targetDate,carryId:mode==='carry'?carryId:''})}
- return <Modal title={task?t('editTask'):t('addFor',{date:formatDate(targetDate,calendar,lang)})} close={onClose}><form className="form" onSubmit={submit}>
-   {!task&&<label>{t('taskSource')}<select value={mode} onChange={e=>{setMode(e.target.value);if(e.target.value==='new')setCarryId('')}}><option value="new">{t('newTaskSource')}</option><option value="carry">{t('carryTaskSource')}</option></select></label>}
-   {mode==='carry'&&!task&&<label>{t('carryTaskLabel')}<select value={carryId} onChange={e=>chooseCarry(e.target.value)} required><option value="">{t('selectCarryTask')}</option>{overdueTasks.map(x=><option key={x.id} value={x.id}>{x.title} — {formatDate(x.date,calendar,lang)}</option>)}</select></label>}
-   <label>{t('taskDate')}
-     <div className="dateField"><span aria-live="polite">{formatDate(targetDate,calendar,lang)}</span><input aria-label={t('taskDate')} type="date" value={targetDate} min={mode==='carry'?isoToday:addDays(isoToday,-3650)} max={mode==='carry'?addDays(isoToday,1):undefined} onChange={e=>{const v=e.target.value;if(v){if(mode==='carry'&&(v!==isoToday&&v!==addDays(isoToday,1)))return;setTargetDate(v)}}} required/></div>
-     {mode==='carry'&&<small className="formHint">{t('carryTargets')}</small>}
-   </label>
-   <label>{t('title')}<input value={title} onChange={e=>setTitle(e.target.value)} required/></label>
-   <label>{t('description')}<textarea value={description} onChange={e=>setDescription(e.target.value)} rows="3"/></label>
-   <label>{t('priority')}<select value={priority} onChange={e=>setPriority(e.target.value)}><option value="normal">{t('normal')}</option><option value="important">{t('importantLabel')}</option><option value="essential">{t('essentialLabel')}</option></select></label>
-   <label>{t('schedule')}<select value={scheduleType} onChange={e=>setScheduleType(e.target.value)}><option value="day">{t('day')}</option><option value="time">{t('atTime')}</option></select></label>
-   {scheduleType==='time'&&<div className="two timeFields"><label>{t('start')}<input name="startTime" type="time" value={startTime} onChange={e=>setStartTime(e.target.value)} required/></label><label>{t('end')}<input name="endTime" type="time" value={endTime} onChange={e=>setEndTime(e.target.value)} required/></label></div>}
-   <label>{t('prerequisite')}<select value={prerequisite} onChange={e=>setPrerequisite(e.target.value)}><option value="">{t('none')}</option>{data.tasks.filter(x=>!x.completed&&x.date===targetDate&&x.id!==task?.id).map(x=><option key={x.id} value={x.id}>{x.title}</option>)}</select></label>
-   <label>{t('unit')}<select value={unit} onChange={e=>setUnit(e.target.value)}><option>دقیقه</option><option>ساعت</option><option>درصد</option><option>مورد</option><option>صفحه</option></select></label>
-   <button className="primary">{t('save')}</button>
- </form></Modal>
-}
-
-function Task({t,data,toggle,openDetails,complete,edit,remove,lang}){const blocked=(t.prerequisites||[]).map(id=>data.tasks.find(x=>x.id===id)).find(x=>x&&!x.completed);const label={essential:tr(lang,'essentialLabel'),important:tr(lang,'importantLabel'),normal:tr(lang,'normal')};return <div className={`task ${t.completed?'done':''}`} onClick={openDetails} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==='Enter'||e.key===' ')openDetails()}}><button className="check" onClick={e=>{e.stopPropagation();toggle(t)}}>{t.completed?'✓':blocked?'🔒':'○'}</button><div className="taskInfo"><div className="taskTitle">{t.title}</div><div className="taskMeta">{t.scheduleType==='time'?`⏰ ${t.startTime} – ${t.endTime}`:`◷ ${tr(lang,'day')}`}{blocked?` · ${tr(lang,'prereqNeeds',{x:blocked.title})}`:''}</div>{t.description&&<div className="taskDesc">{t.description}</div>}</div><span className={`tag ${t.priority}`}>{label[t.priority]}</span><div className="taskActions"><button className="miniBtn" onClick={e=>{e.stopPropagation();edit()}} title={tr(lang,'edit')}>✎</button><button className="miniBtn dangerBtn" onClick={e=>{e.stopPropagation();remove()}} title={tr(lang,'delete')}>×</button>{!t.completed&&!blocked&&<button className="completeBtn" onClick={e=>{e.stopPropagation();complete()}}>{tr(lang,'saveResult')}</button>}</div></div>}
-function TaskDetails({lang,calendar='gregorian',task,data,onClose,edit,remove,complete}){if(!task)return null;const t=k=>tr(lang,k);const blocked=(task.prerequisites||[]).map(id=>data.tasks.find(x=>x.id===id)).find(x=>x&&!x.completed);return <Modal title={t('taskDetails')} close={onClose}><div className="detailGrid"><div><span>{t('title')}</span><b>{task.title}</b></div><div><span>{t('status')}</span><b>{task.completed?'✓ '+t('done'):t('remainingStatus')}</b></div><div><span>{t('priority')}</span><b>{task.priority==='essential'?t('essentialLabel'):task.priority==='important'?t('importantLabel'):t('normal')}</b></div><div><span>{t('schedule')}</span><b>{task.scheduleType==='time'?`${task.startTime} – ${task.endTime}`:t('day')}</b></div><div><span>{t('taskDate')}</span><b>{formatDate(task.date,calendar,lang)}</b></div>{blocked&&<div><span>{t('prerequisite')}</span><b>{blocked.title}</b></div>}</div><div className="detailDescription"><span>{t('description')}</span><p>{task.description||'—'}</p></div><div className="detailActions"><button className="ghost" onClick={edit}>{t('edit')}</button>{!task.completed&&!blocked&&<button className="completeBtn" onClick={complete}>{t('saveResult')}</button>}<button className="dangerAction" onClick={remove}>{t('delete')}</button></div></Modal>}
-function SettingsModal({lang,settings,dark,onDark,onClose,onSave}){const t=k=>tr(lang,k);return <Modal title={t('settingsTitle')} close={onClose}><form className="form" onSubmit={onSave}><p className="formHint">{t('settingsSub')}</p><label>{t('language')}<select name="language" defaultValue={settings.language}>{Object.entries(translations).map(([k,v])=><option key={k} value={k}>{v.name}</option>)}</select></label><label>{t('calendarType')}<select name="calendar" defaultValue={settings.calendar}><option value="gregorian">{t('gregorian')}</option><option value="jalali">{t('jalali')}</option><option value="hijri">{t('hijri')}</option></select></label><label>{t('secondary')}<select name="secondaryCalendar" defaultValue={settings.secondaryCalendar}><option value="none">{t('noneCalendar')}</option><option value="gregorian">{t('gregorian')}</option><option value="jalali">{t('jalali')}</option><option value="hijri">{t('hijri')}</option></select></label><label>{t('fontSize')}<select name="fontSize" defaultValue={settings.fontSize||'small'}><option value="small">{t('fontSmall')}</option><option value="medium">{t('fontMedium')}</option><option value="large">{t('fontLarge')}</option></select></label><label>{t('firstDay')}<select name="firstDay" defaultValue={settings.firstDay}><option value="saturday">{t('saturday')}</option><option value="sunday">{t('sunday')}</option></select></label><label>{t('hijriMethod')}<select name="hijriMethod" defaultValue={settings.hijriMethod}><option value="ummalqura">{t('ummalqura')}</option></select></label><label className="switchRow"><span>{t('darkMode')}</span><input type="checkbox" checked={dark} onChange={e=>onDark(e.target.checked)}/></label><button className="primary">{t('save')}</button></form></Modal>}
-function Modal({title,children,close}){return <div className="overlay" onMouseDown={close}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modalHeader"><h2>{title}</h2><button type="button" onClick={close}>×</button></div>{children}</div></div>}
-function MobileNav({lang}){return <nav className="mobileNav"><a href="/">⌂<span>{tr(lang,'today')}</span></a><a href="/calendar">▦<span>{tr(lang,'calendar')}</span></a><a href="/?new=1" className="add">+</a><a href="/routines">↻<span>{tr(lang,'routines')}</span></a><a href="/?settings=1">⚙<span>{tr(lang,'settings')}</span></a></nav>}

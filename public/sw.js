@@ -1,10 +1,72 @@
-const CACHE='rozman-shell-v1';
-const APP_SHELL=['/','/manifest.webmanifest'];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(APP_SHELL)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',event=>{
- if(event.request.method!=='GET')return;
- const url=new URL(event.request.url);
- if(url.origin!==self.location.origin)return;
- event.respondWith(fetch(event.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(event.request,copy)).catch(()=>{});return res}).catch(()=>caches.match(event.request).then(r=>r||caches.match('/'))));
+const CACHE_NAME = "dapl-assets-v1";
+
+const CACHEABLE_DESTINATIONS = new Set([
+    "image",
+    "font",
+]);
+
+self.addEventListener("install", () => {
+    self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+    event.waitUntil(
+        caches
+            .keys()
+            .then((cacheNames) =>
+                Promise.all(
+                    cacheNames
+                        .filter(
+                            (cacheName) =>
+                                cacheName.startsWith("dapl-") &&
+                                cacheName !== CACHE_NAME,
+                        )
+                        .map((cacheName) =>
+                            caches.delete(cacheName),
+                        ),
+                ),
+            )
+            .then(() => self.clients.claim()),
+    );
+});
+
+self.addEventListener("fetch", (event) => {
+    const { request } = event;
+
+    if (
+        request.method !== "GET" ||
+        !CACHEABLE_DESTINATIONS.has(
+            request.destination,
+        )
+    ) {
+        return;
+    }
+
+    const requestUrl = new URL(request.url);
+
+    if (requestUrl.origin !== self.location.origin) {
+        return;
+    }
+
+    event.respondWith(
+        caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+
+            return fetch(request).then((response) => {
+                if (!response || !response.ok) {
+                    return response;
+                }
+
+                const responseCopy = response.clone();
+
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(request, responseCopy);
+                });
+
+                return response;
+            });
+        }),
+    );
 });

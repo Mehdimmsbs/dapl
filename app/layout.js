@@ -1,20 +1,54 @@
 import "./globals.css";
-import PWARegister from "./PWARegister";
 
-export const viewport = { themeColor: "#5b5ce2", width: "device-width", initialScale: 1 };
+import PWARegister from "../components/pwa/PWARegister";
+import { LanguageProvider } from "../components/providers/LanguageProvider";
+import defaultMessages from "../locales/translations/en.json";
+import {
+  DEFAULT_LOCALE,
+  getLocaleConfig,
+} from "../locales/config";
+
+const defaultLocaleConfig =
+  getLocaleConfig(DEFAULT_LOCALE);
 
 export const metadata = {
-  title: "برنامه‌ریز شخصی",
-  description: "برنامه‌ریز شخصی و مدیریت کارهای روزانه",
+  title: defaultMessages.metaTitle,
+  description: defaultMessages.metaDescription,
+  applicationName: "My Day",
   manifest: "/manifest.webmanifest",
-  themeColor: "#5b5ce2",
-  icons: { icon: "/icons/icon-192.png", apple: "/icons/icon-192.png" }
+
+  icons: {
+    icon: "/icons/my-day-logo.png",
+    apple: "/icons/my-day-logo.png",
+  },
+
+  appleWebApp: {
+    capable: true,
+    title: "My Day",
+    statusBarStyle: "default",
+  },
 };
 
-export default function RootLayout({ children }) {
+export const viewport = {
+  themeColor: "#5b5cf6",
+  colorScheme: "light dark",
+};
+
+export default function RootLayout({
+  children,
+}) {
   return (
-    <html lang="fa" dir="rtl">
-      <body>{children}<PWARegister /></body>
+    <html
+      lang={DEFAULT_LOCALE}
+      dir={defaultLocaleConfig.direction}
+      suppressHydrationWarning
+    >
+      <body>
+        <LanguageProvider>
+          {children}
+          <PWARegister />
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

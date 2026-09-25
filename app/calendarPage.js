@@ -1,9 +1,243 @@
-'use client';
-import {useEffect,useMemo,useState} from 'react';
-import {KEY,SETTINGS,seed,defaultSettings} from './data';
-import {tr,translations} from '../lib/i18n';
-import {formatDate,calendarParts,addDays,isoDate,monthTitle,weekdayIndex,monthDates,isoToday} from '../lib/date';
-export default function CalendarPage(){const[data,setData]=useState(seed),[settings,setSettings]=useState(defaultSettings),[anchor,setAnchor]=useState(isoToday),[selected,setSelected]=useState(null),[modal,setModal]=useState(null);useEffect(()=>{try{const x=localStorage.getItem(KEY);if(x)setData(JSON.parse(x));const s=localStorage.getItem(SETTINGS);if(s)setSettings({...defaultSettings,...JSON.parse(s)})}catch{}},[]);useEffect(()=>{document.documentElement.lang=settings.language;document.documentElement.dir=translations[settings.language].dir},[settings]);const t=k=>tr(settings.language,k);const days=monthDates(anchor,settings.calendar);const first=days[0];const lead=(weekdayIndex(first)-(settings.firstDay==='sunday'?0:6)+7)%7;const cells=[...Array(lead).fill(null),...days];const dayTasks=iso=>data.tasks.filter(x=>x.date===iso);function choose(iso){setSelected(iso);setModal(dayTasks(iso).length?'day':'add')}function shift(n){let d=addDays(anchor,n*20);while(monthTitle(d,settings.calendar,'en')===monthTitle(anchor,settings.calendar,'en'))d=addDays(d,n);setAnchor(d)}return <div className="appShell"><aside className="sidebar"><div className="brand"><div className="brandMark">✓</div><div className="brandText"><b>روزمن</b><span>{t('planner')}</span></div></div><nav className="nav"><a href="/">⌂ <span>{t('today')}</span></a><a className="active" href="/calendar">▦ <span>{t('calendar')}</span></a><a href="/?new=1">＋ <span>{t('newTask')}</span></a><a href="/routines">↻ <span>{t('routines')}</span></a><a href="/?settings=1">⚙ <span>{t('settings')}</span></a></nav></aside><div className="main"><header className="topbar"><span className="crumb">{t('planner')} / {t('calendar')}</span></header><main className="content"><div className="hero"><div><div className="kicker">{t('calendar')}</div><h1>{t('calendarTitle')}</h1><p>{t('calendarSub')}</p></div></div><section className="card calendarWrap"><div className="calendarToolbar"><div className="monthTitle"><h1>{monthTitle(anchor,settings.calendar,settings.language)}</h1><span>{days.length} {t('days')}</span></div><div className="monthActions"><button className="ghost" onClick={()=>shift(-1)}>{t('monthPrev')}</button><button className="ghost" onClick={()=>setAnchor(isoToday)}>{t('monthToday')}</button><button className="ghost" onClick={()=>shift(1)}>{t('monthNext')}</button></div></div><div className="calGrid">{Array.from({length:7},(_,i)=>{const names=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];const idx=(settings.firstDay==='sunday'?i:(i+6)%7);return <div className="calHead" key={i}>{t(names[idx])}</div>})}{cells.map((iso,i)=>iso?<button key={iso} className={`calDay ${iso===selected?'selected':''}`} onClick={()=>choose(iso)}><span className="dayNum">{calendarParts(iso,settings.calendar,settings.language).day}</span><div className="dots">{dayTasks(iso).some(x=>x.priority==='essential')&&<i className="dot r"/>}{dayTasks(iso).some(x=>x.priority==='important')&&<i className="dot p"/>}{dayTasks(iso).some(x=>x.completed)&&<i className="dot g"/>}</div>{dayTasks(iso).length>0&&<span className="count">{t('dayCount',{n:dayTasks(iso).length})}</span>}</button>:<div className="calBlank" key={'b'+i}/>)}</div></section></main><MobileNav lang={settings.language}/></div>{modal==='day'&&<Modal title={formatDate(selected,settings.calendar,settings.language)} close={()=>setModal(null)}><div className="calendarTaskList">{dayTasks(selected).map(x=><div className="calendarTask" key={x.id}><b>{x.title}</b><span>{x.completed?'✓ ':''}{x.scheduleType==='time'?`${x.startTime} – ${x.endTime}`:t('day')}</span></div>)}</div><button className="primary full" onClick={()=>setModal('add')}>+ {t('newTask')}</button></Modal>}{modal==='add'&&<AddCalendarTask data={data} setData={setData} date={selected} lang={settings.language} calendar={settings.calendar} close={()=>setModal(null)}/>} </div>}
-function AddCalendarTask({data,setData,date,lang,calendar='gregorian',close}){const t=k=>tr(lang,k);const[type,setType]=useState('day');function save(e){e.preventDefault();const f=new FormData(e.currentTarget),type=f.get('scheduleType');const task={id:Date.now(),title:f.get('title'),description:f.get('description')||'',date,priority:f.get('priority'),scheduleType:type,startTime:type==='time'?f.get('startTime'):'',endTime:type==='time'?f.get('endTime'):'',completed:false,activityUnit:f.get('unit'),activityValue:0,prerequisites:[]};setData(d=>({...d,tasks:[...d.tasks,task]}));localStorage.setItem(KEY,JSON.stringify({...data,tasks:[...data.tasks,task]}));close()}return <Modal title={t('addFor',{date:formatDate(date,calendar,lang)})} close={close}><form className="form" onSubmit={save}><label>{t('title')}<input name="title" required/></label><label>{t('description')}<textarea name="description" rows="3"/></label><label>{t('priority')}<select name="priority"><option value="normal">{t('normal')}</option><option value="important">{t('importantLabel')}</option><option value="essential">{t('essentialLabel')}</option></select></label><label>{t('schedule')}<select name="scheduleType" value={type} onChange={e=>setType(e.target.value)}><option value="day">{t('day')}</option><option value="time">{t('atTime')}</option></select></label>{type==='time'&&<div className="two timeFields"><label>{t('start')}<input name="startTime" type="time"/></label><label>{t('end')}<input name="endTime" type="time"/></label></div>}<label>{t('unit')}<select name="unit"><option>دقیقه</option><option>ساعت</option><option>مورد</option></select></label><button className="primary">{t('save')}</button></form></Modal>}
-function Modal({title,children,close}){return <div className="overlay" onMouseDown={close}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modalHeader"><h2>{title}</h2><button onClick={close}>×</button></div>{children}</div></div>}
-function MobileNav({lang}){return <nav className="mobileNav"><a href="/">⌂<span>{tr(lang,'today')}</span></a><a className="active" href="/calendar">▦<span>{tr(lang,'calendar')}</span></a><a href="/?new=1" className="add">+</a><a href="/routines">↻<span>{tr(lang,'routines')}</span></a><a href="/?settings=1">⚙<span>{tr(lang,'settings')}</span></a></nav>}
+"use client";
+
+import {
+    useMemo,
+    useState,
+} from "react";
+
+import CalendarBoard from "../components/calendar/CalendarBoard";
+import CalendarTaskForm from "../components/calendar/CalendarTaskForm";
+import CalendarTaskListModal from "../components/calendar/CalendarTaskListModal";
+import AppShell from "../components/layout/AppShell";
+import { useLanguage } from "../components/providers/LanguageProvider";
+import useStoredState from "../hooks/useStoredState";
+import {
+    getAdjacentMonthDate,
+    getLocalIsoDate,
+    monthDates,
+    weekdayIndex,
+    weekdayNameIndex,
+} from "../lib/date";
+import {
+    STORAGE_KEYS,
+} from "../lib/storage";
+import { seed } from "./data";
+
+/* Displays the calendar and coordinates its dialogs. */
+export default function CalendarPage() {
+    const {
+        settings,
+        t,
+    } = useLanguage();
+
+    const [
+        data,
+        setData,
+    ] = useStoredState(
+        STORAGE_KEYS.planner,
+        seed,
+    );
+
+    const [
+        anchor,
+        setAnchor,
+    ] = useState(
+        getLocalIsoDate,
+    );
+
+    const [
+        selected,
+        setSelected,
+    ] = useState(null);
+
+    const [
+        modal,
+        setModal,
+    ] = useState(null);
+
+    const days = useMemo(() => {
+        return monthDates(
+            anchor,
+            settings.calendar,
+        );
+    }, [
+        anchor,
+        settings.calendar,
+    ]);
+
+    const tasksByDate =
+        useMemo(() => {
+            return data.tasks.reduce(
+                (
+                    groupedTasks,
+                    task,
+                ) => {
+                    groupedTasks[
+                        task.date
+                    ] ??= [];
+
+                    groupedTasks[
+                        task.date
+                    ].push(task);
+
+                    return groupedTasks;
+                },
+                {},
+            );
+        }, [data.tasks]);
+
+    const weekStartIndex =
+        weekdayNameIndex(
+            settings.firstDay,
+        );
+
+    const leadingCells =
+        days[0]
+            ? (
+                weekdayIndex(
+                    days[0],
+                ) -
+                weekStartIndex +
+                7
+            ) % 7
+            : 0;
+
+    const calendarCells = [
+        ...Array(
+            leadingCells,
+        ).fill(null),
+        ...days,
+    ];
+
+    const selectedTasks =
+        selected
+            ? (
+                tasksByDate[
+                selected
+                ] ?? []
+            )
+            : [];
+
+    /* Opens tasks or the add form for one date. */
+    function chooseDate(date) {
+        setSelected(date);
+
+        const hasTasks =
+            (
+                tasksByDate[date] ??
+                []
+            ).length > 0;
+
+        setModal(
+            hasTasks
+                ? "day"
+                : "add",
+        );
+    }
+
+    /* Changes the visible calendar month. */
+    function shiftMonth(
+        direction,
+    ) {
+        setAnchor(
+            getAdjacentMonthDate(
+                anchor,
+                direction,
+                settings.calendar,
+            ),
+        );
+    }
+
+    /* Adds one task to the shared planner data. */
+    function addTask(task) {
+        setData(
+            (currentData) => ({
+                ...currentData,
+
+                tasks: [
+                    ...currentData.tasks,
+                    task,
+                ],
+            }),
+        );
+
+        setModal(null);
+    }
+
+    return (
+        <>
+            <AppShell activePage="calendar">
+                <main className="content">
+                    <div className="hero">
+                        <div>
+                            <div className="kicker">
+                                {t("calendar")}
+                            </div>
+
+                            <h1>
+                                {t("calendarTitle")}
+                            </h1>
+
+                            <p>
+                                {t("calendarSub")}
+                            </p>
+                        </div>
+                    </div>
+
+                    <CalendarBoard
+                        anchor={anchor}
+                        cells={
+                            calendarCells
+                        }
+                        days={days}
+                        selected={selected}
+                        settings={settings}
+                        tasksByDate={
+                            tasksByDate
+                        }
+                        onChooseDate={
+                            chooseDate
+                        }
+                        onShiftMonth={
+                            shiftMonth
+                        }
+                        onToday={() => {
+                            setAnchor(
+                                getLocalIsoDate(),
+                            );
+                        }}
+                    />
+                </main>
+            </AppShell>
+
+            {modal === "day" &&
+                selected && (
+                    <CalendarTaskListModal
+                        date={selected}
+                        settings={settings}
+                        tasks={
+                            selectedTasks
+                        }
+                        onAdd={() => {
+                            setModal("add");
+                        }}
+                        onClose={() => {
+                            setModal(null);
+                        }}
+                    />
+                )}
+
+            {modal === "add" &&
+                selected && (
+                    <CalendarTaskForm
+                        date={selected}
+                        settings={settings}
+                        onSave={addTask}
+                        onClose={() => {
+                            setModal(null);
+                        }}
+                    />
+                )}
+        </>
+    );
+}
