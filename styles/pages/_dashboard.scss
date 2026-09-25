@@ -240,31 +240,149 @@
     background: var(--warningSoft)
 }
 
-.quick {
-    margin-top: 18px;
-    padding: 17px
+/* Shared spacing for dashboard side cards. */
+.quick,
+.carryCard {
+    margin-top: 1.125rem;
+    padding: 1.0625rem;
 }
 
 .quickGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
 }
 
 .quick button {
-    border: 1px solid var(--line);
-    background: #fff;
-    border-radius: 11px;
-    padding: 10px;
-    font-size: 10px;
-    text-align: right;
-    color: #596273
+    min-height: 2.625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 0.75rem;
+    color: var(--choice-text);
+    background: var(--choice-background);
+    border: 1px solid var(--choice-border);
+    border-radius: var(--control-radius);
+    font-size: var(--font-caption);
+    font-weight: var(--weight-semibold);
+    text-align: center;
+}
+
+.quick button:hover {
+    color: var(--choice-selected-text);
+    background: var(--choice-selected-background);
+    border-color: var(--choice-selected-border);
+}
+
+.quick button:focus-visible {
+    outline: none;
+    border-color: var(--control-border-focus);
+    box-shadow: var(--control-focus-ring);
 }
 
 .quick button b {
     display: block;
-    color: var(--text);
-    font-size: 11px;
-    margin-bottom: 2px
+    margin: 0;
+    color: inherit;
+    font: inherit;
 }
 
+/* Carry-over card */
+.carryCard .cardHeader {
+    margin-bottom: 0.875rem;
+}
+
+.carryCard .cardHeader p {
+    margin: 0.25rem 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    line-height: 1.5;
+}
+
+.carryCard .routineMiniList {
+    display: grid;
+    gap: 0.625rem;
+}
+
+.carryItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem;
+    background: var(--control-background);
+    border: 1px solid var(--control-border);
+    border-radius: var(--control-radius);
+}
+
+.carryItem>div:first-child {
+    min-width: 0;
+}
+
+.carryItem b {
+    display: block;
+    overflow: hidden;
+    color: var(--text-primary);
+    font-size: var(--font-small);
+    font-weight: var(--weight-semibold);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.carryItem small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+}
+
+.carryActions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.carryActions .ghost {
+    min-height: 2.25rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--choice-text);
+    background: var(--choice-background);
+    border: 1px solid var(--choice-border);
+    border-radius: var(--control-radius);
+    font-size: var(--font-caption);
+    font-weight: var(--weight-semibold);
+}
+
+.carryActions .ghost:hover:not(:disabled) {
+    color: var(--choice-selected-text);
+    background: var(--choice-selected-background);
+    border-color: var(--choice-selected-border);
+}
+
+.carryActions .ghost:disabled {
+    color: var(--text-tertiary);
+    background: var(--surface-muted);
+    opacity: 0.65;
+}
+
+@media (max-width: 35rem) {
+    .quickGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .carryItem {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .carryActions {
+        justify-content: stretch;
+    }
+
+    .carryActions .ghost {
+        flex: 1;
+    }
+}

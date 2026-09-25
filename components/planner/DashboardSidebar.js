@@ -1,3 +1,7 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 import { tr } from "../../lib/i18n";
 import CarryOverCard from "./CarryOverCard";
 
@@ -17,6 +21,8 @@ export default function DashboardSidebar({
   onCarryTask,
   onOpenSettings,
 }) {
+  const router = useRouter();
+
   /* Returns translated text for the active language. */
   function t(key, variables) {
     return tr(lang, key, variables);
@@ -26,7 +32,10 @@ export default function DashboardSidebar({
     <aside>
       <div className="stats">
         <div className="stat purple">
-          <div className="num">{tasks.length}</div>
+          <div className="num">
+            {tasks.length}
+          </div>
+
           <small>{t("total")}</small>
         </div>
 
@@ -34,6 +43,7 @@ export default function DashboardSidebar({
           <div className="num">
             {importantTotal}/7
           </div>
+
           <small>{t("important")}</small>
         </div>
 
@@ -41,6 +51,7 @@ export default function DashboardSidebar({
           <div className="num">
             {essentialCount}/3
           </div>
+
           <small>{t("essential")}</small>
         </div>
 
@@ -48,9 +59,11 @@ export default function DashboardSidebar({
           <div className="num">
             {completedCount}
           </div>
+
           <small>{t("done")}</small>
         </div>
       </div>
+
       <CarryOverCard
         tasks={carryTasks}
         today={carryToday}
@@ -66,14 +79,17 @@ export default function DashboardSidebar({
         </div>
 
         <div className="quickGrid">
-          <button type="button" onClick={onAddTask}>
+          <button
+            type="button"
+            onClick={onAddTask}
+          >
             <b>+ {t("newTask")}</b>
           </button>
 
           <button
             type="button"
             onClick={() => {
-              window.location.href = "/calendar";
+              router.push("/calendar");
             }}
           >
             <b>▦ {t("calendar")}</b>
@@ -82,7 +98,7 @@ export default function DashboardSidebar({
           <button
             type="button"
             onClick={() => {
-              window.location.href = "/routines";
+              router.push("/routines");
             }}
           >
             <b>↻ {t("routines")}</b>
@@ -100,10 +116,13 @@ export default function DashboardSidebar({
       <div className="card routineMini">
         <div className="cardHeader">
           <div>
-            <h2>↻ {t("routines")}</h2>
+            <h2>
+              ↻ {t("routines")}
+            </h2>
 
             <p>
-              {todayRoutines.length} {t("routines")}
+              {todayRoutines.length}{" "}
+              {t("routines")}
             </p>
           </div>
 
@@ -111,7 +130,7 @@ export default function DashboardSidebar({
             type="button"
             className="ghost"
             onClick={() => {
-              window.location.href = "/routines";
+              router.push("/routines");
             }}
           >
             {t("edit")}
@@ -122,10 +141,22 @@ export default function DashboardSidebar({
           {todayRoutines
             .slice(0, 5)
             .map((routine) => {
-              const routineTask = tasks.find(
-                (task) =>
-                  task.routineId === routine.id,
-              );
+              const routineTask =
+                tasks.find(
+                  (task) =>
+                    task.routineId ===
+                    routine.id,
+                );
+
+              const statusClassName = [
+                "routineStatus",
+
+                routineTask?.completed
+                  ? "done"
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
 
               return (
                 <div
@@ -133,10 +164,9 @@ export default function DashboardSidebar({
                   key={routine.id}
                 >
                   <span
-                    className={`routineStatus ${routineTask?.completed
-                      ? "done"
-                      : ""
-                      }`}
+                    className={
+                      statusClassName
+                    }
                   >
                     {routineTask?.completed
                       ? "✓"
@@ -144,10 +174,13 @@ export default function DashboardSidebar({
                   </span>
 
                   <div>
-                    <b>{routine.title}</b>
+                    <b>
+                      {routine.title}
+                    </b>
 
                     <small>
-                      {routine.scheduleType === "time"
+                      {routine.scheduleType ===
+                        "time"
                         ? `${routine.startTime} – ${routine.endTime}`
                         : t("day")}
                     </small>

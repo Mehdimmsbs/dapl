@@ -2,6 +2,7 @@
 
 import { useLanguage } from "../providers/LanguageProvider";
 import AppIcon from "../ui/AppIcon";
+import Link from "next/link";
 
 const NAV_ITEMS = [
   {
@@ -50,7 +51,7 @@ export default function MobileNav({ activePage }) {
         ].filter(Boolean).join(" ");
 
         return (
-          <a
+          <Link
             key={item.id}
             href={item.href}
             className={className}
@@ -66,7 +67,7 @@ export default function MobileNav({ activePage }) {
             <span className="mobileNavLabel">
               {t(item.id)}
             </span>
-          </a>
+          </Link>
         );
       })}
     </nav>

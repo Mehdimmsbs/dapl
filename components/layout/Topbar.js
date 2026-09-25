@@ -3,6 +3,7 @@
 import { useLanguage } from "../providers/LanguageProvider";
 import AppIcon from "../ui/AppIcon";
 import LanguageSwitcher from "./LanguageSwitcher";
+import Link from "next/link";
 
 export default function Topbar({
   activePage,
@@ -41,7 +42,7 @@ export default function Topbar({
         </button>
 
         <nav className="breadcrumb" aria-label="Breadcrumb">
-          <a href="/">{t("planner")}</a>
+          <Link href="/">{t("planner")}</Link>
 
           <span aria-hidden="true">/</span>
 
@@ -79,13 +80,13 @@ export default function Topbar({
             {profileContent}
           </button>
         ) : (
-          <a
+          <Link
             href="/settings"
             className="profileButton"
             aria-label={t("settings")}
           >
             {profileContent}
-          </a>
+          </Link>
         )}
       </div>
     </header>

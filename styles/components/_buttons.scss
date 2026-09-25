@@ -1,0 +1,121 @@
+/* Shared button foundation. */
+button,
+.button {
+    font: inherit;
+    transition:
+        color 150ms ease,
+        background-color 150ms ease,
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        transform 150ms ease;
+}
+
+button:not(:disabled),
+.button:not(:disabled) {
+    cursor: pointer;
+}
+
+button:disabled,
+.button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+/* Main call-to-action button used across all forms. */
+.primary {
+    width: auto;
+    min-height: var(--control-height);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6875rem 1rem;
+    color: var(--button-primary-text);
+    background: var(--button-primary-background);
+    border: 1px solid transparent;
+    border-radius: var(--control-radius);
+    box-shadow: var(--button-primary-shadow);
+    font-size: var(--font-small);
+    font-weight: var(--weight-bold);
+    line-height: 1.2;
+}
+
+.primary:hover:not(:disabled) {
+    background: var(--button-primary-hover);
+    box-shadow:
+        0 12px 28px rgba(98, 88, 216, 0.28);
+    transform: translateY(-1px);
+}
+
+.primary:active:not(:disabled) {
+    background: var(--button-primary-active);
+    box-shadow:
+        0 5px 14px rgba(98, 88, 216, 0.2);
+    transform: translateY(0);
+}
+
+.primary:focus-visible {
+    outline: none;
+    box-shadow:
+        var(--button-primary-shadow),
+        var(--control-focus-ring);
+}
+
+/* Form submit actions fill the modal width only. */
+.form>.primary {
+    width: 100%;
+}
+
+/* Shared page-header action size. */
+.hero>.primary,
+.heroActions>button {
+    width: 11.5rem;
+    min-width: 11.5rem;
+    min-height: var(--control-height);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6875rem 1rem;
+    border-radius: var(--control-radius);
+    font-size: var(--font-small);
+    font-weight: var(--weight-bold);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.heroActions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.heroActions .ghost {
+    color: var(--choice-text);
+    background: var(--choice-background);
+    border: 1px solid var(--choice-border);
+}
+
+.heroActions .ghost:hover {
+    color: var(--choice-selected-text);
+    background: var(--choice-selected-background);
+    border-color: var(--choice-selected-border);
+}
+
+@media (max-width: 700px) {
+    .hero>.primary {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .heroActions {
+        width: 100%;
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .heroActions>button {
+        width: 100%;
+        min-width: 0;
+    }
+}

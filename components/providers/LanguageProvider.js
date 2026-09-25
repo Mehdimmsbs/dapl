@@ -32,103 +32,185 @@ const FONT_SIZES = [
   "large",
 ];
 
+/* Returns a supported font size. */
 function normalizeFontSize(fontSize) {
   return FONT_SIZES.includes(fontSize)
     ? fontSize
     : "medium";
 }
 
+/* Combines stored preferences with application defaults. */
+function normalizeSettings(storedSettings = {}) {
+  return {
+    ...defaultSettings,
+    ...storedSettings,
+
+    language: normalizeLocale(
+      storedSettings.language,
+    ),
+
+    fontSize: normalizeFontSize(
+      storedSettings.fontSize,
+    ),
+  };
+}
+
+/* Applies global preferences to the HTML document. */
+function applyDocumentPreferences(
+  settings,
+  dark,
+) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const locale = normalizeLocale(
+    settings.language,
+  );
+
+  const localeConfig =
+    getLocaleConfig(locale);
+
+  const messages =
+    translations[locale];
+
+  document.documentElement.lang =
+    locale;
+
+  document.documentElement.dir =
+    localeConfig.direction;
+
+  document.documentElement.dataset.fontSize =
+    normalizeFontSize(
+      settings.fontSize,
+    );
+
+  document.documentElement.classList.toggle(
+    "dark",
+    dark,
+  );
+
+  document.title =
+    messages.metaTitle;
+
+  const description =
+    document.querySelector(
+      'meta[name="description"]',
+    );
+
+  description?.setAttribute(
+    "content",
+    messages.metaDescription,
+  );
+}
+
 /* Provides language, calendar and appearance settings globally. */
-export function LanguageProvider({ children }) {
+export function LanguageProvider({
+  children,
+}) {
   const [settings, setSettings] =
     useState(defaultSettings);
 
-  const [dark, setDark] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+  const [dark, setDark] =
+    useState(false);
 
-  /* Loads all global preferences after browser hydration. */
+  const [hydrated, setHydrated] =
+    useState(false);
+
+  /* Loads saved preferences before displaying the application. */
   useEffect(() => {
-    const storedSettings = readStorage(
-      STORAGE_KEYS.settings,
-      {},
-    );
-
-    setSettings({
-      ...defaultSettings,
-      ...storedSettings,
-
-      language: normalizeLocale(
-        storedSettings.language,
-      ),
-
-      fontSize: normalizeFontSize(
-        storedSettings.fontSize,
-      ),
-    });
-
-    setDark(
-      readStorageText(
-        STORAGE_KEYS.darkMode,
-      ) === "1",
-    );
-
-    setHydrated(true);
-  }, []);
-
-  /* Accepts settings updates from other mounted views. */
-  useEffect(() => {
-    function handleSettingsChange(event) {
-      const incomingSettings =
-        event.detail ??
+    const nextSettings =
+      normalizeSettings(
         readStorage(
           STORAGE_KEYS.settings,
           {},
+        ),
+      );
+
+    const nextDark =
+      readStorageText(
+        STORAGE_KEYS.darkMode,
+      ) === "1";
+
+    applyDocumentPreferences(
+      nextSettings,
+      nextDark,
+    );
+
+    setSettings(nextSettings);
+    setDark(nextDark);
+    setHydrated(true);
+  }, []);
+
+  /* Synchronizes preferences between browser tabs. */
+  useEffect(() => {
+    function handleStorageChange(event) {
+      if (
+        event.key !== STORAGE_KEYS.settings &&
+        event.key !== STORAGE_KEYS.darkMode
+      ) {
+        return;
+      }
+
+      const nextSettings =
+        normalizeSettings(
+          readStorage(
+            STORAGE_KEYS.settings,
+            {},
+          ),
         );
 
-      setSettings((currentSettings) => ({
-        ...currentSettings,
-        ...incomingSettings,
+      const nextDark =
+        readStorageText(
+          STORAGE_KEYS.darkMode,
+        ) === "1";
 
-        language: normalizeLocale(
-          incomingSettings.language ??
-          currentSettings.language,
-        ),
+      applyDocumentPreferences(
+        nextSettings,
+        nextDark,
+      );
 
-        fontSize: normalizeFontSize(
-          incomingSettings.fontSize ??
-          currentSettings.fontSize,
-        ),
-      }));
+      setSettings((currentSettings) => {
+        const currentValue =
+          JSON.stringify(
+            normalizeSettings(
+              currentSettings,
+            ),
+          );
+
+        const nextValue =
+          JSON.stringify(nextSettings);
+
+        return currentValue === nextValue
+          ? currentSettings
+          : nextSettings;
+      });
+
+      setDark((currentDark) =>
+        currentDark === nextDark
+          ? currentDark
+          : nextDark,
+      );
     }
 
     window.addEventListener(
-      "dapl:settings-changed",
-      handleSettingsChange,
+      "storage",
+      handleStorageChange,
     );
 
     return () => {
       window.removeEventListener(
-        "dapl:settings-changed",
-        handleSettingsChange,
+        "storage",
+        handleStorageChange,
       );
     };
   }, []);
 
-  /* Saves preferences and updates the HTML document. */
+  /* Saves preferences and updates the document. */
   useEffect(() => {
     if (!hydrated) {
       return;
     }
-
-    const locale = normalizeLocale(
-      settings.language,
-    );
-
-    const localeConfig =
-      getLocaleConfig(locale);
-
-    const messages =
-      translations[locale];
 
     writeStorage(
       STORAGE_KEYS.settings,
@@ -140,35 +222,15 @@ export function LanguageProvider({ children }) {
       dark ? "1" : "0",
     );
 
-    document.documentElement.lang =
-      locale;
-
-    document.documentElement.dir =
-      localeConfig.direction;
-
-    document.documentElement.dataset.fontSize =
-      normalizeFontSize(
-        settings.fontSize,
-      );
-
-    document.documentElement.classList.toggle(
-      "dark",
+    applyDocumentPreferences(
+      settings,
       dark,
     );
-
-    document.title =
-      messages.metaTitle;
-
-    const description =
-      document.querySelector(
-        'meta[name="description"]',
-      );
-
-    description?.setAttribute(
-      "content",
-      messages.metaDescription,
-    );
-  }, [settings, dark, hydrated]);
+  }, [
+    settings,
+    dark,
+    hydrated,
+  ]);
 
   /* Updates one or more global settings. */
   const updateSettings = useCallback(
@@ -192,7 +254,7 @@ export function LanguageProvider({ children }) {
     [],
   );
 
-  /* Changes the locale and its calendar defaults. */
+  /* Changes the language and its calendar defaults. */
   const changeLocale = useCallback(
     (nextLocale) => {
       const locale =
@@ -204,11 +266,15 @@ export function LanguageProvider({ children }) {
       updateSettings(
         (currentSettings) => ({
           ...currentSettings,
+
           language: locale,
+
           calendar:
             localeConfig.calendar,
+
           secondaryCalendar:
             localeConfig.secondaryCalendar,
+
           firstDay:
             localeConfig.firstDay,
         }),
@@ -218,26 +284,35 @@ export function LanguageProvider({ children }) {
   );
 
   const value = useMemo(() => {
-    const locale = normalizeLocale(
-      settings.language,
-    );
+    const locale =
+      normalizeLocale(
+        settings.language,
+      );
 
     return {
       locale,
       settings,
       updateSettings,
-      direction:
-        getLocaleConfig(locale).direction,
-      calendar: settings.calendar,
 
-      languages: SUPPORTED_LOCALES.map(
-        (languageCode) => ({
-          code: languageCode,
-          name:
-            translations[languageCode]
-              .languageName,
-        }),
-      ),
+      direction:
+        getLocaleConfig(
+          locale,
+        ).direction,
+
+      calendar:
+        settings.calendar,
+
+      languages:
+        SUPPORTED_LOCALES.map(
+          (languageCode) => ({
+            code: languageCode,
+
+            name:
+              translations[
+                languageCode
+              ].languageName,
+          }),
+        ),
 
       changeLocale,
       dark,
@@ -245,14 +320,19 @@ export function LanguageProvider({ children }) {
 
       toggleDark: () => {
         setDark(
-          (currentDark) => !currentDark,
+          (currentDark) =>
+            !currentDark,
         );
       },
 
       hydrated,
 
       t: (key, variables) =>
-        tr(locale, key, variables),
+        tr(
+          locale,
+          key,
+          variables,
+        ),
     };
   }, [
     settings,
@@ -261,6 +341,14 @@ export function LanguageProvider({ children }) {
     dark,
     hydrated,
   ]);
+
+  /*
+   * Prevents the default English interface from flashing
+   * before stored preferences are loaded.
+   */
+  if (!hydrated) {
+    return null;
+  }
 
   return (
     <LanguageContext.Provider

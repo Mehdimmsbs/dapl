@@ -280,8 +280,7 @@ export default function usePlannerDashboard() {
         }));
     }
 
-    /* Creates a new task or updates an existing task. */
-    /* Creates a new task or updates an existing task. */
+    /* Creates, carries or updates a task. */
     function saveTask(event) {
         event.preventDefault();
 
@@ -292,6 +291,9 @@ export default function usePlannerDashboard() {
 
         const taskId =
             form.get("id");
+
+        const carryId =
+            form.get("carryId");
 
         const numericTaskId =
             taskId
@@ -307,24 +309,58 @@ export default function usePlannerDashboard() {
                 )
                 : null;
 
+        const carriedTask =
+            carryId
+                ? data.tasks.find(
+                    (task) =>
+                        String(task.id) ===
+                        String(carryId) &&
+                        !task.completed &&
+                        task.date >= carryFrom &&
+                        task.date <= carryToday,
+                )
+                : null;
+
+        /*
+         * Stops manipulated or outdated Carry over
+         * submissions from creating a duplicate task.
+         */
+        if (carryId && !carriedTask) {
+            return;
+        }
+
         const taskDate =
             form.get("date") ||
             existingTask?.date ||
             date;
 
+        /*
+         * An unfinished task may only be moved
+         * to today or tomorrow.
+         */
+        if (
+            carriedTask &&
+            taskDate !== carryToday &&
+            taskDate !== carryTomorrow
+        ) {
+            return;
+        }
+
         const priority =
             form.get("priority");
 
         /*
-         * Priority limits must be calculated for the
-         * task's selected date, not the dashboard date.
+         * Priority limits are calculated for the
+         * selected target date.
          */
         const otherTasksOnDate =
             data.tasks.filter(
                 (task) =>
                     task.date === taskDate &&
                     String(task.id) !==
-                    String(taskId),
+                    String(taskId) &&
+                    String(task.id) !==
+                    String(carryId),
             );
 
         const importantTasks =
@@ -370,10 +406,6 @@ export default function usePlannerDashboard() {
                 ? Number(prerequisiteValue)
                 : null;
 
-        /*
-         * Accepts the prerequisite only when it belongs
-         * to the same date and is not the current task.
-         */
         const validPrerequisite =
             prerequisiteId
                 ? data.tasks.find(
@@ -382,17 +414,24 @@ export default function usePlannerDashboard() {
                         prerequisiteId &&
                         task.date ===
                         taskDate &&
-                        task.id !==
-                        numericTaskId,
+                        String(task.id) !==
+                        String(numericTaskId) &&
+                        String(task.id) !==
+                        String(carriedTask?.id),
                 )
                 : null;
 
         const scheduleType =
             form.get("scheduleType");
 
+        const baseTask =
+            carriedTask ||
+            existingTask;
+
         const nextTask = {
             id:
                 numericTaskId ||
+                carriedTask?.id ||
                 Date.now(),
 
             title:
@@ -423,40 +462,100 @@ export default function usePlannerDashboard() {
                     : "",
 
             completed:
-                existingTask?.completed ||
-                false,
+                carriedTask
+                    ? false
+                    : existingTask?.completed ||
+                    false,
+
+            completedAt:
+                carriedTask
+                    ? null
+                    : existingTask?.completedAt ||
+                    null,
 
             activityUnit:
                 form.get("unit") ||
                 "minute",
 
             activityValue:
-                existingTask?.activityValue ||
-                0,
+                carriedTask
+                    ? 0
+                    : existingTask?.activityValue ||
+                    0,
 
             prerequisites:
                 validPrerequisite
                     ? [validPrerequisite.id]
                     : [],
+
+            routineId:
+                baseTask?.routineId,
+
+            source:
+                baseTask?.source,
+
+            carriedFromDate:
+                carriedTask
+                    ? carriedTask.carriedFromDate ||
+                    carriedTask.date
+                    : existingTask?.carriedFromDate,
+
+            carriedOverAt:
+                carriedTask
+                    ? new Date().toISOString()
+                    : existingTask?.carriedOverAt,
         };
 
         if (!nextTask.title) {
             return;
         }
 
+        const replacedTaskId =
+            numericTaskId ||
+            carriedTask?.id;
+
         setData((currentData) => ({
             ...currentData,
 
-            tasks: numericTaskId
+            tasks: replacedTaskId
                 ? currentData.tasks.map(
-                    (task) =>
-                        task.id ===
-                            numericTaskId
-                            ? {
+                    (task) => {
+                        if (
+                            String(task.id) ===
+                            String(replacedTaskId)
+                        ) {
+                            return {
                                 ...task,
                                 ...nextTask,
-                            }
-                            : task,
+                            };
+                        }
+
+                        /*
+                         * Removes references to the carried
+                         * task from other prerequisites.
+                         */
+                        if (carriedTask) {
+                            return {
+                                ...task,
+
+                                prerequisites:
+                                    (
+                                        task.prerequisites ||
+                                        []
+                                    ).filter(
+                                        (prerequisiteTaskId) =>
+                                            String(
+                                                prerequisiteTaskId,
+                                            ) !==
+                                            String(
+                                                carriedTask.id,
+                                            ),
+                                    ),
+                            };
+                        }
+
+                        return task;
+                    },
                 )
                 : [
                     ...currentData.tasks,
@@ -464,6 +563,7 @@ export default function usePlannerDashboard() {
                 ],
         }));
 
+        setDate(taskDate);
         setModal(null);
     }
 

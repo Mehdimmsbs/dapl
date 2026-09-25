@@ -5,9 +5,11 @@ import { useState } from "react";
 import {
     ACTIVITY_UNITS,
     ROUTINE_DAYS,
+    ROUTINE_TITLE_SUGGESTION_KEYS,
     createEmptyRoutine,
     normalizeUnit,
 } from "../../lib/routines";
+
 import Modal from "../ui/Modal";
 import { useLanguage } from "../providers/LanguageProvider";
 
@@ -17,6 +19,7 @@ export default function RoutineFormModal({
     onClose,
     onSave,
 }) {
+
     const { t } = useLanguage();
 
     const [
@@ -32,8 +35,11 @@ export default function RoutineFormModal({
 
         days: [
             ...(
-                routine.days ||
-                ROUTINE_DAYS
+                Array.isArray(routine.days)
+                    ? routine.days
+                    : routine.id
+                        ? ROUTINE_DAYS
+                        : []
             ),
         ],
     }));
@@ -123,6 +129,33 @@ export default function RoutineFormModal({
                         autoFocus
                     />
                 </label>
+
+                <div className="suggestionChips">
+                    {ROUTINE_TITLE_SUGGESTION_KEYS.map(
+                        (suggestionKey) => {
+                            const suggestion =
+                                t(suggestionKey);
+
+                            return (
+                                <button
+                                    type="button"
+                                    key={suggestionKey}
+                                    className="suggestionChip"
+                                    onClick={() => {
+                                        setForm(
+                                            (currentForm) => ({
+                                                ...currentForm,
+                                                title: suggestion,
+                                            }),
+                                        );
+                                    }}
+                                >
+                                    {suggestion}
+                                </button>
+                            );
+                        },
+                    )}
+                </div>
 
                 <label>
                     {t(
@@ -271,8 +304,8 @@ export default function RoutineFormModal({
                                 className={`dayChoice ${form.days.includes(
                                     day,
                                 )
-                                        ? "on"
-                                        : ""
+                                    ? "on"
+                                    : ""
                                     }`}
                                 onClick={() => {
                                     toggleDay(day);

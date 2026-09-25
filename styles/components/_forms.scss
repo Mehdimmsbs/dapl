@@ -1,95 +1,153 @@
+/* Shared form controls for every page and modal. */
 .form {
     display: grid;
-    gap: 13px
+    gap: 1rem;
 }
 
-.form label {
-    font-size: 10px;
-    font-weight: 700;
+.form label:not(.switchRow),
+.form .two label {
     display: grid;
-    gap: 6px
+    gap: 0.4375rem;
+    color: var(--text-primary);
+    font-size: var(--font-label);
+    font-weight: var(--weight-semibold);
+    line-height: 1.35;
 }
 
-.form input,
+.form input:not([type="checkbox"]):not([type="radio"]),
 .form select,
 .form textarea {
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 10px;
-    background: #fff;
-    outline: none
+    width: 100%;
+    min-height: var(--control-height);
+    padding: 0.6875rem var(--control-padding-inline);
+    color: var(--control-text);
+    background-color: var(--control-background);
+    border: 1px solid var(--control-border);
+    border-radius: var(--control-radius);
+    outline: none;
+    font: inherit;
+    font-size: var(--font-small);
+    font-weight: var(--weight-medium);
+    line-height: 1.35;
+    caret-color: var(--control-border-focus);
+    -webkit-text-fill-color: var(--control-text);
+    opacity: 1;
+    transition: var(--control-transition);
 }
 
-.form input:focus,
+.form input:not([type="checkbox"]):not([type="radio"]):hover,
+.form select:hover,
+.form textarea:hover {
+    background-color: var(--control-background-hover);
+    border-color: var(--control-border-hover);
+}
+
+.form input:not([type="checkbox"]):not([type="radio"]):focus,
 .form select:focus,
 .form textarea:focus {
-    border-color: #bfc2ef;
-    box-shadow: 0 0 0 3px var(--primarySoft)
+    background-color: var(--control-background-hover);
+    border-color: var(--control-border-focus);
+    box-shadow: var(--control-focus-ring);
+}
+
+.form input::placeholder,
+.form textarea::placeholder {
+    color: var(--control-placeholder);
+    -webkit-text-fill-color: var(--control-placeholder);
+    opacity: 1;
+}
+
+.form textarea {
+    min-height: 5.5rem;
+    resize: vertical;
+}
+
+/* Creates one consistent closed-select appearance. */
+.form select {
+    appearance: none;
+    cursor: pointer;
+    padding-inline-end: 2.75rem;
+    background-image:
+        linear-gradient(45deg,
+            transparent 50%,
+            currentColor 50%),
+        linear-gradient(135deg,
+            currentColor 50%,
+            transparent 50%);
+    background-position:
+        calc(100% - 1rem) 50%,
+        calc(100% - 0.7rem) 50%;
+    background-size:
+        0.32rem 0.32rem,
+        0.32rem 0.32rem;
+    background-repeat: no-repeat;
+}
+
+[dir="rtl"] .form select {
+    padding-inline-start: 2.75rem;
+    padding-inline-end: var(--control-padding-inline);
+    background-position:
+        1rem 50%,
+        0.7rem 50%;
+}
+
+.form select option {
+    color: var(--control-text);
+    background: var(--control-background);
+    font: inherit;
+    -webkit-text-fill-color: var(--control-text);
+}
+
+.form input:disabled,
+.form select:disabled,
+.form textarea:disabled,
+.form input[readonly] {
+    color: var(--text-secondary);
+    background: var(--surface-muted);
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.form input[type="date"],
+.form input[type="time"] {
+    color-scheme: light;
+}
+
+html.dark .form input[type="date"],
+html.dark .form input[type="time"] {
+    color-scheme: dark;
+}
+
+.form input[type="time"]::-webkit-datetime-edit,
+.form input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+.form input[type="time"]::-webkit-datetime-edit-hour-field,
+.form input[type="time"]::-webkit-datetime-edit-minute-field,
+.form input[type="time"]::-webkit-datetime-edit-text {
+    color: var(--control-text);
+    -webkit-text-fill-color: var(--control-text);
+    opacity: 1;
 }
 
 .two {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
 }
 
-/* Keeps every modal field readable in all themes. */
-.form {
-
-    input,
-    select,
-    textarea {
-        color: var(--color-text-primary, #101936);
-        background-color: var(--color-card-background, #ffffff);
-        -webkit-text-fill-color: var(--color-text-primary, #101936);
-        opacity: 1;
-    }
-
-    select option {
-        color: #101936;
-        background-color: #ffffff;
-        -webkit-text-fill-color: #101936;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-        color: var(--color-text-tertiary, #8d99b7);
-        -webkit-text-fill-color: var(--color-text-tertiary, #8d99b7);
-        opacity: 1;
-    }
-
-    input[type="time"] {
-        color-scheme: light;
-    }
-
-    input[type="time"]::-webkit-datetime-edit,
-    input[type="time"]::-webkit-datetime-edit-fields-wrapper,
-    input[type="time"]::-webkit-datetime-edit-hour-field,
-    input[type="time"]::-webkit-datetime-edit-minute-field,
-    input[type="time"]::-webkit-datetime-edit-text {
-        color: var(--color-text-primary, #101936);
-        -webkit-text-fill-color: var(--color-text-primary, #101936);
-        opacity: 1;
-    }
+.formHint {
+    margin: -0.25rem 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-caption);
+    font-weight: var(--weight-medium);
+    line-height: 1.5;
 }
 
-html.dark .form {
+.form [hidden] {
+    display: none !important;
+}
 
-    input,
-    select,
-    textarea {
-        color: #f5f7ff;
-        background-color: #151e3d;
-        -webkit-text-fill-color: #f5f7ff;
-    }
-
-    select option {
-        color: #f5f7ff;
-        background-color: #151e3d;
-        -webkit-text-fill-color: #f5f7ff;
-    }
-
-    input[type="time"] {
-        color-scheme: dark;
+@media (max-width: 35rem) {
+    .two {
+        grid-template-columns: 1fr;
     }
 }

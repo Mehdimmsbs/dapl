@@ -87,4 +87,53 @@
     --danger: var(--coral-500);
     --success: var(--mint-500);
     --warning: var(--amber-500);
+    --control-height: 2.875rem;
+    --control-padding-inline: 0.875rem;
+    --control-background: #fbfcff;
+    --control-background-hover: #ffffff;
+    --control-text: var(--text-primary);
+    --control-placeholder: var(--text-tertiary);
+    --control-border: #d9e1f0;
+    --control-border-hover: #bdc9df;
+    --control-border-focus: #756de0;
+    --control-radius: 0.75rem;
+    --control-focus-ring:
+        0 0 0 3px rgba(117, 109, 224, 0.14);
+    --control-transition:
+        border-color 150ms ease,
+        background-color 150ms ease,
+        box-shadow 150ms ease;
+
+    --button-primary-background: #6258d8;
+    --button-primary-hover: #554bc6;
+    --button-primary-active: #4940b2;
+    --button-primary-text: #ffffff;
+    --button-primary-shadow:
+        0 10px 24px rgba(98, 88, 216, 0.22);
+
+    --choice-background: #f7f7ff;
+    --choice-border: #dcdff2;
+    --choice-text: #58658a;
+    --choice-selected-background: #ebeaff;
+    --choice-selected-border: #aaa7ee;
+    --choice-selected-text: #5148c6;
+}
+
+html.dark {
+    --control-background: #171f3d;
+    --control-background-hover: #1c2547;
+    --control-text: #f5f7ff;
+    --control-placeholder: #98a3c1;
+    --control-border: #323d63;
+    --control-border-hover: #49557d;
+    --control-border-focus: #938df0;
+    --control-focus-ring:
+        0 0 0 3px rgba(147, 141, 240, 0.18);
+
+    --choice-background: #1a2342;
+    --choice-border: #343e63;
+    --choice-text: #bac3dc;
+    --choice-selected-background: #302d68;
+    --choice-selected-border: #817be0;
+    --choice-selected-text: #f4f3ff;
 }
