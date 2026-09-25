@@ -19,17 +19,12 @@ export default function TaskForm({
     task?.date || date,
   );
 
+  const [scheduleType, setScheduleType] = useState(
+    task?.scheduleType || "day",
+  );
+
   function t(key, variables) {
     return tr(lang, key, variables);
-  }
-
-  function handleScheduleChange(event) {
-    const timeFields =
-      event.currentTarget.form.querySelector(".timeFields");
-
-    if (timeFields) {
-      timeFields.hidden = event.target.value !== "time";
-    }
   }
 
   function handleDateChange(event) {
@@ -110,10 +105,13 @@ export default function TaskForm({
 
         <label>
           {t("schedule")}
+
           <select
             name="scheduleType"
-            defaultValue={task?.scheduleType || "day"}
-            onChange={handleScheduleChange}
+            value={scheduleType}
+            onChange={(event) => {
+              setScheduleType(event.target.value);
+            }}
           >
             <option value="day">
               {t("day")}
@@ -125,28 +123,31 @@ export default function TaskForm({
           </select>
         </label>
 
-        <div
-          className="two timeFields"
-          hidden={task?.scheduleType !== "time"}
-        >
-          <label>
-            {t("start")}
-            <input
-              name="startTime"
-              type="time"
-              defaultValue={task?.startTime || ""}
-            />
-          </label>
+        {scheduleType === "time" && (
+          <div className="two timeFields">
+            <label>
+              {t("start")}
 
-          <label>
-            {t("end")}
-            <input
-              name="endTime"
-              type="time"
-              defaultValue={task?.endTime || ""}
-            />
-          </label>
-        </div>
+              <input
+                name="startTime"
+                type="time"
+                required
+                defaultValue={task?.startTime || ""}
+              />
+            </label>
+
+            <label>
+              {t("end")}
+
+              <input
+                name="endTime"
+                type="time"
+                required
+                defaultValue={task?.endTime || ""}
+              />
+            </label>
+          </div>
+        )}
 
         <label>
           {t("prerequisite")}
