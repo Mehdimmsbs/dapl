@@ -11,6 +11,7 @@ import {
 } from "../../lib/routines";
 
 import Modal from "../ui/Modal";
+import SelectField from "../ui/SelectField";
 import { useLanguage } from "../providers/LanguageProvider";
 
 /* Displays the routine creation and editing form. */
@@ -174,38 +175,27 @@ export default function RoutineFormModal({
                     />
                 </label>
 
-                <label>
-                    {t("priority")}
-
-                    <select
-                        name="priority"
-                        value={form.priority}
-                        onChange={
-                            handleChange
-                        }
-                    >
-                        <option value="normal">
-                            {t("normal")}
-                        </option>
-
-                        <option value="important">
-                            {t(
-                                "importantLabel",
-                            )}
-                        </option>
-
-                        <option value="essential">
-                            {t(
-                                "essentialLabel",
-                            )}
-                        </option>
-                    </select>
-                </label>
+                <SelectField
+                    label={t("priority")}
+                    name="priority"
+                    value={form.priority}
+                    onChange={handleChange}
+                >
+                    <option value="normal">
+                        {t("normal")}
+                    </option>
+                    <option value="important">
+                        {t("importantLabel")}
+                    </option>
+                    <option value="essential">
+                        {t("essentialLabel")}
+                    </option>
+                </SelectField>
 
                 <label>
                     {t("schedule")}
 
-                    <select
+                    <SelectField
                         name="scheduleType"
                         value={
                             form.scheduleType
@@ -221,7 +211,7 @@ export default function RoutineFormModal({
                         <option value="time">
                             {t("atTime")}
                         </option>
-                    </select>
+                    </SelectField>
                 </label>
 
                 {form.scheduleType ===
@@ -264,12 +254,10 @@ export default function RoutineFormModal({
                 <label>
                     {t("unit")}
 
-                    <select
+                    <SelectField
                         name="unit"
                         value={form.unit}
-                        onChange={
-                            handleChange
-                        }
+                        onChange={handleChange}
                     >
                         {ACTIVITY_UNITS.map(
                             (unit) => {
@@ -288,7 +276,7 @@ export default function RoutineFormModal({
                                 );
                             },
                         )}
-                    </select>
+                    </SelectField>
                 </label>
 
                 <div className="weekPicker">

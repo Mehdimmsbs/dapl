@@ -3,3 +3,174 @@
     width: 100%;
     margin: 0;
 }
+
+.calendarPriorityRow {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+    color: var(--text-secondary);
+}
+
+.calendarPriorityRow i {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--lavender-500);
+}
+
+.calendarPriorityRow b {
+    width: min(4rem, 65%);
+    height: 0.5rem;
+    border-radius: var(--radius-round);
+    background: rgba(118, 110, 248, 0.25);
+}
+
+.calendarPriorityRow strong {
+    font-size: var(--font-caption);
+    line-height: 1;
+}
+
+.calendarPriorityRow.important i {
+    background: var(--mint-500);
+}
+
+.calendarPriorityRow.important b {
+    background: rgba(54, 181, 138, 0.25);
+}
+
+.calendarPriorityRow.essential i {
+    background: var(--coral-500);
+}
+
+.calendarPriorityRow.essential b {
+    background: rgba(255, 100, 116, 0.25);
+}
+
+.calDay.isToday {
+    background: #fff3f9;
+    border-color: #e9a1c6;
+}
+
+.calDay.isToday .dayNum,
+.calDay.isToday.selected .dayNum {
+    display: inline-grid;
+    place-items: center;
+    align-self: flex-start;
+    min-width: 1.8rem;
+    height: 1.8rem;
+    padding-inline: 0.3rem;
+    margin: -0.3rem;
+    color: #fff;
+    background: #d64b91;
+    border-radius: 999px;
+}
+
+.calDay.isToday.selected {
+    border-color: #d64b91;
+    box-shadow: 0 0 0 3px rgba(214, 75, 145, 0.13);
+}
+
+html.dark .calDay.isToday {
+    background: rgba(214, 75, 145, 0.12);
+}
+
+.calendarMonthTrigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.5rem;
+    color: var(--text-primary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: clamp(1.5rem, 2.2vw, 2rem);
+    font-weight: var(--weight-extrabold);
+    cursor: pointer;
+}
+
+.calendarMonthTrigger:hover,
+.calendarMonthTrigger:focus-visible {
+    border-color: var(--control-border-focus);
+    outline: none;
+}
+
+.calendarMonthTrigger svg {
+    color: var(--control-border-hover);
+}
+
+.calendarPriorityLegend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    color: var(--text-secondary);
+    font-size: var(--font-label);
+    font-weight: var(--weight-semibold);
+}
+
+.calendarPriorityLegend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.calendarPriorityLegend i {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+}
+
+.calendarPriorityLegend .essential i {
+    background: var(--coral-500);
+}
+
+.calendarPriorityLegend .important i {
+    background: var(--mint-500);
+}
+
+.calendarPriorityLegend .normal i {
+    background: var(--lavender-500);
+}
+
+.calendarMonthPicker {
+    display: grid;
+    gap: 1rem;
+}
+
+.calendarMonthChoices {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.calendarMonthChoices button {
+    min-height: var(--control-height);
+    padding: 0.5rem;
+    color: var(--control-text);
+    background: var(--control-background);
+    border: 1px solid var(--control-border);
+    border-radius: var(--control-radius);
+    font: inherit;
+    cursor: pointer;
+}
+
+.calendarMonthChoices button:hover,
+.calendarMonthChoices button:focus-visible,
+.calendarMonthChoices button.isCurrent {
+    color: var(--choice-selected-text);
+    background: var(--choice-selected-background);
+    border-color: var(--choice-selected-border);
+    outline: none;
+}
+
+@media (max-width: 650px) {
+    .calendarPriorityLegend {
+        justify-content: flex-start;
+    }
+
+    .calendarMonthChoices {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "../providers/LanguageProvider";
+import SelectField from "../ui/SelectField";
 import AppIcon from "../ui/AppIcon";
 
 /* Renders the Aurora language selector. */
@@ -27,7 +28,7 @@ export default function LanguageSwitcher({
         {t("selectLanguage")}
       </span>
 
-      <select
+      <SelectField
         value={locale}
         onChange={handleLanguageChange}
         aria-label={t("selectLanguage")}
@@ -37,13 +38,8 @@ export default function LanguageSwitcher({
             {name}
           </option>
         ))}
-      </select>
+      </SelectField>
 
-      <AppIcon
-        name="chevron-down"
-        size={16}
-        className="languageChevron"
-      />
     </label>
   );
 }

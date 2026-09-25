@@ -1,6 +1,7 @@
 "use client";
 
 import { translations } from "../../lib/i18n";
+import SelectField from "../ui/SelectField";
 import { useLanguage } from "../providers/LanguageProvider";
 
 /* Displays global language, calendar and appearance settings. */
@@ -46,7 +47,7 @@ export default function SettingsForm({
             <label>
                 {t("language")}
 
-                <select
+                <SelectField
                     name="language"
                     value={settings.language}
                     onChange={updateSetting}
@@ -66,13 +67,13 @@ export default function SettingsForm({
                             </option>
                         ),
                     )}
-                </select>
+                </SelectField>
             </label>
 
             <label>
                 {t("calendarType")}
 
-                <select
+                <SelectField
                     name="calendar"
                     value={settings.calendar}
                     onChange={updateSetting}
@@ -88,13 +89,13 @@ export default function SettingsForm({
                     <option value="hijri">
                         {t("hijri")}
                     </option>
-                </select>
+                </SelectField>
             </label>
 
             <label>
                 {t("secondary")}
 
-                <select
+                <SelectField
                     name="secondaryCalendar"
                     value={
                         settings.secondaryCalendar
@@ -116,13 +117,13 @@ export default function SettingsForm({
                     <option value="hijri">
                         {t("hijri")}
                     </option>
-                </select>
+                </SelectField>
             </label>
 
             <label>
                 {t("firstDay")}
 
-                <select
+                <SelectField
                     name="firstDay"
                     value={settings.firstDay}
                     onChange={updateSetting}
@@ -138,14 +139,14 @@ export default function SettingsForm({
                     <option value="monday">
                         {t("monday")}
                     </option>
-                </select>
+                </SelectField>
             </label>
 
             {usesHijriCalendar && (
                 <label>
                     {t("hijriMethod")}
 
-                    <select
+                    <SelectField
                         name="hijriMethod"
                         value={
                             settings.hijriMethod
@@ -155,7 +156,7 @@ export default function SettingsForm({
                         <option value="ummalqura">
                             {t("ummalqura")}
                         </option>
-                    </select>
+                    </SelectField>
                 </label>
             )}
 

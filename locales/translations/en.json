@@ -62,6 +62,8 @@
   "thursday": "Thursday",
   "friday": "Friday",
   "gregorian": "Gregorian",
+  "calendarMonth":"Month",
+  "chooseCalendarMonth": "Choose month and year",
   "jalali": "Persian",
   "hijri": "Hijri",
   "hijriMethod": "Hijri calendar method",

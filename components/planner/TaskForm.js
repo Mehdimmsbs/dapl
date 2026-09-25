@@ -8,6 +8,7 @@ import {
   getLocalIsoDate,
 } from "../../lib/date";
 import { tr } from "../../lib/i18n";
+import SelectField from "../ui/SelectField";
 import Modal from "../ui/Modal";
 
 /* Displays the form for creating, carrying or editing a task. */
@@ -185,7 +186,7 @@ export default function TaskForm({
           <label>
             {t("taskSource")}
 
-            <select
+            <SelectField
               value={mode}
               onChange={changeMode}
             >
@@ -196,7 +197,7 @@ export default function TaskForm({
               <option value="carry">
                 {t("carryTaskSource")}
               </option>
-            </select>
+            </SelectField>
           </label>
         )}
 
@@ -204,7 +205,7 @@ export default function TaskForm({
           <label>
             {t("carryTaskLabel")}
 
-            <select
+            <SelectField
               value={carryId}
               onChange={chooseCarryTask}
               required
@@ -226,7 +227,7 @@ export default function TaskForm({
                   )}
                 </option>
               ))}
-            </select>
+            </SelectField>
           </label>
         )}
 
@@ -292,7 +293,7 @@ export default function TaskForm({
         <label>
           {t("priority")}
 
-          <select
+          <SelectField
             name="priority"
             value={priority}
             onChange={(event) => {
@@ -310,13 +311,13 @@ export default function TaskForm({
             <option value="essential">
               {t("essentialLabel")}
             </option>
-          </select>
+          </SelectField>
         </label>
 
         <label>
           {t("schedule")}
 
-          <select
+          <SelectField
             name="scheduleType"
             value={scheduleType}
             onChange={(event) => {
@@ -332,7 +333,7 @@ export default function TaskForm({
             <option value="time">
               {t("atTime")}
             </option>
-          </select>
+          </SelectField>
         </label>
 
         {scheduleType === "time" && (
@@ -374,7 +375,7 @@ export default function TaskForm({
         <label>
           {t("prerequisite")}
 
-          <select
+          <SelectField
             name="prerequisite"
             value={prerequisite}
             onChange={(event) => {
@@ -397,13 +398,13 @@ export default function TaskForm({
                 </option>
               ),
             )}
-          </select>
+          </SelectField>
         </label>
 
         <label>
           {t("unit")}
 
-          <select
+          <SelectField
             name="unit"
             value={unit}
             onChange={(event) => {
@@ -429,7 +430,7 @@ export default function TaskForm({
             <option value="page">
               {t("unitPage")}
             </option>
-          </select>
+          </SelectField>
         </label>
 
         <button

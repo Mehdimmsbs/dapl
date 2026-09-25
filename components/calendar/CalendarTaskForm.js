@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { formatDate } from "../../lib/date";
+import SelectField from "../ui/SelectField";
 import Modal from "../ui/Modal";
 import { useLanguage } from "../providers/LanguageProvider";
 
@@ -18,16 +19,15 @@ const ACTIVITY_UNITS = [
 export default function CalendarTaskForm({
     date,
     settings,
+    task,
     onSave,
     onClose,
 }) {
     const { t } = useLanguage();
 
-    const [
-        scheduleType,
-        setScheduleType,
-    ] = useState("day");
-
+    const [scheduleType, setScheduleType] = useState(
+        task?.scheduleType || "day",
+    );
     /* Creates a normalized task from form values. */
     function saveTask(event) {
         event.preventDefault();
@@ -47,7 +47,8 @@ export default function CalendarTaskForm({
         }
 
         onSave({
-            id: Date.now(),
+            ...(task || {}),
+            id: task?.id ?? Date.now(),
             title,
 
             description:
@@ -74,13 +75,13 @@ export default function CalendarTaskForm({
                     ? form.get("endTime")
                     : "",
 
-            completed: false,
+            completed: task?.completed ?? false,
 
             activityUnit:
                 form.get("unit"),
 
-            activityValue: 0,
-            prerequisites: [],
+            activityValue: task?.activityValue ?? 0,
+            prerequisites: task?.prerequisites ?? [],
         });
     }
 
@@ -104,6 +105,7 @@ export default function CalendarTaskForm({
 
                     <input
                         name="title"
+                        defaultValue={task?.title ?? ""}
                         required
                         autoFocus
                     />
@@ -113,6 +115,7 @@ export default function CalendarTaskForm({
                     {t("description")}
 
                     <textarea
+                        defaultValue={task?.description ?? ""}
                         name="description"
                         rows="3"
                     />
@@ -121,7 +124,8 @@ export default function CalendarTaskForm({
                 <label>
                     {t("priority")}
 
-                    <select
+                    <SelectField
+
                         name="priority"
                         defaultValue="normal"
                     >
@@ -136,13 +140,14 @@ export default function CalendarTaskForm({
                         <option value="essential">
                             {t("essentialLabel")}
                         </option>
-                    </select>
+                    </SelectField>
                 </label>
 
                 <label>
                     {t("schedule")}
 
-                    <select
+                    <SelectField
+
                         name="scheduleType"
                         value={scheduleType}
                         onChange={(event) => {
@@ -158,7 +163,7 @@ export default function CalendarTaskForm({
                         <option value="time">
                             {t("atTime")}
                         </option>
-                    </select>
+                    </SelectField>
                 </label>
 
                 {scheduleType === "time" && (
@@ -188,7 +193,8 @@ export default function CalendarTaskForm({
                 <label>
                     {t("unit")}
 
-                    <select
+                    <SelectField
+
                         name="unit"
                         defaultValue="minute"
                     >
@@ -211,7 +217,7 @@ export default function CalendarTaskForm({
                                 );
                             },
                         )}
-                    </select>
+                    </SelectField>
                 </label>
 
                 <button

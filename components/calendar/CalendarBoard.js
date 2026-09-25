@@ -2,12 +2,13 @@
 
 import {
     calendarParts,
+    getLocalIsoDate,
     monthTitle,
     weekdayNameIndex,
 } from "../../lib/date";
 
-import AppIcon from "../ui/AppIcon";
 import { useLanguage } from "../providers/LanguageProvider";
+import AppIcon from "../ui/AppIcon";
 
 const WEEKDAYS = [
     "sunday",
@@ -19,7 +20,7 @@ const WEEKDAYS = [
     "saturday",
 ];
 
-/* Renders the Aurora calendar month board. */
+/* Renders the calendar month and its task summaries. */
 export default function CalendarBoard({
     anchor,
     cells,
@@ -29,8 +30,11 @@ export default function CalendarBoard({
     onChooseDate,
     onShiftMonth,
     onToday,
+    onPickMonth,
 }) {
     const { t } = useLanguage();
+    const today = getLocalIsoDate();
+
     const weekStartIndex = weekdayNameIndex(
         settings.firstDay,
     );
@@ -39,13 +43,23 @@ export default function CalendarBoard({
         <section className="card calendarWrap">
             <header className="calendarToolbar">
                 <div className="calendarTitleGroup">
-                    <h2>
+                    <button
+                        type="button"
+                        className="calendarMonthTrigger"
+                        onClick={onPickMonth}
+                        aria-label={t("chooseCalendarMonth")}
+                    >
                         {monthTitle(
                             anchor,
                             settings.calendar,
                             settings.language,
                         )}
-                    </h2>
+
+                        <AppIcon
+                            name="chevron-down"
+                            size={18}
+                        />
+                    </button>
 
                     <div className="calendarPager">
                         <button
@@ -82,29 +96,24 @@ export default function CalendarBoard({
                     </div>
                 </div>
 
-                <div className="calendarViewActions">
-                    <button
-                        type="button"
-                        className="calendarViewButton active"
-                    >
-                        {t("monthView")}
-                    </button>
+                <div
+                    className="calendarPriorityLegend"
+                    aria-label={t("priority")}
+                >
+                    <span className="essential">
+                        <i aria-hidden="true" />
+                        {t("essentialLabel")}
+                    </span>
 
-                    <button
-                        type="button"
-                        className="calendarViewButton"
-                        onClick={() => onShiftMonth(-1)}
-                    >
-                        {t("monthPrev")}
-                    </button>
+                    <span className="important">
+                        <i aria-hidden="true" />
+                        {t("importantLabel")}
+                    </span>
 
-                    <button
-                        type="button"
-                        className="calendarViewButton"
-                        onClick={() => onShiftMonth(1)}
-                    >
-                        {t("monthNext")}
-                    </button>
+                    <span className="normal">
+                        <i aria-hidden="true" />
+                        {t("normal")}
+                    </span>
                 </div>
             </header>
 
@@ -112,7 +121,8 @@ export default function CalendarBoard({
                 {WEEKDAYS.map((_, index) => {
                     const weekday =
                         WEEKDAYS[
-                        (weekStartIndex + index) % 7
+                        (weekStartIndex + index) %
+                        WEEKDAYS.length
                         ];
 
                     return (
@@ -136,8 +146,39 @@ export default function CalendarBoard({
                         );
                     }
 
-                    const tasks = tasksByDate[date] ?? [];
-                    const isSelected = date === selected;
+                    const tasks =
+                        tasksByDate[date] ?? [];
+
+                    const priorityCounts = [
+                        "essential",
+                        "important",
+                        "normal",
+                    ]
+                        .map((priority) => {
+                            const priorityTasks =
+                                tasks.filter(
+                                    (task) =>
+                                        task.priority ===
+                                        priority,
+                                );
+
+                            return {
+                                priority,
+                                total:
+                                    priorityTasks.length,
+                                completed:
+                                    priorityTasks.filter(
+                                        (task) =>
+                                            task.completed,
+                                    ).length,
+                            };
+                        })
+                        .filter(
+                            ({ total }) => total > 0,
+                        );
+
+                    const isSelected =
+                        date === selected;
 
                     return (
                         <button
@@ -145,10 +186,21 @@ export default function CalendarBoard({
                             key={date}
                             className={[
                                 "calDay",
-                                isSelected ? "selected" : "",
-                                tasks.length ? "hasTasks" : "",
-                            ].filter(Boolean).join(" ")}
-                            onClick={() => onChooseDate(date)}
+                                date === today
+                                    ? "isToday"
+                                    : "",
+                                isSelected
+                                    ? "selected"
+                                    : "",
+                                tasks.length
+                                    ? "hasTasks"
+                                    : "",
+                            ]
+                                .filter(Boolean)
+                                .join(" ")}
+                            onClick={() =>
+                                onChooseDate(date)
+                            }
                             aria-pressed={isSelected}
                         >
                             <span className="dayNum">
@@ -161,38 +213,36 @@ export default function CalendarBoard({
                                 }
                             </span>
 
-                            {tasks.length > 0 && (
-                                <div
-                                    className="calendarTaskIndicators"
-                                    aria-label={t("dayCount", {
-                                        n: tasks.length,
-                                    })}
-                                >
-                                    {tasks
-                                        .slice(0, 2)
-                                        .map((task) => (
-                                            <span
-                                                key={task.id}
-                                                className={[
-                                                    "calendarTaskIndicator",
-                                                    task.priority || "normal",
-                                                    task.completed
-                                                        ? "completed"
-                                                        : "",
-                                                ].filter(Boolean).join(" ")}
-                                            >
-                                                <i />
-                                                <b />
-                                            </span>
-                                        ))}
-
-                                    {tasks.length > 2 && (
-                                        <span className="calendarMoreTasks">
-                                            +{tasks.length - 2}
-                                        </span>
-                                    )}
-                                </div>
-                            )}
+                            {priorityCounts.length >
+                                0 && (
+                                    <div className="calendarTaskIndicators">
+                                        {priorityCounts.map(
+                                            ({
+                                                priority,
+                                                completed,
+                                                total,
+                                            }) => (
+                                                <span
+                                                    key={priority}
+                                                    className={`calendarPriorityRow ${priority}`}
+                                                    aria-label={`${t(
+                                                        priority ===
+                                                            "normal"
+                                                            ? "normal"
+                                                            : `${priority}Label`,
+                                                    )}: ${completed}/${total}`}
+                                                >
+                                                    <i aria-hidden="true" />
+                                                    <b aria-hidden="true" />
+                                                    <strong>
+                                                        {completed}/
+                                                        {total}
+                                                    </strong>
+                                                </span>
+                                            ),
+                                        )}
+                                    </div>
+                                )}
                         </button>
                     );
                 })}

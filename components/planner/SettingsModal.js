@@ -1,4 +1,5 @@
 import { tr, translations } from "../../lib/i18n";
+import SelectField from "../ui/SelectField";
 import Modal from "../ui/Modal";
 
 /* Displays language, calendar and date preferences. */
@@ -23,7 +24,7 @@ export default function SettingsModal({
         <label>
           {t("language")}
 
-          <select
+          <SelectField
             name="language"
             defaultValue={settings.language}
           >
@@ -34,13 +35,13 @@ export default function SettingsModal({
                 </option>
               ),
             )}
-          </select>
+          </SelectField>
         </label>
 
         <label>
           {t("calendarType")}
 
-          <select
+          <SelectField
             name="calendar"
             defaultValue={settings.calendar}
           >
@@ -55,13 +56,13 @@ export default function SettingsModal({
             <option value="hijri">
               {t("hijri")}
             </option>
-          </select>
+          </SelectField>
         </label>
 
         <label>
           {t("secondary")}
 
-          <select
+          <SelectField
             name="secondaryCalendar"
             defaultValue={settings.secondaryCalendar}
           >
@@ -80,13 +81,13 @@ export default function SettingsModal({
             <option value="hijri">
               {t("hijri")}
             </option>
-          </select>
+          </SelectField>
         </label>
 
         <label>
           {t("firstDay")}
 
-          <select
+          <SelectField
             name="firstDay"
             defaultValue={settings.firstDay}
           >
@@ -101,25 +102,25 @@ export default function SettingsModal({
             <option value="monday">
               {t("monday")}
             </option>
-          </select>
+          </SelectField>
         </label>
 
         <label>
           {t("hijriMethod")}
 
-          <select
+          <SelectField
             name="hijriMethod"
             defaultValue={settings.hijriMethod}
           >
             <option value="ummalqura">
               {t("ummalqura")}
             </option>
-          </select>
+          </SelectField>
         </label>
         <label>
           {t("fontSize")}
 
-          <select
+          <SelectField
             name="fontSize"
             defaultValue={
               settings.fontSize || "medium"
@@ -136,7 +137,7 @@ export default function SettingsModal({
             <option value="large">
               {t("fontLarge")}
             </option>
-          </select>
+          </SelectField>
         </label>
 
         <button className="primary">

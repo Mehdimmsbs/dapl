@@ -1,15 +1,17 @@
 "use client";
 
 import { formatDate } from "../../lib/date";
-import Modal from "../ui/Modal";
 import { useLanguage } from "../providers/LanguageProvider";
+import Modal from "../ui/Modal";
 
-/* Displays tasks belonging to one calendar day. */
 export default function CalendarTaskListModal({
     date,
     settings,
     tasks,
+    canAdd,
     onAdd,
+    onOpenTask,
+    onRemoveTask,
     onClose,
 }) {
     const { t } = useLanguage();
@@ -26,32 +28,58 @@ export default function CalendarTaskListModal({
             <div className="calendarTaskList">
                 {tasks.map((task) => (
                     <div
-                        className="calendarTask"
+                        className="calendarTask calendarTaskEntry"
                         key={task.id}
                     >
-                        <b>{task.title}</b>
+                        <button
+                            type="button"
+                            className="calendarTaskOpen"
+                            onClick={() => {
+                                onOpenTask(task.id);
+                            }}
+                        >
+                            <b>{task.title}</b>
 
-                        <span>
-                            {task.completed
-                                ? "✓ "
-                                : ""}
+                            <span>
+                                {task.completed
+                                    ? "✓ "
+                                    : ""}
 
-                            {task.scheduleType ===
-                                "time"
-                                ? `${task.startTime} – ${task.endTime}`
-                                : t("day")}
-                        </span>
+                                {task.scheduleType === "time"
+                                    ? `${task.startTime} – ${task.endTime}`
+                                    : t("day")}
+                            </span>
+                        </button>
+
+                        <button
+                            type="button"
+                            className="miniBtn dangerBtn"
+                            aria-label={`${t("delete")}: ${task.title}`}
+                            onClick={() => {
+                                onRemoveTask(task.id);
+                            }}
+                        >
+                            ×
+                        </button>
                     </div>
                 ))}
+
+                {!tasks.length && (
+                    <div className="empty">
+                        {t("noTasks")}
+                    </div>
+                )}
             </div>
 
-            <button
-                type="button"
-                className="primary full"
-                onClick={onAdd}
-            >
-                + {t("newTask")}
-            </button>
+            {canAdd && (
+                <button
+                    type="button"
+                    className="primary full"
+                    onClick={onAdd}
+                >
+                    + {t("newTask")}
+                </button>
+            )}
         </Modal>
     );
 }

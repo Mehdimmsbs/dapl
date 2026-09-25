@@ -11,6 +11,7 @@ export default function TaskDetailsModal({
     onClose,
     onEdit,
     onRemove,
+    canEdit = true,
 }) {
     function t(key, variables) {
         return tr(lang, key, variables);
@@ -122,13 +123,15 @@ export default function TaskDetailsModal({
                 </dl>
 
                 <div className="modalActions">
-                    <button
-                        type="button"
-                        className="ghost"
-                        onClick={onEdit}
-                    >
-                        {t("edit")}
-                    </button>
+                    {canEdit && (
+                        <button
+                            type="button"
+                            className="ghost"
+                            onClick={onEdit}
+                        >
+                            {t("edit")}
+                        </button>
+                    )}
 
                     <button
                         type="button"
