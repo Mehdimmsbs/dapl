@@ -151,6 +151,7 @@ export default function Planner() {
           <TaskForm
             lang={settings.language}
             calendar={settings.calendar}
+            firstDay={settings.firstDay}
             data={planner.data}
             date={planner.date}
             task={

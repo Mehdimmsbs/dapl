@@ -46,39 +46,26 @@ export default function TaskDetailsModal({
     return (
         <Modal title={t("taskDetails")} close={onClose}>
             <div className="taskDetails">
+                <div className="taskDetailsIntro">
+                    <span className={`calendarPriorityBadge ${task.priority}`}>
+                        {priorityLabels[task.priority] || priorityLabels.normal}
+                    </span>
+
+                    <span className={`taskStatusBadge ${task.completed ? "isDone" : ""}`}>
+                        {task.completed ? t("done") : t("remaining")}
+                    </span>
+                </div>
+
                 <h3>{task.title}</h3>
 
                 {task.description && (
-                    <p>{task.description}</p>
+                    <p className="taskDetailsDescription">{task.description}</p>
                 )}
 
-                <dl>
+                <dl className="taskDetailsGrid">
                     <div>
                         <dt>{t("taskDate")}</dt>
-                        <dd>
-                            {formatDate(
-                                task.date,
-                                calendar,
-                                lang,
-                            )}
-                        </dd>
-                    </div>
-
-                    <div>
-                        <dt>{t("status")}</dt>
-                        <dd>
-                            {task.completed
-                                ? t("done")
-                                : t("remaining")}
-                        </dd>
-                    </div>
-
-                    <div>
-                        <dt>{t("priority")}</dt>
-                        <dd>
-                            {priorityLabels[task.priority] ||
-                                priorityLabels.normal}
-                        </dd>
+                        <dd>{formatDate(task.date, calendar, lang)}</dd>
                     </div>
 
                     <div>
@@ -94,8 +81,7 @@ export default function TaskDetailsModal({
                         <dt>{t("unit")}</dt>
                         <dd>
                             {task.activityValue || 0}{" "}
-                            {unitLabels[task.activityUnit] ||
-                                task.activityUnit}
+                            {unitLabels[task.activityUnit] || task.activityUnit}
                         </dd>
                     </div>
 
@@ -111,33 +97,19 @@ export default function TaskDetailsModal({
                     {task.carriedFromDate && (
                         <div>
                             <dt>{t("carriedFrom")}</dt>
-                            <dd>
-                                {formatDate(
-                                    task.carriedFromDate,
-                                    calendar,
-                                    lang,
-                                )}
-                            </dd>
+                            <dd>{formatDate(task.carriedFromDate, calendar, lang)}</dd>
                         </div>
                     )}
                 </dl>
 
-                <div className="modalActions">
+                <div className="taskDetailsActions">
                     {canEdit && (
-                        <button
-                            type="button"
-                            className="ghost"
-                            onClick={onEdit}
-                        >
+                        <button type="button" className="ghost" onClick={onEdit}>
                             {t("edit")}
                         </button>
                     )}
 
-                    <button
-                        type="button"
-                        className="miniBtn dangerBtn"
-                        onClick={onRemove}
-                    >
+                    <button type="button" className="taskDeleteAction" onClick={onRemove}>
                         {t("delete")}
                     </button>
                 </div>

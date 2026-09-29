@@ -44,10 +44,7 @@ export default function SettingsForm({
             className="form"
             onSubmit={onSubmit}
         >
-            <label>
-                {t("language")}
-
-                <SelectField
+            <SelectField label={t("language")}
                     name="language"
                     value={settings.language}
                     onChange={updateSetting}
@@ -68,12 +65,8 @@ export default function SettingsForm({
                         ),
                     )}
                 </SelectField>
-            </label>
 
-            <label>
-                {t("calendarType")}
-
-                <SelectField
+            <SelectField label={t("calendarType")}
                     name="calendar"
                     value={settings.calendar}
                     onChange={updateSetting}
@@ -90,12 +83,8 @@ export default function SettingsForm({
                         {t("hijri")}
                     </option>
                 </SelectField>
-            </label>
 
-            <label>
-                {t("secondary")}
-
-                <SelectField
+            <SelectField label={t("secondary")}
                     name="secondaryCalendar"
                     value={
                         settings.secondaryCalendar
@@ -118,12 +107,8 @@ export default function SettingsForm({
                         {t("hijri")}
                     </option>
                 </SelectField>
-            </label>
 
-            <label>
-                {t("firstDay")}
-
-                <SelectField
+            <SelectField label={t("firstDay")}
                     name="firstDay"
                     value={settings.firstDay}
                     onChange={updateSetting}
@@ -140,13 +125,9 @@ export default function SettingsForm({
                         {t("monday")}
                     </option>
                 </SelectField>
-            </label>
 
             {usesHijriCalendar && (
-                <label>
-                    {t("hijriMethod")}
-
-                    <SelectField
+                <SelectField label={t("hijriMethod")}
                         name="hijriMethod"
                         value={
                             settings.hijriMethod
@@ -157,7 +138,6 @@ export default function SettingsForm({
                             {t("ummalqura")}
                         </option>
                     </SelectField>
-                </label>
             )}
 
             <label className="switchRow">

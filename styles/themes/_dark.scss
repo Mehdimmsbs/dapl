@@ -1,0 +1,82 @@
+html.dark {
+    color-scheme: dark;
+
+    /* Surfaces */
+    --app-background: #0e1426;
+    --sidebar-background: #111a30;
+    --card-background: #17223b;
+    --surface-muted: #1d2a46;
+
+    /* Text */
+    --text-primary: #f3f6ff;
+    --text-secondary: #bdc8df;
+    --text-tertiary: #9eacc9;
+    --text-inverse: #ffffff;
+
+    /* Borders */
+    --border-default: #34435f;
+    --border-hover: #526381;
+    --border-focus: #aaa3ff;
+
+    /* Legacy components */
+    --bg: var(--app-background);
+    --surface: var(--card-background);
+    --surface2: var(--surface-muted);
+    --text: var(--text-primary);
+    --muted: var(--text-secondary);
+    --line: var(--border-default);
+    --primary: #aaa3ff;
+    --primarySoft: #302e55;
+    --dangerSoft: #4a2939;
+    --successSoft: #1c443a;
+    --warningSoft: #483920;
+
+    /* Aurora components still using --color-* */
+    --color-app-background: var(--app-background);
+    --color-sidebar-background: var(--sidebar-background);
+    --color-card-background: var(--card-background);
+    --color-selected-background: #302e55;
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-tertiary: var(--text-tertiary);
+    --color-border: var(--border-default);
+    --color-border-hover: var(--border-hover);
+    --color-border-focus: var(--border-focus);
+
+    /* Fields and custom dropdowns */
+    --control-background: #1b2843;
+    --control-background-hover: #22314f;
+    --control-text: var(--text-primary);
+    --control-placeholder: var(--text-tertiary);
+    --control-border: var(--border-default);
+    --control-border-hover: var(--border-hover);
+    --control-border-focus: var(--border-focus);
+    --control-focus-ring: 0 0 0 3px rgba(170, 163, 255, 0.2);
+
+    --choice-background: #1d2a46;
+    --choice-border: var(--border-default);
+    --choice-text: var(--text-secondary);
+    --choice-selected-background: #383467;
+    --choice-selected-border: #aaa3ff;
+    --choice-selected-text: #ffffff;
+
+    --shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .main {
+    background: var(--app-background);
+}
+
+html.dark .hero h1 {
+    color: var(--text-primary);
+}
+
+html.dark .hero p,
+html.dark .crumb {
+    color: var(--text-secondary);
+}
+
+html.dark .hero .kicker {
+    color: #aaa3ff;
+}

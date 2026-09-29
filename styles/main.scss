@@ -22,6 +22,7 @@
 @use "./layout/aurora-content";
 @use "./pages/aurora-calendar";
 @use "./layout/aurora-mobile-nav";
+@use "./components/calendar-date-field";
 
 /* Project-specific UX overrides */
 @use "./abstracts/tokens";
@@ -40,3 +41,4 @@
 @use "./components/forms";
 @use "./components/modal";
 @use "./components/select-field";
+@use "./components/calendar-task-modals";

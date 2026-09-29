@@ -9,6 +9,7 @@ export default function Topbar({
   activePage,
   onOpenSettings,
   onToggleMenu,
+  mobileMenuOpen,
 }) {
   const { dark, t, toggleDark } = useLanguage();
 
@@ -37,6 +38,7 @@ export default function Topbar({
           className="mobileMenu"
           onClick={onToggleMenu}
           aria-label={t("toggleSidebar")}
+          aria-expanded={mobileMenuOpen}
         >
           <AppIcon name="menu" size={22} />
         </button>

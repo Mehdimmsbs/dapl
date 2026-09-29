@@ -1,19 +1,39 @@
 .pwaInstallButton {
     position: fixed;
-    right: 20px;
-    bottom: 20px;
-    z-index: 1000;
-    min-height: 44px;
-    padding: 0 18px;
+    z-index: 35;
+    inset-inline-start: 1rem;
+    bottom: 1rem;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.875rem;
+    padding: 0.625rem 1rem;
+
+    color: var(--button-primary-text);
+    background: var(--button-primary-background);
     border: 0;
-    border-radius: 999px;
-    color: #fff;
-    background: #5b5cf6;
-    box-shadow: 0 12px 30px rgb(40 45 90 / 22%);
+    border-radius: var(--control-radius);
+    box-shadow: var(--button-primary-shadow);
+
+    font: inherit;
+    font-size: var(--font-small);
+    font-weight: var(--weight-semibold);
     cursor: pointer;
+
+    &:hover {
+        background: var(--button-primary-hover);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--control-border-focus);
+        outline-offset: 3px;
+    }
 }
 
-[dir="rtl"] .pwaInstallButton {
-    right: auto;
-    left: 20px;
+@media (max-width: 900px) {
+    .pwaInstallButton {
+        bottom: calc(5.25rem + env(safe-area-inset-bottom));
+    }
 }

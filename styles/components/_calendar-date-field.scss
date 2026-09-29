@@ -1,0 +1,115 @@
+.calendarDateField {
+    position: relative;
+    display: grid;
+    gap: 0.4375rem;
+    min-width: 0;
+}
+
+.calendarDateLabel {
+    color: var(--text-primary);
+    font-size: var(--font-label);
+    font-weight: var(--weight-semibold);
+}
+
+.calendarDateTrigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: var(--control-height);
+    padding: 0.6875rem var(--control-padding-inline);
+    color: var(--control-text);
+    background: var(--control-background);
+    border: 1px solid var(--control-border);
+    border-radius: var(--control-radius);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: none;
+        border-color: var(--control-border-focus);
+        box-shadow: var(--control-focus-ring);
+    }
+}
+
+.calendarDatePanel {
+    padding: 0.75rem;
+    color: var(--control-text);
+    background: var(--control-background);
+    border: 1px solid var(--control-border);
+    border-radius: var(--control-radius);
+}
+
+.calendarDateToolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+
+    strong {
+        text-align: center;
+        font-size: var(--font-small);
+    }
+
+    button {
+        width: 2rem;
+        height: 2rem;
+        color: var(--control-text);
+        background: var(--control-background);
+        border: 1px solid var(--control-border);
+        border-radius: 0.5rem;
+        cursor: pointer;
+    }
+}
+
+.calendarDateGrid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.2rem;
+}
+
+.calendarDateWeekday {
+    overflow: hidden;
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    text-align: center;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.calendarDateDay {
+    min-width: 0;
+    aspect-ratio: 1;
+    padding: 0;
+    color: var(--control-text);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    cursor: pointer;
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+        border-color: var(--control-border-focus);
+        outline: none;
+    }
+
+    &.isToday {
+        border-color: var(--control-border);
+    }
+
+    &.isSelected {
+        color: var(--button-primary-text);
+        background: var(--button-primary-background);
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+}
+
+.form .calendarDateField input[type="hidden"] {
+    display: none;
+}

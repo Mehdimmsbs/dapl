@@ -1,19 +1,33 @@
-/* Displays reusable dialog content above the current page. */
-export default function Modal({
-  title,
-  children,
-  close,
-}) {
-  /* Prevents clicks inside the dialog from closing the modal. */
-  function handleModalClick(event) {
-    event.stopPropagation();
-  }
+"use client";
+
+import { useEffect } from "react";
+
+export default function Modal({ title, children, close }) {
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key !== "Escape") return;
+
+      const overlays = document.querySelectorAll(".overlay");
+      const topOverlay = overlays[overlays.length - 1];
+
+      if (topOverlay === event.currentTarget.querySelector(".overlay")) {
+        event.preventDefault();
+        close();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [close]);
 
   return (
     <div className="overlay" onMouseDown={close}>
       <div
         className="modal"
-        onMouseDown={handleModalClick}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="modalHeader">
           <h2>{title}</h2>

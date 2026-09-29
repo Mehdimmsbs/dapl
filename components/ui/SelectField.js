@@ -277,11 +277,10 @@ export default function SelectField({
                                     setActiveIndex(index);
                                 }
                             }}
-                            onPointerDown={(event) => {
-                                // Keep keyboard focus on the combobox.
-                                event.preventDefault();
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                chooseOption(option);
                             }}
-                            onClick={() => chooseOption(option)}
                         >
                             {option.label}
                         </div>

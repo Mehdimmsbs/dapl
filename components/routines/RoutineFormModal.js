@@ -192,10 +192,7 @@ export default function RoutineFormModal({
                     </option>
                 </SelectField>
 
-                <label>
-                    {t("schedule")}
-
-                    <SelectField
+                <SelectField label={t("schedule")}
                         name="scheduleType"
                         value={
                             form.scheduleType
@@ -212,7 +209,6 @@ export default function RoutineFormModal({
                             {t("atTime")}
                         </option>
                     </SelectField>
-                </label>
 
                 {form.scheduleType ===
                     "time" && (
@@ -251,10 +247,7 @@ export default function RoutineFormModal({
                         </div>
                     )}
 
-                <label>
-                    {t("unit")}
-
-                    <SelectField
+                <SelectField label={t("unit")}
                         name="unit"
                         value={form.unit}
                         onChange={handleChange}
@@ -277,7 +270,6 @@ export default function RoutineFormModal({
                             },
                         )}
                     </SelectField>
-                </label>
 
                 <div className="weekPicker">
                     <b>

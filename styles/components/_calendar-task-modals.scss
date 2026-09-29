@@ -1,0 +1,256 @@
+.calendarDayModal,
+.taskDetails {
+    display: grid;
+    gap: 1rem;
+    color: var(--text-primary);
+}
+
+.calendarDaySummary {
+    color: var(--text-secondary);
+    font-size: var(--font-small);
+}
+
+.calendarTaskList {
+    display: grid;
+    gap: 0.625rem;
+    max-height: min(55vh, 28rem);
+    overflow-y: auto;
+}
+
+.calendarTaskEntry {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+    background: var(--control-background);
+    border: 1px solid var(--border-default);
+    border-radius: var(--control-radius);
+    transition: border-color 150ms ease, background-color 150ms ease;
+
+    &:hover,
+    &:focus-within {
+        background: var(--control-background-hover);
+        border-color: var(--border-focus);
+    }
+}
+
+.calendarTaskOpen {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+    padding: 0.875rem;
+    color: var(--text-primary);
+    background: transparent;
+    border: 0;
+    text-align: start;
+
+    &:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: -3px;
+        border-radius: var(--control-radius);
+    }
+}
+
+.calendarTaskPriority {
+    width: 0.5rem;
+    height: 2.5rem;
+    flex: none;
+    border-radius: var(--radius-round);
+
+    &.essential {
+        background: var(--coral-500);
+    }
+
+    &.important {
+        background: var(--mint-500);
+    }
+
+    &.normal {
+        background: var(--lavender-500);
+    }
+}
+
+.calendarTaskContent {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
+
+    strong {
+        overflow: hidden;
+        color: var(--text-primary);
+        font-size: var(--font-small);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    small {
+        color: var(--text-secondary);
+        font-size: var(--font-caption);
+    }
+}
+
+.calendarTaskBadges,
+.taskDetailsIntro {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.calendarPriorityBadge,
+.calendarDoneBadge,
+.taskStatusBadge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.7rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: var(--radius-round);
+    font-size: var(--font-caption);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+}
+
+.calendarPriorityBadge {
+    &.essential {
+        color: var(--coral-500);
+        background: var(--dangerSoft);
+    }
+
+    &.important {
+        color: var(--mint-500);
+        background: var(--successSoft);
+    }
+
+    &.normal {
+        color: var(--lavender-500);
+        background: var(--primarySoft);
+    }
+}
+
+.calendarDoneBadge,
+.taskStatusBadge.isDone {
+    color: var(--mint-500);
+    background: var(--successSoft);
+}
+
+.taskStatusBadge {
+    color: var(--text-secondary);
+    background: var(--surface-muted);
+}
+
+.calendarTaskDelete,
+.taskDeleteAction {
+    color: var(--coral-500);
+    background: transparent;
+    border: 0;
+}
+
+.calendarTaskDelete {
+    align-self: center;
+    width: 2rem;
+    height: 2rem;
+    margin-inline-end: 0.65rem;
+    border-radius: var(--radius-sm);
+    font-size: 1.25rem;
+
+    &:hover,
+    &:focus-visible {
+        background: var(--dangerSoft);
+    }
+}
+
+.calendarDayModal>.primary {
+    justify-self: start;
+}
+
+.taskDetails h3 {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-size: var(--font-heading-small);
+    line-height: 1.35;
+}
+
+.taskDetailsDescription {
+    margin: 0;
+    padding: 0.875rem;
+    color: var(--text-secondary);
+    background: var(--surface-muted);
+    border-radius: var(--control-radius);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.taskDetailsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
+    margin: 0;
+
+    >div {
+        min-width: 0;
+        padding: 0.875rem;
+        background: var(--control-background);
+        border: 1px solid var(--border-default);
+        border-radius: var(--control-radius);
+    }
+
+    dt {
+        margin-bottom: 0.4rem;
+        color: var(--text-secondary);
+        font-size: var(--font-caption);
+    }
+
+    dd {
+        margin: 0;
+        color: var(--text-primary);
+        font-size: var(--font-small);
+        font-weight: var(--weight-semibold);
+        overflow-wrap: anywhere;
+    }
+}
+
+.taskDetailsActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.625rem;
+    padding-top: 0.25rem;
+
+    >button {
+        flex: 0 0 7rem;
+        min-height: var(--control-height);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.6rem 1rem;
+        border-radius: var(--control-radius);
+        font-size: var(--font-small);
+        font-weight: var(--weight-semibold);
+        line-height: 1.2;
+    }
+
+    .taskDeleteAction {
+        border: 1px solid var(--coral-500);
+
+        &:hover,
+        &:focus-visible {
+            background: var(--dangerSoft);
+        }
+    }
+}
+
+@media (max-width: 35rem) {
+    .calendarTaskOpen {
+        flex-wrap: wrap;
+    }
+
+    .calendarTaskBadges {
+        width: 100%;
+        padding-inline-start: 1.25rem;
+    }
+
+    .taskDetailsGrid {
+        grid-template-columns: 1fr;
+    }
+}

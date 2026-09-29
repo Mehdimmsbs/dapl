@@ -9,12 +9,14 @@ import {
 } from "../../lib/date";
 import { tr } from "../../lib/i18n";
 import SelectField from "../ui/SelectField";
+import CalendarDateField from "../ui/CalendarDateField";
 import Modal from "../ui/Modal";
 
 /* Displays the form for creating, carrying or editing a task. */
 export default function TaskForm({
   lang,
   calendar = "gregorian",
+  firstDay = "monday",
   data,
   date,
   task,
@@ -183,83 +185,61 @@ export default function TaskForm({
         />
 
         {!task && (
-          <label>
-            {t("taskSource")}
+          <SelectField label={t("taskSource")}
+            value={mode}
+            onChange={changeMode}
+          >
+            <option value="new">
+              {t("newTaskSource")}
+            </option>
 
-            <SelectField
-              value={mode}
-              onChange={changeMode}
-            >
-              <option value="new">
-                {t("newTaskSource")}
-              </option>
-
-              <option value="carry">
-                {t("carryTaskSource")}
-              </option>
-            </SelectField>
-          </label>
+            <option value="carry">
+              {t("carryTaskSource")}
+            </option>
+          </SelectField>
         )}
 
         {!task && mode === "carry" && (
-          <label>
-            {t("carryTaskLabel")}
+          <SelectField label={t("carryTaskLabel")}
+            value={carryId}
+            onChange={chooseCarryTask}
+            required
+          >
+            <option value="">
+              {t("selectCarryTask")}
+            </option>
 
-            <SelectField
-              value={carryId}
-              onChange={chooseCarryTask}
-              required
-            >
-              <option value="">
-                {t("selectCarryTask")}
+            {overdueTasks.map((item) => (
+              <option
+                key={item.id}
+                value={item.id}
+              >
+                {item.title} —{" "}
+                {formatDate(
+                  item.date,
+                  calendar,
+                  lang,
+                )}
               </option>
-
-              {overdueTasks.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.id}
-                >
-                  {item.title} —{" "}
-                  {formatDate(
-                    item.date,
-                    calendar,
-                    lang,
-                  )}
-                </option>
-              ))}
-            </SelectField>
-          </label>
+            ))}
+          </SelectField>
         )}
 
-        <label>
-          {t("taskDate")}
+        <CalendarDateField
+          value={taskDate}
+          onChange={setTaskDate}
+          calendar={calendar}
+          lang={lang}
+          firstDay={firstDay}
+          min={mode === "carry" ? today : undefined}
+          max={mode === "carry" ? tomorrow : undefined}
+        />
 
-          <input
-            name="date"
-            type="date"
-            required
-            value={taskDate}
-            min={
-              mode === "carry"
-                ? today
-                : undefined
-            }
-            max={
-              mode === "carry"
-                ? tomorrow
-                : undefined
-            }
-            onChange={(event) => {
-              setTaskDate(event.target.value);
-            }}
-          />
-
-          {mode === "carry" && (
-            <small className="formHint">
-              {t("carryTargets")}
-            </small>
-          )}
-        </label>
+        {mode === "carry" && (
+          <small className="formHint">
+            {t("carryTargets")}
+          </small>
+        )}
 
         <label>
           {t("title")}
@@ -290,51 +270,43 @@ export default function TaskForm({
           />
         </label>
 
-        <label>
-          {t("priority")}
+        <SelectField label={t("priority")}
+          name="priority"
+          value={priority}
+          onChange={(event) => {
+            setPriority(event.target.value);
+          }}
+        >
+          <option value="normal">
+            {t("normal")}
+          </option>
 
-          <SelectField
-            name="priority"
-            value={priority}
-            onChange={(event) => {
-              setPriority(event.target.value);
-            }}
-          >
-            <option value="normal">
-              {t("normal")}
-            </option>
+          <option value="important">
+            {t("importantLabel")}
+          </option>
 
-            <option value="important">
-              {t("importantLabel")}
-            </option>
+          <option value="essential">
+            {t("essentialLabel")}
+          </option>
+        </SelectField>
 
-            <option value="essential">
-              {t("essentialLabel")}
-            </option>
-          </SelectField>
-        </label>
+        <SelectField label={t("schedule")}
+          name="scheduleType"
+          value={scheduleType}
+          onChange={(event) => {
+            setScheduleType(
+              event.target.value,
+            );
+          }}
+        >
+          <option value="day">
+            {t("day")}
+          </option>
 
-        <label>
-          {t("schedule")}
-
-          <SelectField
-            name="scheduleType"
-            value={scheduleType}
-            onChange={(event) => {
-              setScheduleType(
-                event.target.value,
-              );
-            }}
-          >
-            <option value="day">
-              {t("day")}
-            </option>
-
-            <option value="time">
-              {t("atTime")}
-            </option>
-          </SelectField>
-        </label>
+          <option value="time">
+            {t("atTime")}
+          </option>
+        </SelectField>
 
         {scheduleType === "time" && (
           <div className="two timeFields">
@@ -372,66 +344,58 @@ export default function TaskForm({
           </div>
         )}
 
-        <label>
-          {t("prerequisite")}
+        <SelectField label={t("prerequisite")}
+          name="prerequisite"
+          value={prerequisite}
+          onChange={(event) => {
+            setPrerequisite(
+              event.target.value,
+            );
+          }}
+        >
+          <option value="">
+            {t("none")}
+          </option>
 
-          <SelectField
-            name="prerequisite"
-            value={prerequisite}
-            onChange={(event) => {
-              setPrerequisite(
-                event.target.value,
-              );
-            }}
-          >
-            <option value="">
-              {t("none")}
-            </option>
+          {availablePrerequisites.map(
+            (item) => (
+              <option
+                key={item.id}
+                value={item.id}
+              >
+                {item.title}
+              </option>
+            ),
+          )}
+        </SelectField>
 
-            {availablePrerequisites.map(
-              (item) => (
-                <option
-                  key={item.id}
-                  value={item.id}
-                >
-                  {item.title}
-                </option>
-              ),
-            )}
-          </SelectField>
-        </label>
+        <SelectField label={t("unit")}
+          name="unit"
+          value={unit}
+          onChange={(event) => {
+            setUnit(event.target.value);
+          }}
+        >
+          <option value="minute">
+            {t("unitMinute")}
+          </option>
 
-        <label>
-          {t("unit")}
+          <option value="hour">
+            {t("unitHour")}
+          </option>
 
-          <SelectField
-            name="unit"
-            value={unit}
-            onChange={(event) => {
-              setUnit(event.target.value);
-            }}
-          >
-            <option value="minute">
-              {t("unitMinute")}
-            </option>
+          <option value="percent">
+            {t("unitPercent")}
+          </option>
 
-            <option value="hour">
-              {t("unitHour")}
-            </option>
+          <option value="item">
+            {t("unitItem")}
+          </option>
 
-            <option value="percent">
-              {t("unitPercent")}
-            </option>
-
-            <option value="item">
-              {t("unitItem")}
-            </option>
-
-            <option value="page">
-              {t("unitPage")}
-            </option>
-          </SelectField>
-        </label>
+          <option value="page">
+            {t("unitPage")}
+          </option>
+        </SelectField>
 
         <button
           className="primary"

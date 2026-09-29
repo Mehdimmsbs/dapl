@@ -33,6 +33,7 @@ export default function CalendarBoard({
     onPickMonth,
 }) {
     const { t } = useLanguage();
+    const isRtl = ["fa", "ar"].includes(settings.language);
     const today = getLocalIsoDate();
 
     const weekStartIndex = weekdayNameIndex(
@@ -69,7 +70,7 @@ export default function CalendarBoard({
                             aria-label={t("monthPrev")}
                         >
                             <AppIcon
-                                name="chevron-left"
+                                name={isRtl ? "chevron-right" : "chevron-left"}
                                 size={18}
                             />
                         </button>
@@ -89,7 +90,7 @@ export default function CalendarBoard({
                             aria-label={t("monthNext")}
                         >
                             <AppIcon
-                                name="chevron-right"
+                                name={isRtl ? "chevron-left" : "chevron-right"}
                                 size={18}
                             />
                         </button>

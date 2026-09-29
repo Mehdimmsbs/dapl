@@ -1,0 +1,53 @@
+/* Dashboard columns must be allowed to shrink. */
+.dashboardGrid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.8fr);
+
+    >* {
+        min-width: 0;
+    }
+}
+
+/* Carry-over layout: keep every action inside its card. */
+.carryCard {
+    min-width: 0;
+
+    .routineMiniItem.carryItem {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.75rem;
+        min-width: 0;
+
+        >div:first-child {
+            min-width: 0;
+        }
+
+        b {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .carryActions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.5rem;
+        min-width: 0;
+        width: 100%;
+
+        .ghost {
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            text-align: center;
+        }
+    }
+}
+
+/* Two dashboard columns are too narrow at tablet widths. */
+@media (max-width: 1200px) {
+    .dashboardGrid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

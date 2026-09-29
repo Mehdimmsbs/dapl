@@ -16,70 +16,71 @@ export default function CalendarTaskListModal({
 }) {
     const { t } = useLanguage();
 
+    const priorityLabel = (priority) =>
+        t(priority === "normal" ? "normal" : `${priority}Label`);
+
     return (
         <Modal
-            title={formatDate(
-                date,
-                settings.calendar,
-                settings.language,
-            )}
+            title={formatDate(date, settings.calendar, settings.language)}
             close={onClose}
         >
-            <div className="calendarTaskList">
-                {tasks.map((task) => (
-                    <div
-                        className="calendarTask calendarTaskEntry"
-                        key={task.id}
-                    >
-                        <button
-                            type="button"
-                            className="calendarTaskOpen"
-                            onClick={() => {
-                                onOpenTask(task.id);
-                            }}
-                        >
-                            <b>{task.title}</b>
+            <div className="calendarDayModal">
+                <div className="calendarDaySummary">
+                    <strong>{t("completedOf", {
+                        n: tasks.filter((task) => task.completed).length,
+                        n2: tasks.length,
+                    })}</strong>
+                </div>
 
-                            <span>
-                                {task.completed
-                                    ? "✓ "
-                                    : ""}
+                <div className="calendarTaskList">
+                    {tasks.map((task) => (
+                        <div className="calendarTaskEntry" key={task.id}>
+                            <button
+                                type="button"
+                                className="calendarTaskOpen"
+                                onClick={() => onOpenTask(task.id)}
+                            >
+                                <span className={`calendarTaskPriority ${task.priority}`} />
 
-                                {task.scheduleType === "time"
-                                    ? `${task.startTime} – ${task.endTime}`
-                                    : t("day")}
-                            </span>
-                        </button>
+                                <span className="calendarTaskContent">
+                                    <strong>{task.title}</strong>
+                                    <small>
+                                        {task.scheduleType === "time"
+                                            ? `${task.startTime} – ${task.endTime}`
+                                            : t("day")}
+                                    </small>
+                                </span>
 
-                        <button
-                            type="button"
-                            className="miniBtn dangerBtn"
-                            aria-label={`${t("delete")}: ${task.title}`}
-                            onClick={() => {
-                                onRemoveTask(task.id);
-                            }}
-                        >
-                            ×
-                        </button>
-                    </div>
-                ))}
+                                <span className="calendarTaskBadges">
+                                    <span className={`calendarPriorityBadge ${task.priority}`}>
+                                        {priorityLabel(task.priority)}
+                                    </span>
+                                    {task.completed && (
+                                        <span className="calendarDoneBadge">{t("done")}</span>
+                                    )}
+                                </span>
+                            </button>
 
-                {!tasks.length && (
-                    <div className="empty">
-                        {t("noTasks")}
-                    </div>
+                            <button
+                                type="button"
+                                className="calendarTaskDelete"
+                                aria-label={`${t("delete")}: ${task.title}`}
+                                onClick={() => onRemoveTask(task.id)}
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))}
+
+                    {!tasks.length && <div className="empty">{t("noTasks")}</div>}
+                </div>
+
+                {canAdd && (
+                    <button type="button" className="primary" onClick={onAdd}>
+                        + {t("newTask")}
+                    </button>
                 )}
             </div>
-
-            {canAdd && (
-                <button
-                    type="button"
-                    className="primary full"
-                    onClick={onAdd}
-                >
-                    + {t("newTask")}
-                </button>
-            )}
         </Modal>
     );
 }

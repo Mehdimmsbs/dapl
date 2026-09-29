@@ -6,47 +6,57 @@ import AppSidebar from "./AppSidebar";
 import MobileNav from "./MobileNav";
 import Topbar from "./Topbar";
 
-/* Provides one shared responsive layout for every page. */
 export default function AppShell({
     activePage,
     children,
     displayDate = "",
     onOpenSettings,
 }) {
-    const [collapsed, setCollapsed] =
-        useState(false);
-
-    /* Opens or closes the desktop sidebar. */
-    function toggleSidebar() {
-        setCollapsed(
-            (currentValue) => !currentValue,
-        );
-    }
+    const [collapsed, setCollapsed] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
         <div
-            className={`appShell ${collapsed ? "sideCollapsed" : ""
-                }`}
+            className={[
+                "appShell",
+                collapsed ? "sideCollapsed" : "",
+                mobileMenuOpen ? "mobileMenuOpen" : "",
+            ].filter(Boolean).join(" ")}
         >
+            {mobileMenuOpen && (
+                <button
+                    type="button"
+                    className="mobileMenuBackdrop"
+                    aria-label="Close menu"
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+            )}
+
             <AppSidebar
                 activePage={activePage}
                 collapsed={collapsed}
                 displayDate={displayDate}
-                onToggle={toggleSidebar}
+                onToggle={() => {
+                    if (window.matchMedia("(max-width: 900px)").matches) {
+                        setMobileMenuOpen(false);
+                    } else {
+                        setCollapsed((value) => !value);
+                    }
+                }}
+                onNavigate={() => setMobileMenuOpen(false)}
             />
 
             <div className="main">
                 <Topbar
                     activePage={activePage}
                     onOpenSettings={onOpenSettings}
-                    onToggleMenu={toggleSidebar}
+                    mobileMenuOpen={mobileMenuOpen}
+                    onToggleMenu={() => setMobileMenuOpen((value) => !value)}
                 />
 
                 {children}
 
-                <MobileNav
-                    activePage={activePage}
-                />
+                <MobileNav activePage={activePage} />
             </div>
         </div>
     );

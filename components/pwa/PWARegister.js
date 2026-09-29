@@ -3,29 +3,25 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "../providers/LanguageProvider";
 
-/* Registers the safe service worker and displays the install action. */
 export default function PWARegister() {
     const { t } = useLanguage();
-
-    const [
-        installPrompt,
-        setInstallPrompt,
-    ] = useState(null);
+    const [installPrompt, setInstallPrompt] = useState(null);
+    const [installed, setInstalled] = useState(false);
 
     useEffect(() => {
+        setInstalled(
+            window.matchMedia("(display-mode: standalone)").matches ||
+            window.navigator.standalone === true,
+        );
+
         if (
             process.env.NODE_ENV === "production" &&
             "serviceWorker" in navigator
         ) {
             navigator.serviceWorker
-                .register("/sw.js", {
-                    scope: "/",
-                })
+                .register("/sw.js", { scope: "/" })
                 .catch((error) => {
-                    console.error(
-                        "Service worker registration failed:",
-                        error,
-                    );
+                    console.error("Service worker registration failed:", error);
                 });
         }
 
@@ -35,46 +31,28 @@ export default function PWARegister() {
         }
 
         function handleInstalled() {
+            setInstalled(true);
             setInstallPrompt(null);
         }
 
-        window.addEventListener(
-            "beforeinstallprompt",
-            handleBeforeInstall,
-        );
-
-        window.addEventListener(
-            "appinstalled",
-            handleInstalled,
-        );
+        window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+        window.addEventListener("appinstalled", handleInstalled);
 
         return () => {
-            window.removeEventListener(
-                "beforeinstallprompt",
-                handleBeforeInstall,
-            );
-
-            window.removeEventListener(
-                "appinstalled",
-                handleInstalled,
-            );
+            window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+            window.removeEventListener("appinstalled", handleInstalled);
         };
     }, []);
 
     async function installApplication() {
-        if (!installPrompt) {
-            return;
-        }
+        if (!installPrompt) return;
 
         await installPrompt.prompt();
         await installPrompt.userChoice;
-
         setInstallPrompt(null);
     }
 
-    if (!installPrompt) {
-        return null;
-    }
+    if (installed) return null;
 
     return (
         <button
@@ -82,6 +60,7 @@ export default function PWARegister() {
             className="pwaInstallButton"
             onClick={installApplication}
         >
+            <span aria-hidden="true">↧</span>
             {t("installApp")}
         </button>
     );

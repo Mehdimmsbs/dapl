@@ -197,22 +197,36 @@
 
 .heroActions {
     display: flex;
-    gap: 8px;
-    align-items: center
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.75rem;
+
+    .ghost,
+    .primary {
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        min-height: var(--control-height);
+        padding-inline: 1rem;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: center;
+    }
 }
 
-.routineItem .miniBtn {
-    min-width: 30px
-}
-
-@media(max-width:700px) {
-    .heroActions {
-        width: 100%
+@media (max-width: 900px) {
+    .hero {
+        flex-wrap: wrap;
     }
 
-    .heroActions .ghost,
-    .heroActions .primary {
-        flex: 1
+    .heroActions {
+        width: 100%;
+        flex-wrap: wrap;
+
+        .ghost,
+        .primary {
+            flex: 1 1 12rem;
+        }
     }
 }
 

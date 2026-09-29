@@ -232,3 +232,49 @@
     }
 }
 
+.calendarTaskEntry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-background);
+}
+
+.calendarTaskOpen {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-primary);
+    text-align: start;
+    cursor: pointer;
+}
+
+.calendarTaskOpen b {
+    color: inherit;
+}
+
+.calendarTaskOpen span {
+    color: var(--text-secondary);
+}
+
+.calendarTaskEntry:hover,
+.calendarTaskEntry:focus-within {
+    border-color: var(--border-focus);
+    background: var(--primary-50);
+}
+
+.calendarTaskOpen:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+html.dark .calendarTaskEntry {
+    background: var(--surface2);
+}
+
+html.dark .calendarTaskEntry:hover,
+html.dark .calendarTaskEntry:focus-within {
+    background: var(--primarySoft);
+}

@@ -38,6 +38,7 @@ export default function AppSidebar({
   collapsed,
   displayDate,
   onToggle,
+  onNavigate,
 }) {
   const { t } = useLanguage();
 
@@ -48,6 +49,7 @@ export default function AppSidebar({
           href="/"
           className="brandIdentity"
           aria-label={t("brandName")}
+          onClick={onNavigate}
         >
           <BrandLogo />
 
@@ -77,10 +79,12 @@ export default function AppSidebar({
             key={item.id}
             href={item.href}
             className={activePage === item.id ? "active" : ""}
+            aria-label={t(item.id)}
+            data-tooltip={t(item.id)}
           >
             <AppIcon name={item.icon} />
 
-            <span>{t(item.id)}</span>
+            <span className="navLabel">{t(item.id)}</span>
           </Link>
         ))}
       </nav>

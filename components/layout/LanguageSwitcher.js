@@ -21,7 +21,7 @@ export default function LanguageSwitcher({
   }
 
   return (
-    <label
+    <div
       className={`languageSwitcher ${className}`.trim()}
     >
       <span className="srOnly">
@@ -40,6 +40,6 @@ export default function LanguageSwitcher({
         ))}
       </SelectField>
 
-    </label>
+    </div>
   );
 }

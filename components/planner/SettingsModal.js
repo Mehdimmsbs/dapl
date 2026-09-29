@@ -21,10 +21,7 @@ export default function SettingsModal({
           {t("settingsSub")}
         </p>
 
-        <label>
-          {t("language")}
-
-          <SelectField
+        <SelectField label={t("language")}
             name="language"
             defaultValue={settings.language}
           >
@@ -36,12 +33,8 @@ export default function SettingsModal({
               ),
             )}
           </SelectField>
-        </label>
 
-        <label>
-          {t("calendarType")}
-
-          <SelectField
+        <SelectField label={t("calendarType")}
             name="calendar"
             defaultValue={settings.calendar}
           >
@@ -57,12 +50,8 @@ export default function SettingsModal({
               {t("hijri")}
             </option>
           </SelectField>
-        </label>
 
-        <label>
-          {t("secondary")}
-
-          <SelectField
+        <SelectField label={t("secondary")}
             name="secondaryCalendar"
             defaultValue={settings.secondaryCalendar}
           >
@@ -82,12 +71,8 @@ export default function SettingsModal({
               {t("hijri")}
             </option>
           </SelectField>
-        </label>
 
-        <label>
-          {t("firstDay")}
-
-          <SelectField
+        <SelectField label={t("firstDay")}
             name="firstDay"
             defaultValue={settings.firstDay}
           >
@@ -103,12 +88,8 @@ export default function SettingsModal({
               {t("monday")}
             </option>
           </SelectField>
-        </label>
 
-        <label>
-          {t("hijriMethod")}
-
-          <SelectField
+        <SelectField label={t("hijriMethod")}
             name="hijriMethod"
             defaultValue={settings.hijriMethod}
           >
@@ -116,11 +97,7 @@ export default function SettingsModal({
               {t("ummalqura")}
             </option>
           </SelectField>
-        </label>
-        <label>
-          {t("fontSize")}
-
-          <SelectField
+        <SelectField label={t("fontSize")}
             name="fontSize"
             defaultValue={
               settings.fontSize || "medium"
@@ -138,7 +115,6 @@ export default function SettingsModal({
               {t("fontLarge")}
             </option>
           </SelectField>
-        </label>
 
         <button className="primary">
           {t("save")}

@@ -121,10 +121,7 @@ export default function CalendarTaskForm({
                     />
                 </label>
 
-                <label>
-                    {t("priority")}
-
-                    <SelectField
+                <SelectField label={t("priority")}
 
                         name="priority"
                         defaultValue="normal"
@@ -141,12 +138,8 @@ export default function CalendarTaskForm({
                             {t("essentialLabel")}
                         </option>
                     </SelectField>
-                </label>
 
-                <label>
-                    {t("schedule")}
-
-                    <SelectField
+                <SelectField label={t("schedule")}
 
                         name="scheduleType"
                         value={scheduleType}
@@ -164,7 +157,6 @@ export default function CalendarTaskForm({
                             {t("atTime")}
                         </option>
                     </SelectField>
-                </label>
 
                 {scheduleType === "time" && (
                     <div className="two timeFields">
@@ -190,10 +182,7 @@ export default function CalendarTaskForm({
                     </div>
                 )}
 
-                <label>
-                    {t("unit")}
-
-                    <SelectField
+                <SelectField label={t("unit")}
 
                         name="unit"
                         defaultValue="minute"
@@ -218,7 +207,6 @@ export default function CalendarTaskForm({
                             },
                         )}
                     </SelectField>
-                </label>
 
                 <button
                     className="primary"
