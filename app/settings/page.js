@@ -3,6 +3,7 @@
 import AppShell from "../../components/layout/AppShell";
 import { useLanguage } from "../../components/providers/LanguageProvider";
 import AutoBackupSettings from "../../components/settings/AutoBackupSettings";
+import BackupDirectorySettings from "../../components/settings/BackupDirectorySettings";
 import { useRouter } from "next/navigation";
 import BackupSettings from "../../components/settings/BackupSettings";
 import SettingsForm from "../../components/settings/SettingsForm";
@@ -19,7 +20,7 @@ export default function SettingsPage() {
 
     return (
         <AppShell activePage="settings">
-            <main className="content">
+            <main className="content settingsControls">
                 <div className="hero">
                     <div>
                         <div className="kicker">
@@ -44,6 +45,7 @@ export default function SettingsPage() {
 
                 <BackupSettings />
                 <AutoBackupSettings />
+                <BackupDirectorySettings />
             </main>
         </AppShell>
     );

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { getLatestAutomaticBackup } from "../../lib/autoBackup";
+import AutomaticBackupRestore from "./AutomaticBackupRestore";
+import SelectField from "../ui/SelectField";
 import { useLanguage } from "../providers/LanguageProvider";
 
 /* Configures daily backups and displays the latest saved copy. */
@@ -183,22 +185,65 @@ export default function AutoBackupSettings() {
                     />
                 </label>
 
-                <label>
-                    <span>{t("autoBackupTime")}</span>
+                <div className="settingsTime">
+                    <span id="auto-backup-time-label">
+                        {t("autoBackupTime")}
+                    </span>
 
-                    <input
-                        type="time"
-                        name="autoBackupTime"
-                        value={time}
-                        required
-                        step={60}
-                        disabled={busy}
-                        onChange={(event) => {
-                            setTime(event.target.value);
-                            setStatus(null);
-                        }}
-                    />
-                </label>
+                    <div
+                        className="settingsTimeFields"
+                        role="group"
+                        aria-labelledby="auto-backup-time-label"
+                    >
+                        <SelectField
+                            label={t("hour")}
+                            name="autoBackupHour"
+                            value={time.split(":")[0]}
+                            disabled={busy}
+                            onChange={(event) => {
+                                setTime((current) =>
+                                    `${event.target.value}:${current.split(":")[1]}`,
+                                );
+                                setStatus(null);
+                            }}
+                        >
+                            {Array.from({ length: 24 }, (_, index) => {
+                                const value = String(index).padStart(2, "0");
+
+                                return (
+                                    <option key={value} value={value}>
+                                        {value}
+                                    </option>
+                                );
+                            })}
+                        </SelectField>
+
+                        <b aria-hidden="true">:</b>
+
+                        <SelectField
+                            label={t("minute")}
+                            name="autoBackupMinute"
+                            value={time.split(":")[1]}
+                            disabled={busy}
+                            onChange={(event) => {
+                                setTime((current) =>
+                                    `${current.split(":")[0]}:${event.target.value}`,
+                                );
+                                setStatus(null);
+                            }}
+                        >
+                            {Array.from({ length: 60 }, (_, index) => {
+                                const value = String(index).padStart(2, "0");
+
+                                return (
+                                    <option key={value} value={value}>
+                                        {value}
+                                    </option>
+                                );
+                            })}
+                        </SelectField>
+                    </div>
+                </div>
 
                 <div className="backupSettingsActions">
                     <button
@@ -253,6 +298,8 @@ export default function AutoBackupSettings() {
                     {t(backupError)}
                 </p>
             )}
+
+            <AutomaticBackupRestore />
         </section>
     );
 }
