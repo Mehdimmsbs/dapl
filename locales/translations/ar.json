@@ -38,6 +38,7 @@
   "backupDirectoryNotSelected": "لم يتم اختيار مجلد بعد.",
   "backupDirectoryReady": "تم السماح بالكتابة.",
   "backupDirectoryPermissionNeeded": "اسمح بالوصول لحفظ الملفات في هذا المجلد.",
+  "backupDirectoryFileSaved": "تم حفظ آخر نسخة احتياطية في هذا المجلد.",
   "backupDirectoryChoose": "اختيار مجلد",
   "backupDirectoryGrant": "السماح بالوصول",
   "backupDirectoryUnsupported": "اختيار المجلد غير متاح في هذا المتصفح. استخدم تنزيل النسخة الاحتياطية لحفظ ملف JSON.",

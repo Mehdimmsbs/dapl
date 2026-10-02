@@ -58,6 +58,7 @@
   "backupDirectoryNotSelected": "هنوز پوشه‌ای انتخاب نشده است.",
   "backupDirectoryReady": "مجوز ذخیرهٔ فایل داده شده است.",
   "backupDirectoryPermissionNeeded": "برای ذخیرهٔ فایل در این پوشه، دسترسی را مجاز کنید.",
+  "backupDirectoryFileSaved": "آخرین پشتیبان در این پوشه ذخیره شد.",
   "backupDirectoryChoose": "انتخاب پوشه",
   "backupDirectoryGrant": "اجازهٔ دسترسی",
   "backupDirectoryUnsupported": "انتخاب پوشه در این مرورگر پشتیبانی نمی‌شود. از دانلود پشتیبان برای ذخیرهٔ فایل JSON استفاده کنید.",

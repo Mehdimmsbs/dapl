@@ -30,6 +30,7 @@
   "autoBackupRestoreLatest": "Sicherung wiederherstellen",
   "autoBackupRestoreConfirm": "Aktuelle Aufgaben, Routinen und Einstellungen werden durch diese Sicherung ersetzt. Änderungen nach dieser Sicherung gehen verloren.",
   "autoBackupRestoreAction": "Diese Sicherung wiederherstellen",
+  "backupDirectoryFileSaved": "Letzte Sicherung in diesem Ordner gespeichert.",
   "autoBackupRestoreCancel": "Abbrechen",
   "backupDirectoryTitle": "Sicherungsordner",
   "backupDirectoryDescription": "Wähle einen Ordner für JSON-Sicherungsdateien.",

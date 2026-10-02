@@ -14,6 +14,7 @@ export default function BackupDirectorySettings() {
     const { t } = useLanguage();
 
     const [supported, setSupported] = useState(false);
+    const [fileSaved, setFileSaved] = useState(false);
     const [directory, setDirectory] = useState(null);
     const [permission, setPermission] = useState("");
     const [loading, setLoading] = useState(true);
@@ -62,6 +63,35 @@ export default function BackupDirectorySettings() {
         };
     }, []);
 
+    useEffect(() => {
+        function handleExport(event) {
+            const status = event.detail?.status;
+
+            setFileSaved(status === "saved");
+
+            if (status === "permission-needed") {
+                setPermission("prompt");
+                setError("");
+            } else if (status === "failed") {
+                setError("backupDirectoryFailed");
+            } else {
+                setError("");
+            }
+        }
+
+        window.addEventListener(
+            "dapl:backup-directory-status",
+            handleExport,
+        );
+
+        return () => {
+            window.removeEventListener(
+                "dapl:backup-directory-status",
+                handleExport,
+            );
+        };
+    }, []);
+
     async function chooseDirectory() {
         if (lock.current) return;
 
@@ -78,6 +108,12 @@ export default function BackupDirectorySettings() {
                 await handle.queryPermission({
                     mode: "readwrite",
                 }),
+            );
+
+            setFileSaved(false);
+
+            window.dispatchEvent(
+                new Event("dapl:backup-directory-changed"),
             );
         } catch (error) {
             // Closing the picker is a cancellation, not an error.
@@ -98,12 +134,18 @@ export default function BackupDirectorySettings() {
         setError("");
 
         try {
-            // Request permission directly within the click handler.
-            setPermission(
-                await directory.requestPermission({
-                    mode: "readwrite",
-                }),
-            );
+            const access = await directory.requestPermission({
+                mode: "readwrite",
+            });
+
+            setPermission(access);
+            setFileSaved(false);
+
+            if (access === "granted") {
+                window.dispatchEvent(
+                    new Event("dapl:backup-directory-changed"),
+                );
+            }
         } catch {
             setError("backupDirectoryFailed");
         } finally {
@@ -142,9 +184,11 @@ export default function BackupDirectorySettings() {
                             {directory && (
                                 <p>
                                     {t(
-                                        permission === "granted"
-                                            ? "backupDirectoryReady"
-                                            : "backupDirectoryPermissionNeeded",
+                                        permission !== "granted"
+                                            ? "backupDirectoryPermissionNeeded"
+                                            : fileSaved
+                                                ? "backupDirectoryFileSaved"
+                                                : "backupDirectoryReady"
                                     )}
                                 </p>
                             )}

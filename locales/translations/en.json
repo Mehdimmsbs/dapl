@@ -20,6 +20,7 @@
   "autoBackupRestoreLatest": "Restore backup",
   "autoBackupRestoreConfirm": "I understand that current tasks, routines and settings will be replaced by this backup. Changes made after this backup will be lost.",
   "autoBackupRestoreAction": "Restore this backup",
+  "backupDirectoryFileSaved": "Latest backup saved in this folder.",
   "autoBackupRestoreCancel": "Cancel",
   "backupDirectoryTitle": "Backup folder",
   "backupDirectoryDescription": "Choose a folder for JSON backup files.",
