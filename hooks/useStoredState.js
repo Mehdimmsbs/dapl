@@ -1,41 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useSyncExternalStore,
+} from "react";
 
 import {
-    readStorage,
-    writeStorage,
-} from "../lib/storage";
+    getStoredEntry,
+    loadStoredEntry,
+    subscribeStoredEntry,
+    updateStoredValue,
+} from "../lib/plannerStorage";
 
-/* Keeps React state synchronized with one localStorage entry. */
-export default function useStoredState(
-    key,
-    initialValue,
-) {
-    const [value, setValue] = useState(initialValue);
-    const [hydrated, setHydrated] = useState(false);
+/* Connects planner views to their shared IndexedDB record. */
+export default function useStoredState(key, initialValue) {
+    const entry = useMemo(
+        () => getStoredEntry(key, initialValue),
+        [key, initialValue],
+    );
 
-    /* Loads the stored value after browser hydration. */
+    const subscribe = useCallback(
+        (listener) => subscribeStoredEntry(entry, listener),
+        [entry],
+    );
+
+    const getSnapshot = useCallback(
+        () => entry.snapshot,
+        [entry],
+    );
+
+    const snapshot = useSyncExternalStore(
+        subscribe,
+        getSnapshot,
+        getSnapshot,
+    );
+
     useEffect(() => {
-        setValue(
-            readStorage(key, initialValue),
-        );
-
-        setHydrated(true);
+        loadStoredEntry(key, initialValue).catch(() => {
+            /* The shared snapshot exposes the error to the view. */
+        });
     }, [key, initialValue]);
 
-    /* Saves changes only after the first browser load. */
-    useEffect(() => {
-        if (!hydrated) {
-            return;
-        }
+    const setValue = useCallback(
+        (updater) => {
+            const operation = updateStoredValue(
+                key,
+                initialValue,
+                updater,
+            );
 
-        writeStorage(key, value);
-    }, [key, value, hydrated]);
+            operation.catch(() => {
+                /* The shared snapshot exposes failed writes. */
+            });
 
-    return [
-        value,
-        setValue,
-        hydrated,
-    ];
+            return operation;
+        },
+        [key, initialValue],
+    );
+
+    if (snapshot.error) {
+        throw snapshot.error;
+    }
+
+    return [snapshot.value, setValue, snapshot.hydrated];
 }

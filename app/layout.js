@@ -7,6 +7,8 @@ import "../styles/main.scss";
 
 import PWARegister from "../components/pwa/PWARegister";
 import { LanguageProvider } from "../components/providers/LanguageProvider";
+import AutoBackupRunner from "../components/providers/AutoBackupRunner";
+import StorageBoundary from "../components/providers/StorageBoundary";
 import defaultMessages from "../locales/translations/en.json";
 import {
   DEFAULT_LOCALE,
@@ -80,10 +82,13 @@ export default function RootLayout({
       <body
         className={`${uiFont.variable} ${arabicFont.variable}`}
       >
-        <LanguageProvider>
-          {children}
-          <PWARegister />
-        </LanguageProvider>
+        <StorageBoundary>
+          <LanguageProvider>
+            {children}
+            <AutoBackupRunner />
+            <PWARegister />
+          </LanguageProvider>
+        </StorageBoundary>
       </body>
     </html>
   );

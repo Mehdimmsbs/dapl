@@ -2,16 +2,19 @@
 
 import AppShell from "../../components/layout/AppShell";
 import { useLanguage } from "../../components/providers/LanguageProvider";
+import AutoBackupSettings from "../../components/settings/AutoBackupSettings";
+import { useRouter } from "next/navigation";
+import BackupSettings from "../../components/settings/BackupSettings";
 import SettingsForm from "../../components/settings/SettingsForm";
 
 /* Composes the settings route from shared components. */
 export default function SettingsPage() {
     const { t } = useLanguage();
+    const router = useRouter();
 
-    /* Returns to the dashboard after saving. */
-    function saveSettings(event) {
-        event.preventDefault();
-        window.location.assign("/");
+    /* Navigates after SettingsForm finishes saving preferences. */
+    function saveSettings() {
+        router.push("/");
     }
 
     return (
@@ -38,6 +41,9 @@ export default function SettingsPage() {
                         onSubmit={saveSettings}
                     />
                 </section>
+
+                <BackupSettings />
+                <AutoBackupSettings />
             </main>
         </AppShell>
     );

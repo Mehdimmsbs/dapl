@@ -1,0 +1,94 @@
+.backupSettings {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+    margin-top: 1.25rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    color: var(--text-primary);
+
+    h2 {
+        margin: 0;
+        font-size: var(--font-heading-small);
+    }
+
+    p {
+        margin: 0.5rem 0 0;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    &Actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        button {
+            min-width: 0;
+            min-height: var(--control-height);
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+
+            &:disabled {
+                cursor: not-allowed;
+                opacity: 0.55;
+            }
+        }
+    }
+
+    &Preview {
+        display: grid;
+        gap: 0.875rem;
+        min-width: 0;
+        padding: 1rem;
+        background: var(--control-background);
+        border: 1px solid var(--control-border);
+        border-radius: var(--control-radius);
+
+        strong {
+            overflow-wrap: anywhere;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
+
+    &Confirm {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.625rem;
+        color: var(--text-primary);
+        font-size: var(--font-small);
+        line-height: 1.6;
+        cursor: pointer;
+
+        input {
+            flex: none;
+            width: 1rem;
+            height: 1rem;
+            margin: 0.3rem 0 0;
+            accent-color: var(--button-primary-background);
+        }
+
+        span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .backupSettingsError {
+        color: var(--danger);
+    }
+
+    @media (max-width: 35rem) {
+        &Actions {
+            flex-direction: column;
+
+            button {
+                width: 100%;
+            }
+        }
+    }
+}
