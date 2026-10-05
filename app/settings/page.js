@@ -7,46 +7,41 @@ import BackupDirectorySettings from "../../components/settings/BackupDirectorySe
 import { useRouter } from "next/navigation";
 import BackupSettings from "../../components/settings/BackupSettings";
 import SettingsForm from "../../components/settings/SettingsForm";
+import AccountSettings from "../../components/settings/AccountSettings";
 
 /* Composes the settings route from shared components. */
 export default function SettingsPage() {
-    const { t } = useLanguage();
-    const router = useRouter();
+  const { t } = useLanguage();
+  const router = useRouter();
 
-    /* Navigates after SettingsForm finishes saving preferences. */
-    function saveSettings() {
-        router.push("/");
-    }
+  /* Navigates after SettingsForm finishes saving preferences. */
+  function saveSettings() {
+    router.push("/");
+  }
 
-    return (
-        <AppShell activePage="settings">
-            <main className="content settingsControls">
-                <div className="hero">
-                    <div>
-                        <div className="kicker">
-                            {t("settings")}
-                        </div>
+  return (
+    <AppShell activePage="settings">
+      <main className="content settingsControls">
+        <div className="hero">
+          <div>
+            <div className="kicker">{t("settings")}</div>
 
-                        <h1>
-                            {t("settingsTitle")}
-                        </h1>
+            <h1>{t("settingsTitle")}</h1>
 
-                        <p>
-                            {t("settingsSub")}
-                        </p>
-                    </div>
-                </div>
+            <p>{t("settingsSub")}</p>
+          </div>
+        </div>
 
-                <section className="card settingsPage">
-                    <SettingsForm
-                        onSubmit={saveSettings}
-                    />
-                </section>
+        <AccountSettings />
 
-                <BackupSettings />
-                <AutoBackupSettings />
-                <BackupDirectorySettings />
-            </main>
-        </AppShell>
-    );
+        <section className="card settingsPage">
+          <SettingsForm onSubmit={saveSettings} />
+        </section>
+
+        <BackupSettings />
+        <AutoBackupSettings />
+        <BackupDirectorySettings />
+      </main>
+    </AppShell>
+  );
 }
