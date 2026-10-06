@@ -16,9 +16,10 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  sessions Session[]
-  accounts Account[]
-  profile  Profile?
+  sessions          Session[]
+  accounts          Account[]
+  profile           Profile?
+  pushSubscriptions PushSubscription[]
 
   @@map("users")
 }
@@ -84,4 +85,21 @@ model Profile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
+}
+
+model PushSubscription {
+  id           String   @id @default(cuid()) @db.VarChar(191)
+  userId       String   @db.VarChar(191)
+  endpoint     String   @db.Text
+  endpointHash String   @unique @db.Char(64)
+  p256dh       String   @db.VarChar(191)
+  auth         String   @db.VarChar(191)
+  locale       String   @default("en") @db.VarChar(10)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }

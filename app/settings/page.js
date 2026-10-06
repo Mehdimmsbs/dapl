@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import BackupSettings from "../../components/settings/BackupSettings";
 import SettingsForm from "../../components/settings/SettingsForm";
 import AccountSettings from "../../components/settings/AccountSettings";
+import NotificationSettings from "../../components/settings/NotificationSettings";
 
 /* Composes the settings route from shared components. */
 export default function SettingsPage() {
@@ -33,11 +34,19 @@ export default function SettingsPage() {
         </div>
 
         <AccountSettings />
+        <NotificationSettings />
+        <section
+          className="card settingsPage"
+          aria-labelledby="preferences-title"
+        >
+          <header className="settingsPageHeader">
+            <h2 id="preferences-title">{t("preferencesTitle")}</h2>
 
-        <section className="card settingsPage">
+            <p>{t("preferencesDescription")}</p>
+          </header>
+
           <SettingsForm onSubmit={saveSettings} />
         </section>
-
         <BackupSettings />
         <AutoBackupSettings />
         <BackupDirectorySettings />

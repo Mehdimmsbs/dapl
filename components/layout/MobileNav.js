@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   {
     id: "routines",
     href: "/routines",
-    icon: "routine",
+    icon: "routines",
   },
   {
     id: "settings",

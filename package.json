@@ -16,13 +16,15 @@
     "next": "15.5.25",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "web-push": "^3.6.7"
   },
   "overrides": {
     "postcss": "8.5.23"
   },
   "devDependencies": {
     "prisma": "^7.10.0",
-    "sass": "^1.105.0"
+    "sass": "^1.105.0",
+    "sharp": "^0.35.5"
   }
 }
