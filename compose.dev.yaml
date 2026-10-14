@@ -1,0 +1,63 @@
+name: dapl-dev
+
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: dapl
+      MYSQL_USER: dapl
+      MYSQL_PASSWORD: dapl_local_dev
+      MYSQL_ROOT_PASSWORD: dapl_root_local_dev
+
+    volumes:
+      - dev_mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$$MYSQL_PASSWORD"
+          mysql --protocol=TCP
+          -h 127.0.0.1
+          -u "$$MYSQL_USER"
+          -D "$$MYSQL_DATABASE"
+          -e "SELECT 1"
+          >/dev/null 2>&1
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+
+    init: true
+
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - .env.docker
+
+    environment:
+      DATABASE_URL: mysql://dapl:dapl_local_dev@db:3306/dapl
+      SHADOW_DATABASE_URL: mysql://dapl:dapl_local_dev@db:3306/dapl_shadow
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    command:
+      - sh
+      - -c
+      - |
+        set -eu
+        npx prisma generate --config prisma7.config.ts
+        npx prisma migrate deploy --config prisma7.config.ts
+        exec npm run dev -- --hostname 0.0.0.0
+
+volumes:
+  dev_mysql_data:
