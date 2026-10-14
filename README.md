@@ -192,6 +192,105 @@ cd dapl
 npm install
 ```
 
+## Quick Start with Docker
+
+Install and start Docker Desktop, or Docker Engine with the Compose plugin.
+No separate Node.js or MySQL installation is required.
+
+From the repository root, run:
+
+```bash
+bash scripts/dev.sh
+```
+
+On Windows, use Git Bash or WSL.
+
+The script builds the application image, generates local authentication
+and Web Push keys if missing, and starts MySQL and the application.
+Prisma Client generation and existing migrations run automatically
+when the application container starts.
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+In Codespaces, open forwarded port 3000. The setup detects its URL.
+For another development URL, set `DEV_APP_URL` before the first setup:
+
+```bash
+DEV_APP_URL="https://your-development-host" bash scripts/dev.sh
+```
+
+Existing `.env.docker` settings are preserved on subsequent runs.
+
+### Logs and status
+
+```bash
+docker compose -f compose.dev.yaml ps -a
+docker compose -f compose.dev.yaml logs -f app
+```
+
+Wait for Next.js to report `Ready` before opening the application.
+Pressing Ctrl+C exits the log view without stopping the containers.
+
+### Stop the environment
+
+```bash
+docker compose -f compose.dev.yaml down
+```
+
+Database data remains in its Docker volume.
+Do not add `-v` unless you intend to delete the development database.
+
+### Inspect the database
+
+```bash
+docker compose -f compose.dev.yaml exec db sh -c \
+  'MYSQL_PWD="$MYSQL_PASSWORD" mysql -u "$MYSQL_USER" "$MYSQL_DATABASE"'
+```
+
+Inside MySQL:
+
+```sql
+SHOW TABLES;
+SELECT id, name, email FROM users;
+SELECT firstName, lastName, timeZone FROM profiles;
+EXIT;
+```
+
+This environment uses a separate development database.
+Accounts from another database are not automatically copied into it.
+
+### Apply source changes
+
+Run the startup script again to rebuild and recreate the application:
+
+```bash
+bash scripts/dev.sh
+```
+
+Source files are currently copied into the image, so host edits
+require rebuilding.
+
+### Configuration
+
+`.env.docker` is generated locally and must not be committed.
+The MySQL credentials in `compose.dev.yaml` are for local development only.
+
+### Connection troubleshooting
+
+If MySQL is healthy but the application reports Prisma `P1001`,
+check connectivity between containers.
+
+In some Linux environments, stale `iptables-legacy` rules can block
+Docker bridge traffic. Our Codespaces environment required a rule
+allowing traffic within the project's bridge. This is an environment
+repair, not a normal installation step, and may need to be reapplied
+after network recreation or host restart.
+
+
 ## MySQL Setup
 
 Start MySQL using the command appropriate for your operating system.
