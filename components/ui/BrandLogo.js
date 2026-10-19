@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import styles from "./BrandLogo.module.scss";
+import styles from "../../styles/components/_brand-logo.module.scss";
 
-/* Shared animated badge, with the original logo as a permanent fallback. */
+/* Original logo with layered depth; no added badge or camera padding. */
 export default function BrandLogo({ width = 52, className = "" }) {
   const host = useRef(null);
   const canvas = useRef(null);
@@ -29,48 +29,11 @@ export default function BrandLogo({ width = 52, className = "" }) {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(32, 1.5, 0.1, 20);
+      // Orthographic framing preserves the original image dimensions.
+      const camera = new THREE.OrthographicCamera(-1.5, 1.5, 1, -1, 0.1, 20);
       camera.position.z = 5;
       const badge = new THREE.Group();
       scene.add(badge);
-      scene.add(new THREE.HemisphereLight(0xffffff, 0x7770bb, 3));
-      const light = new THREE.DirectionalLight(0xffffff, 4);
-      light.position.set(-3, 4, 5);
-      scene.add(light);
-
-      const shape = new THREE.Shape();
-      const x = -0.98,
-        y = -0.64,
-        w = 1.96,
-        h = 1.28,
-        r = 0.22;
-      shape.moveTo(x + r, y);
-      shape.lineTo(x + w - r, y);
-      shape.quadraticCurveTo(x + w, y, x + w, y + r);
-      shape.lineTo(x + w, y + h - r);
-      shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      shape.lineTo(x + r, y + h);
-      shape.quadraticCurveTo(x, y + h, x, y + h - r);
-      shape.lineTo(x, y + r);
-      shape.quadraticCurveTo(x, y, x + r, y);
-      const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth: 0.12,
-        bevelEnabled: true,
-        bevelSegments: 3,
-        steps: 1,
-        bevelSize: 0.045,
-        bevelThickness: 0.045,
-      });
-      geometry.translate(0, 0, -0.1);
-      const material = new THREE.MeshPhysicalMaterial({
-        color: 0xf2efff,
-        metalness: 0.16,
-        roughness: 0.28,
-        clearcoat: 1,
-        clearcoatRoughness: 0.18,
-      });
-      badge.add(new THREE.Mesh(geometry, material));
-      resources.push(geometry, material);
 
       let visible = true;
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -79,7 +42,9 @@ export default function BrandLogo({ width = 52, className = "" }) {
         const { width: w, height: h } = element.getBoundingClientRect();
         if (!w || !h) return;
         renderer.setSize(w, h, false);
-        camera.aspect = w / h;
+        const aspect = w / h;
+        camera.left = -aspect;
+        camera.right = aspect;
         camera.updateProjectionMatrix();
       };
       const observer = new ResizeObserver(resize);
@@ -111,25 +76,41 @@ export default function BrandLogo({ width = 52, className = "" }) {
         return;
       }
       texture.colorSpace = THREE.SRGBColorSpace;
-      const front = new THREE.PlaneGeometry(1.92, 1.28);
+      const front = new THREE.PlaneGeometry(3, 2);
+      // Transparent copies add thickness only to the original logo silhouette.
+      const edge = new THREE.MeshBasicMaterial({
+        map: texture,
+        color: 0x6550ab,
+        transparent: true,
+        alphaTest: 0.15,
+        depthWrite: false,
+      });
+      for (let index = 1; index <= 7; index += 1) {
+        const layer = new THREE.Mesh(front, edge);
+        layer.position.z = -index * 0.025;
+        layer.renderOrder = 8 - index;
+        badge.add(layer);
+      }
+      resources.push(edge);
       const ink = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
         depthWrite: false,
       });
       const logo = new THREE.Mesh(front, ink);
-      logo.position.z = 0.075;
+      logo.position.z = 0;
+      logo.renderOrder = 10;
       badge.add(logo);
       resources.push(texture, front, ink);
       setReady(true);
       renderer.setAnimationLoop((milliseconds) => {
         if (cancelled || !visible || document.hidden) return;
         const time = milliseconds * 0.001;
-        badge.rotation.y = reduced.matches
-          ? -0.1
-          : Math.sin(time * 0.65) * 0.24;
-        badge.rotation.x = reduced.matches ? 0.05 : Math.cos(time * 0.5) * 0.1;
-        badge.position.y = reduced.matches ? 0 : Math.sin(time * 0.9) * 0.055;
+        badge.rotation.y = reduced.matches ? 0 : Math.sin(time * 1.2) * 0.65;
+
+        badge.rotation.x = reduced.matches ? 0 : Math.sin(time * 0.8) * 0.16;
+
+        badge.position.y = reduced.matches ? 0 : Math.sin(time * 1.4) * 0.025;
         renderer.render(scene, camera);
       });
     }

@@ -1,14 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import PublicHeader from "../../../components/layout/PublicHeader";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "../../../components/providers/LanguageProvider";
-import LanguageSwitcher from "../../../components/layout/LanguageSwitcher";
-import BrandLogo from "../../../components/ui/BrandLogo";
 import { messages } from "../messages";
 import { WaveBackdrop } from "../OrbitScene";
-import styles from "../welcome.module.scss";
+import styles from "../../../styles/pages/_welcome.module.scss";
 
 export default function GuidePage() {
   const { locale } = useLanguage();
@@ -16,18 +14,7 @@ export default function GuidePage() {
   return (
     <div className={styles.welcome}>
       <WaveBackdrop />
-      <header className={styles.header}>
-        <Link href="/welcome" className={styles.brand}>
-          <BrandLogo width={60} />
-          <strong>My Day</strong>
-        </Link>
-        <div className={styles.headerActions}>
-          <LanguageSwitcher className={styles.sharedLanguage} />
-          <Link href="/welcome" className={styles.headerLink}>
-            {copy.back}
-          </Link>
-        </div>
-      </header>
+      <PublicHeader guide copy={copy} />
       <main className={styles.guideMain}>
         <p className={styles.eyebrow}>MY DAY / {copy.guide}</p>
         <h1>{copy.guideTitle}</h1>

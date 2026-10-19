@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import styles from "./welcome.module.scss";
+import styles from "../../styles/pages/_welcome.module.scss";
 
 const ENTRIES = [
   { id: "today", href: "/", color: "#e4d9ff", symbol: "✓" },

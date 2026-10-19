@@ -7,7 +7,7 @@
   flex: none;
   vertical-align: middle;
 
-  // The inner scene owns movement; neutralize the previous depth effect.
+  /* The inner scene owns movement; neutralize the previous depth effect.*/
   &:global(.brandLogo) {
     animation: none !important;
     transform: none !important;

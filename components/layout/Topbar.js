@@ -1,34 +1,16 @@
 "use client";
 
+import Link from "next/link";
+import { authClient } from "../../lib/auth-client";
 import { useLanguage } from "../providers/LanguageProvider";
 import AppIcon from "../ui/AppIcon";
 import LanguageSwitcher from "./LanguageSwitcher";
-import Link from "next/link";
+import styles from "../../styles/components/_topbar-account.module.scss";
 
-export default function Topbar({
-  activePage,
-  onOpenSettings,
-  onToggleMenu,
-  mobileMenuOpen,
-}) {
+export default function Topbar({ activePage, onToggleMenu, mobileMenuOpen }) {
   const { dark, t, toggleDark } = useLanguage();
-
-  const avatarText =
-    t("brandName").trim().slice(0, 1).toUpperCase() || "M";
-
-  const profileContent = (
-    <>
-      <span className="avatar" aria-hidden="true">
-        {avatarText}
-      </span>
-
-      <AppIcon
-        name="chevron-down"
-        size={15}
-        className="profileChevron"
-      />
-    </>
-  );
+  const { data: session, isPending } = authClient.useSession();
+  const accountName = session?.user?.name?.trim() || t("accountTitle");
 
   return (
     <header className="topbar">
@@ -42,52 +24,37 @@ export default function Topbar({
         >
           <AppIcon name="menu" size={22} />
         </button>
-
-        <nav className="breadcrumb" aria-label="Breadcrumb">
+        <nav className="breadcrumb" aria-label={t("planner")}>
           <Link href="/">{t("planner")}</Link>
-
           <span aria-hidden="true">/</span>
-
           <strong>{t(activePage)}</strong>
         </nav>
       </div>
-
       <div className="topActions">
         <LanguageSwitcher />
-
-        <span
-          className="topbarDivider"
-          aria-hidden="true"
-        />
-
+        <span className="topbarDivider" aria-hidden="true" />
         <button
           type="button"
           className="iconBtn themeButton"
           onClick={toggleDark}
-          aria-label={dark ? t("lightMode") : t("darkMode")}
+          aria-label={t(dark ? "lightMode" : "darkMode")}
         >
-          <AppIcon
-            name={dark ? "sun" : "moon"}
-            size={22}
-          />
+          <AppIcon name={dark ? "sun" : "moon"} size={22} />
         </button>
-
-        {onOpenSettings ? (
-          <button
-            type="button"
-            className="profileButton"
-            onClick={onOpenSettings}
-            aria-label={t("settings")}
-          >
-            {profileContent}
-          </button>
+        {isPending ? (
+          <span className={styles.loading} role="status">
+            {t("accountLoading")}
+          </span>
         ) : (
           <Link
-            href="/settings"
-            className="profileButton"
-            aria-label={t("settings")}
+            href="/account"
+            className={styles.account}
+            title={session ? accountName : t("accountLogin")}
           >
-            {profileContent}
+            <span className={styles.name} dir="auto">
+              {session ? accountName : t("accountLogin")}
+            </span>
+            <AppIcon name="chevron-right" size={15} />
           </Link>
         )}
       </div>

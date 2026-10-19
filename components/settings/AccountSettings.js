@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 
 import { authClient } from "../../lib/auth-client";
 import { useLanguage } from "../providers/LanguageProvider";
@@ -8,7 +9,10 @@ import PasswordField from "../ui/PasswordField";
 import ProfileForm from "./ProfileForm";
 
 /* Handles registration, sign-in and profile editing. */
-export default function AccountSettings() {
+export default function AccountSettings({
+  initialMode = "login",
+  showAuthForm = false,
+}) {
   const { t } = useLanguage();
 
   const {
@@ -18,7 +22,9 @@ export default function AccountSettings() {
     refetch,
   } = authClient.useSession();
 
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState(
+    initialMode === "register" ? "register" : "login",
+  );
   const [busy, setBusy] = useState(false);
   const [errorKey, setErrorKey] = useState("");
   const [editingProfile, setEditingProfile] = useState(false);
@@ -139,6 +145,28 @@ export default function AccountSettings() {
     setMode(nextMode);
     setErrorKey("");
     setEditingProfile(false);
+  }
+
+  if (!showAuthForm && !isPending && !sessionError && !session) {
+    return (
+      <section
+        className="card backupSettings accountSettings"
+        aria-labelledby="account-settings-title"
+      >
+        <div>
+          <h2 id="account-settings-title">{t("accountTitle")}</h2>
+          <p>{t("accountDescription")}</p>
+        </div>
+        <div className="backupSettingsActions">
+          <Link className="primary" href="/account">
+            {t("accountLogin")}
+          </Link>
+          <Link className="ghost" href="/account?mode=register">
+            {t("accountRegister")}
+          </Link>
+        </div>
+      </section>
+    );
   }
 
   return (
