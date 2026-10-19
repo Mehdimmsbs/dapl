@@ -103,6 +103,9 @@ export default function TaskDetailsModal({
                 </dl>
 
                 <div className="taskDetailsActions">
+                    <button type="button" className="ghost" onClick={onClose}>
+                        {t("taskDetailsBack")}
+                    </button>
                     {canEdit && (
                         <button type="button" className="ghost" onClick={onEdit}>
                             {t("edit")}

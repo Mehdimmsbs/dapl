@@ -82,6 +82,108 @@
         color: var(--danger);
     }
 
+    .backupCenter {
+  min-width: 0;
+  margin-block-start: 1.25rem;
+  padding: 1.25rem;
+
+  > .settingsPageHeader {
+    margin-bottom: 0;
+  }
+
+  > .backupSettings,
+  .backupCenterAutomatic > .backupSettings {
+    min-width: 0;
+    margin: 0;
+    padding: 1.25rem 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  > .backupSettings + .backupSettings {
+    border-block-start: 1px solid var(--border-default);
+
+    > div:first-child > h2 {
+      display: none;
+    }
+  }
+
+  .backupCenterAutomatic {
+    border-block-start: 1px solid var(--border-default);
+
+    > summary {
+      padding-block: 1rem;
+      color: var(--text-primary);
+      font-size: var(--font-label);
+      font-weight: var(--weight-semibold);
+      text-align: start;
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: 2px solid var(--control-border-focus);
+        outline-offset: 3px;
+      }
+    }
+
+    > .backupSettings > div:first-child > h2 {
+      display: none;
+    }
+  }
+}
+
+.backupCenter {
+  min-width: 0;
+  margin-block-start: 1.25rem;
+  padding: 1.25rem;
+
+  > .settingsPageHeader {
+    margin-bottom: 0;
+  }
+
+  > .backupSettings,
+  .backupCenterAutomatic > .backupSettings {
+    min-width: 0;
+    margin: 0;
+    padding: 1.25rem 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  > .backupSettings + .backupSettings {
+    border-block-start: 1px solid var(--border-default);
+
+    > div:first-child > h2 {
+      display: none;
+    }
+  }
+
+  .backupCenterAutomatic {
+    border-block-start: 1px solid var(--border-default);
+
+    > summary {
+      padding-block: 1rem;
+      color: var(--text-primary);
+      font-size: var(--font-label);
+      font-weight: var(--weight-semibold);
+      text-align: start;
+      cursor: pointer;
+
+      &:focus-visible {
+        outline: 2px solid var(--control-border-focus);
+        outline-offset: 3px;
+      }
+    }
+
+    > .backupSettings > div:first-child > h2 {
+      display: none;
+    }
+  }
+}
+
     @media (max-width: 35rem) {
         &Actions {
             flex-direction: column;

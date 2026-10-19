@@ -54,6 +54,15 @@ export default function MobileNav({ activePage }) {
           <Link
             key={item.id}
             href={item.href}
+            onClick={(event) => {
+              if (
+                item.id === "newTask" && window.location.pathname === "/" &&
+                !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
+              ) {
+                event.preventDefault();
+                window.dispatchEvent(new Event("dapl:new-task"));
+              }
+            }}
             className={className}
             aria-current={isActive ? "page" : undefined}
           >

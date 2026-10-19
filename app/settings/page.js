@@ -48,8 +48,8 @@ export default function SettingsPage() {
           <SettingsForm onSubmit={saveSettings} />
         </section>
         <BackupSettings />
-        <AutoBackupSettings />
         <BackupDirectorySettings />
+        <AutoBackupSettings />
       </main>
     </AppShell>
   );

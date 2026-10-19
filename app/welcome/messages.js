@@ -1,0 +1,82 @@
+export const messages = {
+  en: {
+    eyebrow: "A little space for a better day",
+    title: "Make room", accent: "for your day.",
+    intro: "Your plans, routines and small wins. Together in one calm place.",
+    open: "Open my planner", explore: "Explore your space", language: "Language",
+    hint: "Choose a card to step inside", loading: "Opening your space…",
+    today: "Today", calendar: "Calendar", routines: "Routines", settings: "Settings",
+    todaySub: "One day. A clear direction.", calendarSub: "See the days ahead.",
+    routinesSub: "Small habits. Steady progress.", settingsSub: "Make it feel like you.",
+    section: "Everything has its place.", sectionSub: "Start with what matters to you today.",
+    privacy: "Your plans stay on this device. Registration is optional; signing in does not yet sync your plans.",
+    backups: "Keep a JSON backup to protect your plans.",
+    footer: "A calmer day starts with a little clarity.",
+    traits: ["Four languages", "Three calendars", "Your own pace"],
+  },
+  de: {
+    eyebrow: "Ein wenig Platz für einen besseren Tag",
+    title: "Mehr Raum", accent: "für deinen Tag.",
+    intro: "Deine Pläne, Routinen und kleinen Erfolge. An einem ruhigen Ort vereint.",
+    open: "Planer öffnen", explore: "Entdecke deinen Bereich", language: "Sprache",
+    hint: "Wähle eine Karte und leg los", loading: "Dein Bereich wird geöffnet…",
+    today: "Heute", calendar: "Kalender", routines: "Routinen", settings: "Einstellungen",
+    todaySub: "Ein Tag. Eine klare Richtung.", calendarSub: "Die nächsten Tage im Blick.",
+    routinesSub: "Kleine Gewohnheiten. Stetiger Fortschritt.", settingsSub: "So, wie es zu dir passt.",
+    section: "Alles hat seinen Platz.", sectionSub: "Beginne mit dem, was dir heute wichtig ist.",
+    privacy: "Deine Pläne bleiben auf diesem Gerät. Ein Konto ist optional; die Anmeldung synchronisiert deine Pläne noch nicht.",
+    backups: "Sichere deine Pläne mit einem JSON-Backup.", footer: "Ein ruhigerer Tag beginnt mit etwas Klarheit.",
+    traits: ["Vier Sprachen", "Drei Kalender", "Dein eigenes Tempo"],
+  },
+  fa: {
+    eyebrow: "فضایی کوچک برای روزی بهتر", title: "جا باز کن", accent: "برای روز خودت.",
+    intro: "برنامه‌ها، عادت‌ها و موفقیت‌های کوچکت؛ همه در یک فضای آرام.",
+    open: "ورود به برنامه‌ریز", explore: "فضای خودت را کشف کن", language: "زبان",
+    hint: "یک کارت را انتخاب کن و وارد شو", loading: "در حال باز کردن…",
+    today: "امروز", calendar: "تقویم", routines: "روتین‌ها", settings: "تنظیمات",
+    todaySub: "یک روز، یک مسیر روشن.", calendarSub: "روزهای پیش رو را ببین.",
+    routinesSub: "عادت‌های کوچک، پیشرفت پیوسته.", settingsSub: "به سلیقه خودت تنظیم کن.",
+    section: "هر چیز، جای خودش.", sectionSub: "از چیزی شروع کن که امروز برایت مهم است.",
+    privacy: "برنامه‌ها روی همین دستگاه می‌مانند. ثبت‌نام اختیاری است؛ ورود به حساب هنوز برنامه‌ها را همگام نمی‌کند.",
+    backups: "برای محافظت از برنامه‌ها، پشتیبان JSON نگه دار.", footer: "روزی آرام‌تر، با کمی نظم شروع می‌شود.",
+    traits: ["چهار زبان", "سه تقویم", "با سرعت خودت"],
+  },
+  ar: {
+    eyebrow: "مساحة صغيرة ليوم أفضل", title: "افسح مساحة", accent: "ليومك.",
+    intro: "خططك وعاداتك وإنجازاتك الصغيرة؛ معاً في مكان هادئ.",
+    open: "افتح مخططي", explore: "اكتشف مساحتك", language: "اللغة",
+    hint: "اختر بطاقة للدخول", loading: "جارٍ فتح مساحتك…",
+    today: "اليوم", calendar: "التقويم", routines: "الروتين", settings: "الإعدادات",
+    todaySub: "يوم واحد، اتجاه واضح.", calendarSub: "شاهد الأيام القادمة.",
+    routinesSub: "عادات صغيرة، تقدم مستمر.", settingsSub: "اجعله مناسباً لك.",
+    section: "لكل شيء مكانه.", sectionSub: "ابدأ بما يهمك اليوم.",
+    privacy: "تبقى خططك على هذا الجهاز. التسجيل اختياري؛ تسجيل الدخول لا يزامن خططك بعد.",
+    backups: "احتفظ بنسخة JSON لحماية خططك.", footer: "يوم أهدأ يبدأ بقليل من الوضوح.",
+    traits: ["أربع لغات", "ثلاثة تقاويم", "بإيقاعك الخاص"],
+  },
+};
+
+Object.assign(messages.en, {
+  guide: "How it works", back: "Back", pause: "Pause motion", resume: "Resume motion",
+  guideTitle: "A little guidance. A clearer day.", guideIntro: "Start in three small steps. Come back whenever you need a hand.", faqTitle: "A few helpful answers",
+  steps: [["Plan today", "Open Today, choose New task, enter a title, date and priority, then save."], ["Build a routine", "Open Routines to create a repeating activity. Choose its days, enable it and use Apply today to add its tasks."], ["Keep a backup", "In Settings, choose a backup folder if your browser supports it. Then use Download backup. Keep that JSON file somewhere safe."]],
+  faq: [["Do I need an account?", "No. You can plan without registering. An optional account stores your profile on the server."], ["Will my plans appear on another device?", "Not automatically yet. Plans remain in this browser. Export a JSON backup and restore it on the other device."], ["How do I restore a backup?", "In Settings, choose your JSON backup file, review the summary and confirm restoration. A full restore replaces the current data included in the backup."], ["Does automatic backup work while the app is closed?", "There is no guarantee of a background backup while the app is closed. A missed backup is checked when the app reopens. Internal copies can be lost if browser storage is cleared."], ["How do I install the app?", "Use Install app. When direct installation is available, your browser shows a prompt; otherwise follow the instructions for your device."], ["How do I change the calendar or language?", "Use the language selector. In Settings you can also choose Gregorian, Jalali or Hijri. The secondary calendar shows an additional date on Today."], ["Why can’t I choose a folder?", "Some browsers do not support folder access. You can still download a manual JSON backup using the browser’s normal download location."]],
+});
+Object.assign(messages.de, {
+  guide: "So funktioniert’s", back: "Zurück", pause: "Bewegung pausieren", resume: "Bewegung fortsetzen",
+  guideTitle: "Ein wenig Hilfe. Ein klarerer Tag.", guideIntro: "Starte in drei kleinen Schritten. Die Anleitung ist jederzeit für dich da.", faqTitle: "Häufige Fragen",
+  steps: [["Heute planen", "Öffne Heute und wähle Neue Aufgabe. Trage Titel, Datum und Priorität ein und speichere."], ["Eine Routine anlegen", "Lege unter Routinen eine wiederkehrende Aktivität mit Wochentagen an. Aktiviere sie und füge ihre Aufgaben über Heute anwenden hinzu."], ["Ein Backup sichern", "Wähle in den Einstellungen einen Backup-Ordner, wenn dein Browser das unterstützt. Lade danach das Backup herunter und bewahre die JSON-Datei sicher auf."]],
+  faq: [["Brauche ich ein Konto?", "Nein. Du kannst ohne Registrierung planen. Ein optionales Konto speichert dein Profil auf dem Server."], ["Sehe ich meine Pläne auf anderen Geräten?", "Noch nicht automatisch. Deine Pläne bleiben in diesem Browser. Übertrage sie mit einem JSON-Backup auf ein anderes Gerät."], ["Wie stelle ich ein Backup wieder her?", "Wähle in den Einstellungen die JSON-Datei, prüfe die Zusammenfassung und bestätige die Wiederherstellung. Dabei werden die aktuellen, im Backup enthaltenen Daten ersetzt."], ["Läuft das Backup bei geschlossener App?", "Ein Hintergrund-Backup ist bei geschlossener App nicht garantiert. Beim erneuten Öffnen wird ein verpasstes Backup geprüft. Interne Kopien können beim Löschen der Browserdaten verloren gehen."], ["Wie installiere ich die App?", "Wähle App installieren. Dein Browser zeigt entweder einen Installationsdialog oder die App erklärt die nötigen Schritte für dein Gerät."], ["Wie ändere ich Sprache und Kalender?", "Nutze die Sprachauswahl. In den Einstellungen kannst du Gregorianisch, Jalali oder Hijri wählen. Der zweite Kalender ergänzt das Datum auf Heute."], ["Warum kann ich keinen Ordner auswählen?", "Manche Browser unterstützen keinen Ordnerzugriff. Ein manuelles JSON-Backup kannst du trotzdem über den normalen Download herunterladen."]],
+});
+Object.assign(messages.fa, {
+  guide: "راهنمای استفاده", back: "بازگشت", pause: "توقف حرکت", resume: "ادامه حرکت",
+  guideTitle: "کمی راهنما، روزی روشن‌تر.", guideIntro: "با سه قدم کوچک شروع کن؛ هر وقت نیاز داشتی به این راهنما برگرد.", faqTitle: "پرسش‌های متداول",
+  steps: [["امروزت را برنامه‌ریزی کن", "صفحه امروز را باز کن و کار جدید را بزن. عنوان، تاریخ و اولویت را مشخص کن و ذخیره کن."], ["یک روتین بساز", "در روتین‌ها یک فعالیت تکرارشونده و روزهای هفته‌اش را مشخص کن. آن را فعال کن و با اعمال برای امروز، کارهایش را اضافه کن."], ["پشتیبان نگه دار", "در تنظیمات، اگر مرورگرت پشتیبانی می‌کند، پوشه پشتیبان را انتخاب کن. بعد دریافت پشتیبان را بزن و فایل JSON را در جای امن نگه دار."]],
+  faq: [["ثبت‌نام اجباری است؟", "خیر. بدون حساب هم می‌توانی برنامه‌ریزی کنی. حساب اختیاری، اطلاعات پروفایل را روی سرور نگه می‌دارد."], ["برنامه‌ها روی دستگاه دیگر نمایش داده می‌شوند؟", "هنوز همگام‌سازی خودکار نداریم. برنامه‌ها در همین مرورگر می‌مانند. با فایل پشتیبان JSON می‌توانی آن‌ها را منتقل کنی."], ["چطور پشتیبان را برگردانم؟", "در تنظیمات فایل JSON را انتخاب کن، خلاصه را ببین و بازیابی را تأیید کن. بازیابی کامل، داده‌های فعلیِ موجود در پشتیبان را جایگزین می‌کند."], ["اگر برنامه بسته باشد هم پشتیبان می‌گیرد؟", "اجرای پشتیبان در پس‌زمینه و هنگام بسته‌بودن برنامه تضمین نمی‌شود. زمان بازشدن دوباره، پشتیبان عقب‌افتاده بررسی می‌شود. پاک‌کردن داده‌های مرورگر می‌تواند نسخه‌های داخلی را هم حذف کند."], ["چطور برنامه را نصب کنم؟", "نصب برنامه را بزن. اگر نصب مستقیم ممکن باشد، مرورگر پنجره نصب را نشان می‌دهد؛ وگرنه راهنمای همان دستگاه را دنبال کن."], ["زبان و تقویم را چطور عوض کنم؟", "زبان را از منوی زبان انتخاب کن. در تنظیمات هم تقویم میلادی، شمسی یا هجری را انتخاب کن. تقویم دوم یک تاریخ اضافه در صفحه امروز نشان می‌دهد."], ["چرا نمی‌توانم پوشه انتخاب کنم؟", "بعضی مرورگرها دسترسی به پوشه را پشتیبانی نمی‌کنند. همچنان می‌توانی فایل JSON دستی را از مسیر دانلود معمول مرورگر دریافت کنی."]],
+});
+Object.assign(messages.ar, {
+  guide: "دليل الاستخدام", back: "رجوع", pause: "إيقاف الحركة", resume: "استئناف الحركة",
+  guideTitle: "قليل من الإرشاد، يوم أوضح.", guideIntro: "ابدأ بثلاث خطوات بسيطة، وارجع إلى الدليل متى احتجت.", faqTitle: "الأسئلة الشائعة",
+  steps: [["خطط ليومك", "افتح اليوم واختر مهمة جديدة. أدخل العنوان والتاريخ والأولوية ثم احفظ."], ["أنشئ روتيناً", "أنشئ نشاطاً متكرراً وحدد أيامه، ثم فعّله وأضف مهامه عبر تطبيق اليوم."], ["احتفظ بنسخة احتياطية", "اختر مجلداً من الإعدادات إذا كان متصفحك يدعمه. ثم نزّل النسخة واحتفظ بملف JSON في مكان آمن."]],
+  faq: [["هل التسجيل إجباري؟", "لا. يمكنك التخطيط دون حساب. الحساب الاختياري يحفظ ملفك الشخصي على الخادم."], ["هل تتزامن الخطط مع جهاز آخر؟", "ليس تلقائياً بعد. تبقى الخطط في هذا المتصفح. انقلها باستخدام نسخة JSON."], ["كيف أستعيد نسخة احتياطية؟", "اختر ملف JSON في الإعدادات وراجع الملخص ثم أكّد الاستعادة. الاستعادة الكاملة تستبدل البيانات الحالية المشمولة بالنسخة."], ["هل يعمل النسخ والتطبيق مغلق؟", "النسخ في الخلفية عند إغلاق التطبيق غير مضمون. يتم التحقق من النسخ الفائتة عند فتحه مجدداً. حذف بيانات المتصفح قد يحذف النسخ الداخلية أيضاً."], ["كيف أثبّت التطبيق؟", "اختر تثبيت التطبيق. سيظهر طلب التثبيت المباشر إن كان متاحاً، وإلا فاتبع إرشادات جهازك."], ["كيف أغيّر اللغة والتقويم؟", "استخدم قائمة اللغة، ثم الإعدادات لاختيار الميلادي أو الجلالي أو الهجري. التقويم الثاني يضيف تاريخاً آخر في صفحة اليوم."], ["لماذا لا يمكنني اختيار مجلد؟", "بعض المتصفحات لا تدعم الوصول إلى المجلدات. ما زال يمكنك تنزيل نسخة JSON يدوية في موقع التنزيل المعتاد."]],
+});

@@ -244,5 +244,8 @@
   "fontSmall": "صغير",
   "fontMedium": "متوسط",
   "installApp": "تثبيت التطبيق",
-  "fontLarge": "كبير"
+  "fontLarge": "كبير",
+  "taskDetailsBack": "رجوع",
+  "backupManualSaved": "تم حفظ النسخة في {folder}: {tasks} مهام و{routines} إجراءات روتينية.",
+  "backupManualPermissionNeeded": "اسمح بالوصول في قسم مجلد النسخ الاحتياطي، ثم حاول مجدداً."
 }

@@ -310,3 +310,51 @@
         width: fit-content;
     }
 }
+
+/* Keep the drawer mounted so opening and closing both animate. */
+@media (max-width: 900px) {
+    .appShell .sidebar,
+    .appShell.mobileMenuOpen .sidebar {
+        position: fixed;
+        inset-block: 0;
+        inset-inline-start: 0;
+        z-index: 40;
+        display: block;
+        width: min(17rem, 85vw);
+        min-width: 0;
+        height: 100dvh;
+        overflow-y: auto;
+        transform: translateX(-105%);
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform 240ms ease, visibility 0s linear 240ms;
+    }
+
+    [dir="rtl"] .appShell .sidebar { transform: translateX(105%); }
+
+    .appShell.mobileMenuOpen .sidebar {
+        transform: translateX(0);
+        visibility: visible;
+        pointer-events: auto;
+        transition-delay: 0s;
+    }
+
+    .appShell .mobileMenuBackdrop {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 240ms ease, visibility 0s linear 240ms;
+    }
+
+    .appShell.mobileMenuOpen .mobileMenuBackdrop {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transition-delay: 0s;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .appShell .sidebar,
+    .appShell .mobileMenuBackdrop { transition: none; }
+}

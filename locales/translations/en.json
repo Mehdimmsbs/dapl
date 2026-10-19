@@ -242,5 +242,8 @@
   "routineSuggestionCheckEmail": "Check email",
   "routineSuggestionPlanDay": "Plan the day",
   "routineSuggestionLanguageLearning": "Language learning",
-  "installApp": "Install app"
+  "installApp": "Install app",
+  "taskDetailsBack": "Back",
+  "backupManualSaved": "Backup saved in {folder}: {tasks} tasks and {routines} routines.",
+  "backupManualPermissionNeeded": "Allow access in Backup folder, then try again."
 }

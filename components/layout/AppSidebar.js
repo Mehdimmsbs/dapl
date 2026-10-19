@@ -39,11 +39,12 @@ export default function AppSidebar({
   displayDate,
   onToggle,
   onNavigate,
+  hiddenOnMobile = false,
 }) {
   const { t } = useLanguage();
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" inert={hiddenOnMobile}>
       <div className="brand">
         <Link
           href="/"
@@ -78,6 +79,16 @@ export default function AppSidebar({
           <Link
             key={item.id}
             href={item.href}
+            onClick={(event) => {
+              if (
+                item.id === "newTask" && window.location.pathname === "/" &&
+                !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
+              ) {
+                event.preventDefault();
+                window.dispatchEvent(new Event("dapl:new-task"));
+              }
+              onNavigate?.();
+            }}
             className={activePage === item.id ? "active" : ""}
             aria-label={t(item.id)}
             data-tooltip={t(item.id)}

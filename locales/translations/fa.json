@@ -244,5 +244,8 @@
   "fontSmall": "کوچک",
   "fontMedium": "متوسط",
   "installApp": "نصب برنامه",
-  "fontLarge": "بزرگ"
+  "fontLarge": "بزرگ",
+  "taskDetailsBack": "بازگشت",
+  "backupManualSaved": "پشتیبان در پوشه {folder} ذخیره شد: {tasks} کار و {routines} روتین.",
+  "backupManualPermissionNeeded": "در بخش پوشه پشتیبان، مجوز دسترسی را فعال کنید و دوباره تلاش کنید."
 }

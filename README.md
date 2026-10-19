@@ -858,3 +858,12 @@ Profile, authentication, notifications, and PWA installation changes are develop
 ```text
 feature/profile-notifications
 ```
+
+## Firewall error in Codespaces, Error: P1001: Can't reach database server at `db:3306`
+
+DAPL_BRIDGE="br-$(docker network inspect dapl-dev_default --format '{{.Id}}' | cut -c1-12)"
+
+sudo iptables-legacy -C FORWARD \
+  -i "$DAPL_BRIDGE" -o "$DAPL_BRIDGE" -j ACCEPT \
+  || sudo iptables-legacy -I FORWARD 1 \
+  -i "$DAPL_BRIDGE" -o "$DAPL_BRIDGE" -j ACCEPT

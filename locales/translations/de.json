@@ -244,5 +244,8 @@
   "fontSmall": "Klein",
   "fontMedium": "Mittel",
   "installApp": "App installieren",
-  "fontLarge": "Groß"
+  "fontLarge": "Groß",
+  "taskDetailsBack": "Zurück",
+  "backupManualSaved": "Backup in {folder} gespeichert: {tasks} Aufgaben und {routines} Routinen.",
+  "backupManualPermissionNeeded": "Bitte den Zugriff unter Backup-Ordner erlauben und erneut versuchen."
 }

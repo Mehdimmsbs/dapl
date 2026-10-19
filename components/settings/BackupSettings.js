@@ -44,8 +44,10 @@ export default function BackupSettings() {
 
         try {
             setSummary(await downloadBackup());
-        } catch {
-            setErrorKey("backupDownloadFailed");
+        } catch (error) {
+            setErrorKey(error.code === "BACKUP_DIRECTORY_PERMISSION"
+                ? "backupManualPermissionNeeded"
+                : "backupDownloadFailed");
         } finally {
             finishOperation();
         }
@@ -196,7 +198,7 @@ export default function BackupSettings() {
 
             <div role="status" aria-live="polite">
                 {summary && (
-                    <p>{t("backupDownloadStarted", summary)}</p>
+                    <p>{t(summary.destination === "directory" ? "backupManualSaved" : "backupDownloadStarted", summary)}</p>
                 )}
             </div>
 
