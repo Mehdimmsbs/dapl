@@ -1,6 +1,8 @@
 "use client";
 
 import { useLanguage } from "../providers/LanguageProvider";
+import ThemeToggle from "./ThemeToggle";
+import { messages } from "../../app/welcome/messages";
 import AppIcon from "../ui/AppIcon";
 import BrandLogo from "../ui/BrandLogo";
 import Link from "next/link";
@@ -41,7 +43,8 @@ export default function AppSidebar({
   onNavigate,
   hiddenOnMobile = false,
 }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const copy = messages[locale] ?? messages.en;
 
   return (
     <aside className="sidebar" inert={hiddenOnMobile}>
@@ -81,8 +84,12 @@ export default function AppSidebar({
             href={item.href}
             onClick={(event) => {
               if (
-                item.id === "newTask" && window.location.pathname === "/" &&
-                !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
+                item.id === "newTask" &&
+                window.location.pathname === "/" &&
+                !event.metaKey &&
+                !event.ctrlKey &&
+                !event.shiftKey &&
+                !event.altKey
               ) {
                 event.preventDefault();
                 window.dispatchEvent(new Event("dapl:new-task"));
@@ -98,6 +105,18 @@ export default function AppSidebar({
             <span className="navLabel">{t(item.id)}</span>
           </Link>
         ))}
+
+        <ThemeToggle sidebar />
+
+        <Link
+          href="/welcome"
+          onClick={() => onNavigate?.()}
+          aria-label={copy.back}
+          data-tooltip={copy.back}
+        >
+          <AppIcon name="home" />
+          <span className="navLabel">{copy.back}</span>
+        </Link>
       </nav>
 
       {displayDate && (

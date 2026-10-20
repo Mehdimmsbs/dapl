@@ -8,7 +8,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import styles from "../../styles/components/_topbar-account.module.scss";
 
 export default function Topbar({ activePage, onToggleMenu, mobileMenuOpen }) {
-  const { dark, t, toggleDark } = useLanguage();
+  const { t } = useLanguage();
   const { data: session, isPending } = authClient.useSession();
   const accountName = session?.user?.name?.trim() || t("accountTitle");
 
@@ -32,15 +32,6 @@ export default function Topbar({ activePage, onToggleMenu, mobileMenuOpen }) {
       </div>
       <div className="topActions">
         <LanguageSwitcher />
-        <span className="topbarDivider" aria-hidden="true" />
-        <button
-          type="button"
-          className="iconBtn themeButton"
-          onClick={toggleDark}
-          aria-label={t(dark ? "lightMode" : "darkMode")}
-        >
-          <AppIcon name={dark ? "sun" : "moon"} size={22} />
-        </button>
         {isPending ? (
           <span className={styles.loading} role="status">
             {t("accountLoading")}
