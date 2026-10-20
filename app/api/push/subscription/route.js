@@ -1,4 +1,5 @@
 import { isTrustedMutation } from "../../../../lib/server/origins";
+import { readSmallJson } from "../../../../lib/server/request-body";
 import { createHash } from "node:crypto";
 
 import { auth } from "../../../../lib/server/auth";
@@ -81,7 +82,13 @@ export async function POST(request) {
       return respond({ error: "UNAUTHORIZED" }, 401);
     }
 
-    const body = await request.json().catch(() => null);
+    const parsed = await readSmallJson(request);
+
+    if (!parsed.ok) {
+      return respond({ error: parsed.error }, parsed.status);
+    }
+
+    const body = parsed.data;
     const subscription = body?.subscription;
 
     if (
@@ -150,7 +157,13 @@ export async function DELETE(request) {
       return respond({ error: "UNAUTHORIZED" }, 401);
     }
 
-    const body = await request.json().catch(() => null);
+    const parsed = await readSmallJson(request);
+
+    if (!parsed.ok) {
+      return respond({ error: parsed.error }, parsed.status);
+    }
+
+    const body = parsed.data;
 
     if (!validEndpoint(body?.endpoint)) {
       return respond({ error: "INVALID_SUBSCRIPTION" }, 400);

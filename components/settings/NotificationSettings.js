@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { authClient } from "../../lib/auth-client";
 import { useLanguage } from "../providers/LanguageProvider";
 
+const PUSH_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
+
 function decodePublicKey(value) {
   const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
 
@@ -167,7 +169,7 @@ export default function NotificationSettings() {
        * Signed-in users receive push notifications even
        * while the application is closed.
        */
-      if (session && pushSupported) {
+      if (session && pushSupported && PUSH_PUBLIC_KEY) {
         const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
         if (!publicKey) {
@@ -182,7 +184,7 @@ export default function NotificationSettings() {
           current = await registration.pushManager.subscribe({
             userVisibleOnly: true,
 
-            applicationServerKey: decodePublicKey(publicKey),
+            applicationServerKey: decodePublicKey(PUSH_PUBLIC_KEY),
           });
         }
 
@@ -200,7 +202,7 @@ export default function NotificationSettings() {
        * Use real push when available so the complete
        * production delivery path is tested.
        */
-      if (session && subscription) {
+      if (session && subscription && PUSH_PUBLIC_KEY) {
         await saveSubscription(subscription);
 
         await pushRequest("/api/push/test", "POST", {
@@ -246,7 +248,7 @@ export default function NotificationSettings() {
     });
   }
 
-  const pushRequired = Boolean(session && pushSupported);
+  const pushRequired = Boolean(session && pushSupported && PUSH_PUBLIC_KEY);
 
   const enabled =
     permission === "granted" && (!pushRequired || Boolean(subscription));

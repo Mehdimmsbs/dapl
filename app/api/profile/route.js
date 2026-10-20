@@ -1,4 +1,5 @@
 import { isTrustedMutation } from "../../../lib/server/origins";
+import { readSmallJson } from "../../../lib/server/request-body";
 import { auth } from "../../../lib/server/auth";
 import { prisma } from "../../../lib/server/prisma";
 
@@ -57,13 +58,13 @@ export async function PUT(request) {
       return respond({ error: "UNAUTHORIZED" }, 401);
     }
 
-    let body;
+    const parsed = await readSmallJson(request);
 
-    try {
-      body = await request.json();
-    } catch {
-      return respond({ error: "INVALID_PROFILE" }, 400);
+    if (!parsed.ok) {
+      return respond({ error: parsed.error }, parsed.status);
     }
+
+    const body = parsed.data;
 
     if (
       !body ||

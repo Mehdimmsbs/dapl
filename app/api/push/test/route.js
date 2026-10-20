@@ -1,4 +1,5 @@
 import { isTrustedMutation } from "../../../../lib/server/origins";
+import { readSmallJson } from "../../../../lib/server/request-body";
 import { createHash, randomUUID } from "node:crypto";
 
 import { tr } from "../../../../lib/i18n";
@@ -36,7 +37,13 @@ export async function POST(request) {
       return respond({ error: "UNAUTHORIZED" }, 401);
     }
 
-    const body = await request.json().catch(() => null);
+    const parsed = await readSmallJson(request);
+
+    if (!parsed.ok) {
+      return respond({ error: parsed.error }, parsed.status);
+    }
+
+    const body = parsed.data;
 
     if (typeof body?.endpoint !== "string" || body.endpoint.length > 4096) {
       return respond({ error: "INVALID_SUBSCRIPTION" }, 400);
