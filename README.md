@@ -867,3 +867,16 @@ sudo iptables-legacy -C FORWARD \
   -i "$DAPL_BRIDGE" -o "$DAPL_BRIDGE" -j ACCEPT \
   || sudo iptables-legacy -I FORWARD 1 \
   -i "$DAPL_BRIDGE" -o "$DAPL_BRIDGE" -j ACCEPT
+
+
+##
+DAPL_NETWORK_ID=$(docker network inspect dapl-production_default --format '{{.Id}}')
+DAPL_BRIDGE="br-${DAPL_NETWORK_ID:0:12}"
+
+sudo iptables-legacy -C DOCKER-USER \
+  -i "$DAPL_BRIDGE" -o "$DAPL_BRIDGE" -j ACCEPT \
+  || sudo iptables-legacy -I DOCKER-USER 1 \
+  -i "$DAPL_BRIDGE" -o "$DAPL_BRIDGE" -j ACCEPT
+
+  ## Migration databank
+  docker compose --env-file .env.production -f compose.production.yaml run --rm --pull never app npx prisma migrate deploy --config prisma7.config.ts
