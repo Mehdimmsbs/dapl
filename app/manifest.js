@@ -6,7 +6,7 @@ export default function manifest() {
         short_name: "My Day",
         description:
             "A multilingual personal daily planner for tasks, routines and calendars.",
-        start_url: "/",
+        start_url: "/welcome",
         scope: "/",
         display: "standalone",
         orientation: "portrait-primary",
