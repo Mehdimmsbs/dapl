@@ -1,3 +1,4 @@
+import { isTrustedMutation } from "../../../../lib/server/origins";
 import { createHash, randomUUID } from "node:crypto";
 
 import { tr } from "../../../../lib/i18n";
@@ -17,6 +18,7 @@ function respond(data, status = 200) {
 /* Sends a test only to a device belonging to the current user. */
 export async function POST(request) {
   if (
+    !isTrustedMutation(request) ||
     request.headers.get("x-dapl-request") !== "push" ||
     request.headers.get("sec-fetch-site") === "cross-site" ||
     request.headers.get("content-type")?.split(";")[0].trim() !==

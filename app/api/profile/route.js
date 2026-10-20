@@ -1,3 +1,4 @@
+import { isTrustedMutation } from "../../../lib/server/origins";
 import { auth } from "../../../lib/server/auth";
 import { prisma } from "../../../lib/server/prisma";
 
@@ -43,16 +44,7 @@ export async function GET(request) {
 }
 
 export async function PUT(request) {
-  // Accept changes only from this application's configured origin.
-  const allowedOrigins = new Set([
-    new URL(process.env.BETTER_AUTH_URL).origin,
-
-    ...(process.env.NODE_ENV === "development"
-      ? ["http://localhost:3000", "http://127.0.0.1:3000"]
-      : []),
-  ]);
-
-  if (!allowedOrigins.has(request.headers.get("origin"))) {
+  if (!isTrustedMutation(request)) {
     return respond({ error: "INVALID_ORIGIN" }, 403);
   }
 

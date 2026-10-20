@@ -1,3 +1,4 @@
+import { isTrustedMutation } from "../../../../lib/server/origins";
 import { createHash } from "node:crypto";
 
 import { auth } from "../../../../lib/server/auth";
@@ -15,6 +16,7 @@ function respond(data, status = 200) {
 /* Requires a same-origin JavaScript request. */
 function validRequest(request) {
   return (
+    isTrustedMutation(request) &&
     request.headers.get("x-dapl-request") === "push" &&
     request.headers.get("sec-fetch-site") !== "cross-site" &&
     request.headers.get("content-type")?.split(";")[0].trim() ===

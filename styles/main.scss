@@ -46,3 +46,8 @@
 @use "./components/backup-settings";
 @use "./pages/settings-controls";
 @use "./components/depth";
+
+:root {
+  --font-ui: "Noto Sans Variable", sans-serif;
+  --font-arabic: "Noto Sans Arabic Variable", sans-serif;
+}

@@ -21,7 +21,7 @@ export default function PublicHeader({ guide = false, back = false, copy }) {
         aria-label={t("brandName")}
       >
         <BrandLogo width={60} />
-        <strong>My Day</strong>
+        <strong>{t("brandName")}</strong>
       </Link>
       <nav className={controls.actions} aria-label={t("planner")}>
         <LanguageSwitcher className={styles.sharedLanguage} />

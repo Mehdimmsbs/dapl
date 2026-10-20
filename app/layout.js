@@ -1,4 +1,5 @@
-import { Noto_Sans, Noto_Sans_Arabic } from "next/font/google";
+import "@fontsource-variable/noto-sans";
+import "@fontsource-variable/noto-sans-arabic";
 
 import "../styles/main.scss";
 
@@ -8,22 +9,6 @@ import AutoBackupRunner from "../components/providers/AutoBackupRunner";
 import StorageBoundary from "../components/providers/StorageBoundary";
 import defaultMessages from "../locales/translations/en.json";
 import { DEFAULT_LOCALE, getLocaleConfig } from "../locales/config";
-
-/* Loads the main Latin font used across the application. */
-const uiFont = Noto_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-ui",
-  display: "swap",
-});
-
-/* Loads the matching Arabic and Persian font. */
-const arabicFont = Noto_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-arabic",
-  display: "swap",
-});
 
 const defaultLocaleConfig = getLocaleConfig(DEFAULT_LOCALE);
 
@@ -76,7 +61,7 @@ export default function RootLayout({ children }) {
       dir={defaultLocaleConfig.direction}
       suppressHydrationWarning
     >
-      <body className={`${uiFont.variable} ${arabicFont.variable}`}>
+      <body>
         <StorageBoundary>
           <LanguageProvider>
             {children}
