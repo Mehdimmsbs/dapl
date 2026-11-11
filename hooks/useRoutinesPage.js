@@ -14,11 +14,8 @@ import {
     normalizeUnit,
     ROUTINE_DAYS,
 } from "../lib/routines";
-import {
-    STORAGE_KEYS,
-    readStorage,
-    writeStorage,
-} from "../lib/storage";
+import { STORAGE_KEYS } from "../lib/storage";
+import { updateStoredValue } from "../lib/plannerStorage";
 import useStoredState from "./useStoredState";
 
 const EMPTY_ROUTINES = [];
@@ -242,129 +239,77 @@ export default function useRoutinesPage() {
         );
     }
 
-    /* Adds today's enabled routines as planner tasks. */
-    function applyToday() {
-        const today =
-            getLocalIsoDate();
+    /* Adds today's enabled routines without duplicating existing tasks. */
+    async function applyToday() {
+        if (!hydrated) return;
 
-        const weekday =
-            JAVASCRIPT_WEEKDAYS[
-            new Date().getDay()
-            ];
+        const today = getLocalIsoDate();
+        const weekday = JAVASCRIPT_WEEKDAYS[new Date().getDay()];
 
-        const plannerData =
-            readStorage(
+        let addedCount = 0;
+
+        try {
+            await updateStoredValue(
                 STORAGE_KEYS.planner,
                 seed,
-            );
+                (plannerData) => {
+                    const existingTasks = plannerData.tasks;
 
-        const existingTasks =
-            Array.isArray(
-                plannerData.tasks,
-            )
-                ? plannerData.tasks
-                : [];
-
-        const newTasks =
-            routines
-                .filter(
-                    (routine) =>
-                        routine.enabled &&
-                        (
-                            routine.days || []
-                        ).includes(weekday),
-                )
-                .filter(
-                    (routine) =>
-                        !existingTasks.some(
-                            (task) =>
-                                task.date ===
-                                today &&
-                                String(
-                                    task.routineId,
-                                ) ===
-                                String(
-                                    routine.id,
+                    const newTasks = routines
+                        .filter(
+                            (routine) =>
+                                routine.enabled &&
+                                (routine.days || []).includes(weekday),
+                        )
+                        .filter(
+                            (routine) =>
+                                !existingTasks.some(
+                                    (task) =>
+                                        task.date === today &&
+                                        String(task.routineId) === String(routine.id),
                                 ),
-                        ),
-                )
-                .map(
-                    (
-                        routine,
-                        index,
-                    ) => ({
-                        id:
-                            Date.now() +
-                            index,
+                        )
+                        .map((routine, index) => ({
+                            id: Date.now() + index,
+                            title: routine.title,
+                            description: routine.description || "",
+                            date: today,
+                            priority: routine.priority,
+                            scheduleType: routine.scheduleType,
+                            startTime:
+                                routine.scheduleType === "time"
+                                    ? routine.startTime
+                                    : "",
+                            endTime:
+                                routine.scheduleType === "time"
+                                    ? routine.endTime
+                                    : "",
+                            completed: false,
+                            activityUnit: normalizeUnit(routine.unit),
+                            activityValue: 0,
+                            prerequisites: [],
+                            source: "routine",
+                            routineId: routine.id,
+                        }));
 
-                        title:
-                            routine.title,
+                    addedCount = newTasks.length;
 
-                        description:
-                            routine.description ||
-                            "",
-
-                        date: today,
-
-                        priority:
-                            routine.priority,
-
-                        scheduleType:
-                            routine.scheduleType,
-
-                        startTime:
-                            routine.scheduleType ===
-                                "time"
-                                ? routine.startTime
-                                : "",
-
-                        endTime:
-                            routine.scheduleType ===
-                                "time"
-                                ? routine.endTime
-                                : "",
-
-                        completed: false,
-
-                        activityUnit:
-                            normalizeUnit(
-                                routine.unit,
-                            ),
-
-                        activityValue: 0,
-                        prerequisites: [],
-                        source: "routine",
-
-                        routineId:
-                            routine.id,
-                    }),
-                );
-
-        if (!newTasks.length) {
-            window.alert(
-                t("routineNothing"),
+                    return {
+                        ...plannerData,
+                        tasks: [...existingTasks, ...newTasks],
+                    };
+                },
             );
 
-            return;
+            window.alert(
+                addedCount
+                    ? t("routineApplied", { n: addedCount })
+                    : t("routineNothing"),
+            );
+        } catch (error) {
+            console.error("Applying routines failed:", error);
+            window.alert(t("storageSaveError"));
         }
-
-        writeStorage(
-            STORAGE_KEYS.planner,
-            {
-                ...plannerData,
-
-                tasks: [
-                    ...existingTasks,
-                    ...newTasks,
-                ],
-            },
-        );
-
-        window.alert(
-            t("routineApplied", {
-                n: newTasks.length,
-            }),
-        );
     }
 
     return {

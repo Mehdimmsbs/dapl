@@ -1,157 +1,151 @@
 "use client";
 
-import { translations } from "../../lib/i18n";
+import { useRef, useState } from "react";
+
 import SelectField from "../ui/SelectField";
 import { useLanguage } from "../providers/LanguageProvider";
 
-/* Displays global language, calendar and appearance settings. */
-export default function SettingsForm({
-    onSubmit,
-}) {
+export default function SettingsForm({ onSubmit }) {
     const {
         changeLocale,
         dark,
+        languages,
         setDark,
         settings,
         t,
         updateSettings,
     } = useLanguage();
 
+    const pendingWrites = useRef([]);
+    const submitLock = useRef(false);
+    const [saving, setSaving] = useState(false);
+
     const usesHijriCalendar =
         settings.calendar === "hijri" ||
-        settings.secondaryCalendar ===
-        "hijri";
+        settings.secondaryCalendar === "hijri";
 
-    /* Updates one setting immediately. */
-    function updateSetting(event) {
-        const {
-            name,
-            value,
-        } = event.target;
+    /* Tracks writes so submission waits for all changes. */
+    function trackWrite(operation) {
+        const promise = Promise.resolve(operation);
 
-        if (name === "language") {
-            changeLocale(value);
-            return;
-        }
+        pendingWrites.current.push(promise);
 
-        updateSettings({
-            [name]: value,
+        promise.catch(() => {
+            /* Storage errors are handled by StorageBoundary. */
         });
+    }
+
+    function updateSetting(event) {
+        const { name, value } = event.target;
+
+        trackWrite(
+            name === "language"
+                ? changeLocale(value)
+                : updateSettings({ [name]: value }),
+        );
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+
+        if (submitLock.current) return;
+
+        submitLock.current = true;
+        setSaving(true);
+
+        try {
+            await Promise.all(pendingWrites.current);
+            pendingWrites.current = [];
+
+            await onSubmit?.();
+        } catch {
+            /* Keep the page open if saving fails. */
+        } finally {
+            submitLock.current = false;
+            setSaving(false);
+        }
     }
 
     return (
         <form
             className="form"
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
+            aria-busy={saving}
         >
-            <SelectField label={t("language")}
-                    name="language"
-                    value={settings.language}
-                    onChange={updateSetting}
-                >
-                    {Object.entries(
-                        translations,
-                    ).map(
-                        ([
-                            code,
-                            language,
-                        ]) => (
-                            <option
-                                key={code}
-                                value={code}
-                            >
-                                {language.name}
-                            </option>
-                        ),
-                    )}
-                </SelectField>
-
-            <SelectField label={t("calendarType")}
-                    name="calendar"
-                    value={settings.calendar}
-                    onChange={updateSetting}
-                >
-                    <option value="gregorian">
-                        {t("gregorian")}
+            <SelectField
+                label={t("language")}
+                name="language"
+                value={settings.language}
+                onChange={updateSetting}
+                disabled={saving}
+            >
+                {languages.map(({ code, name }) => (
+                    <option key={code} value={code}>
+                        {name}
                     </option>
+                ))}
+            </SelectField>
 
-                    <option value="jalali">
-                        {t("jalali")}
-                    </option>
+            <SelectField
+                label={t("calendarType")}
+                name="calendar"
+                value={settings.calendar}
+                onChange={updateSetting}
+                disabled={saving}
+            >
+                <option value="gregorian">{t("gregorian")}</option>
+                <option value="jalali">{t("jalali")}</option>
+                <option value="hijri">{t("hijri")}</option>
+            </SelectField>
 
-                    <option value="hijri">
-                        {t("hijri")}
-                    </option>
-                </SelectField>
+            <SelectField
+                label={t("secondary")}
+                name="secondaryCalendar"
+                value={settings.secondaryCalendar}
+                onChange={updateSetting}
+                disabled={saving}
+            >
+                <option value="none">{t("noneCalendar")}</option>
+                <option value="gregorian">{t("gregorian")}</option>
+                <option value="jalali">{t("jalali")}</option>
+                <option value="hijri">{t("hijri")}</option>
+            </SelectField>
 
-            <SelectField label={t("secondary")}
-                    name="secondaryCalendar"
-                    value={
-                        settings.secondaryCalendar
-                    }
-                    onChange={updateSetting}
-                >
-                    <option value="none">
-                        {t("noneCalendar")}
-                    </option>
-
-                    <option value="gregorian">
-                        {t("gregorian")}
-                    </option>
-
-                    <option value="jalali">
-                        {t("jalali")}
-                    </option>
-
-                    <option value="hijri">
-                        {t("hijri")}
-                    </option>
-                </SelectField>
-
-            <SelectField label={t("firstDay")}
-                    name="firstDay"
-                    value={settings.firstDay}
-                    onChange={updateSetting}
-                >
-                    <option value="saturday">
-                        {t("saturday")}
-                    </option>
-
-                    <option value="sunday">
-                        {t("sunday")}
-                    </option>
-
-                    <option value="monday">
-                        {t("monday")}
-                    </option>
-                </SelectField>
+            <SelectField
+                label={t("firstDay")}
+                name="firstDay"
+                value={settings.firstDay}
+                onChange={updateSetting}
+                disabled={saving}
+            >
+                <option value="saturday">{t("saturday")}</option>
+                <option value="sunday">{t("sunday")}</option>
+                <option value="monday">{t("monday")}</option>
+            </SelectField>
 
             {usesHijriCalendar && (
-                <SelectField label={t("hijriMethod")}
-                        name="hijriMethod"
-                        value={
-                            settings.hijriMethod
-                        }
-                        onChange={updateSetting}
-                    >
-                        <option value="ummalqura">
-                            {t("ummalqura")}
-                        </option>
-                    </SelectField>
+                <SelectField
+                    label={t("hijriMethod")}
+                    name="hijriMethod"
+                    value={settings.hijriMethod}
+                    onChange={updateSetting}
+                    disabled={saving}
+                >
+                    <option value="ummalqura">
+                        {t("ummalqura")}
+                    </option>
+                </SelectField>
             )}
 
             <label className="switchRow">
-                <span>
-                    {t("darkMode")}
-                </span>
+                <span>{t("darkMode")}</span>
 
                 <input
                     type="checkbox"
                     checked={dark}
+                    disabled={saving}
                     onChange={(event) => {
-                        setDark(
-                            event.target.checked,
-                        );
+                        trackWrite(setDark(event.target.checked));
                     }}
                 />
             </label>
@@ -159,6 +153,7 @@ export default function SettingsForm({
             <button
                 className="primary"
                 type="submit"
+                disabled={saving}
             >
                 {t("save")}
             </button>

@@ -5,11 +5,13 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
 
 import { defaultSettings } from "../../app/data";
+import useStoredState from "../../hooks/useStoredState";
 import { translations, tr } from "../../lib/i18n";
 import {
   STORAGE_KEYS,
@@ -25,344 +27,215 @@ import {
 } from "../../locales/config";
 
 const LanguageContext = createContext(null);
+const FONT_SIZES = ["small", "medium", "large"];
 
-const FONT_SIZES = [
-  "small",
-  "medium",
-  "large",
-];
+function normalizeSettings(value) {
+  const stored = value && typeof value === "object"
+    ? value
+    : {};
 
-/* Returns a supported font size. */
-function normalizeFontSize(fontSize) {
-  return FONT_SIZES.includes(fontSize)
-    ? fontSize
-    : "medium";
-}
-
-/* Combines stored preferences with application defaults. */
-function normalizeSettings(storedSettings = {}) {
   return {
     ...defaultSettings,
-    ...storedSettings,
-
+    ...stored,
     language: normalizeLocale(
-      storedSettings.language,
+      stored.language ?? defaultSettings.language,
     ),
-
-    fontSize: normalizeFontSize(
-      storedSettings.fontSize,
-    ),
+    fontSize: FONT_SIZES.includes(stored.fontSize)
+      ? stored.fontSize
+      : defaultSettings.fontSize,
   };
 }
 
-/* Applies global preferences to the HTML document. */
-function applyDocumentPreferences(
-  settings,
-  dark,
-) {
-  if (typeof document === "undefined") {
-    return;
-  }
+function applyDocumentPreferences(settings, dark) {
+  const config = getLocaleConfig(settings.language);
+  const messages = translations[settings.language];
+  const root = document.documentElement;
 
-  const locale = normalizeLocale(
-    settings.language,
-  );
+  root.lang = settings.language;
+  root.dir = config.direction;
+  root.dataset.fontSize = settings.fontSize;
+  root.classList.toggle("dark", dark);
 
-  const localeConfig =
-    getLocaleConfig(locale);
+  document.title = messages.metaTitle;
 
-  const messages =
-    translations[locale];
-
-  document.documentElement.lang =
-    locale;
-
-  document.documentElement.dir =
-    localeConfig.direction;
-
-  document.documentElement.dataset.fontSize =
-    normalizeFontSize(
-      settings.fontSize,
-    );
-
-  document.documentElement.classList.toggle(
-    "dark",
-    dark,
-  );
-
-  document.title =
-    messages.metaTitle;
-
-  const description =
-    document.querySelector(
-      'meta[name="description"]',
-    );
-
-  description?.setAttribute(
-    "content",
-    messages.metaDescription,
-  );
+  document.querySelector('meta[name="description"]')
+    ?.setAttribute("content", messages.metaDescription);
 }
 
-/* Provides language, calendar and appearance settings globally. */
-export function LanguageProvider({
+/* Shares the same language interface in normal and recovery views. */
+function PreferencesContext({
   children,
+  settings,
+  dark,
+  hydrated,
+  updateSettings,
+  setDark,
 }) {
-  const [settings, setSettings] =
-    useState(defaultSettings);
-
-  const [dark, setDark] =
-    useState(false);
-
-  const [hydrated, setHydrated] =
-    useState(false);
-
-  /* Loads saved preferences before displaying the application. */
-  useEffect(() => {
-    const nextSettings =
-      normalizeSettings(
-        readStorage(
-          STORAGE_KEYS.settings,
-          {},
-        ),
-      );
-
-    const nextDark =
-      readStorageText(
-        STORAGE_KEYS.darkMode,
-      ) === "1";
-
-    applyDocumentPreferences(
-      nextSettings,
-      nextDark,
-    );
-
-    setSettings(nextSettings);
-    setDark(nextDark);
-    setHydrated(true);
-  }, []);
-
-  /* Synchronizes preferences between browser tabs. */
-  useEffect(() => {
-    function handleStorageChange(event) {
-      if (
-        event.key !== STORAGE_KEYS.settings &&
-        event.key !== STORAGE_KEYS.darkMode
-      ) {
-        return;
-      }
-
-      const nextSettings =
-        normalizeSettings(
-          readStorage(
-            STORAGE_KEYS.settings,
-            {},
-          ),
-        );
-
-      const nextDark =
-        readStorageText(
-          STORAGE_KEYS.darkMode,
-        ) === "1";
-
-      applyDocumentPreferences(
-        nextSettings,
-        nextDark,
-      );
-
-      setSettings((currentSettings) => {
-        const currentValue =
-          JSON.stringify(
-            normalizeSettings(
-              currentSettings,
-            ),
-          );
-
-        const nextValue =
-          JSON.stringify(nextSettings);
-
-        return currentValue === nextValue
-          ? currentSettings
-          : nextSettings;
-      });
-
-      setDark((currentDark) =>
-        currentDark === nextDark
-          ? currentDark
-          : nextDark,
-      );
+  useLayoutEffect(() => {
+    if (hydrated) {
+      applyDocumentPreferences(settings, dark);
     }
+  }, [settings, dark, hydrated]);
 
-    window.addEventListener(
-      "storage",
-      handleStorageChange,
-    );
+  const changeLocale = useCallback((nextLocale) => {
+    const language = normalizeLocale(nextLocale);
+    const config = getLocaleConfig(language);
 
-    return () => {
-      window.removeEventListener(
-        "storage",
-        handleStorageChange,
-      );
-    };
-  }, []);
+    return updateSettings((current) => ({
+      ...current,
+      language,
+      calendar: config.calendar,
+      secondaryCalendar: config.secondaryCalendar,
+      firstDay: config.firstDay,
+    }));
+  }, [updateSettings]);
 
-  /* Saves preferences and updates the document. */
-  useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
+  const toggleDark = useCallback(
+    () => setDark((current) => !current),
+    [setDark],
+  );
 
-    writeStorage(
-      STORAGE_KEYS.settings,
-      settings,
-    );
-
-    writeStorageText(
-      STORAGE_KEYS.darkMode,
-      dark ? "1" : "0",
-    );
-
-    applyDocumentPreferences(
-      settings,
-      dark,
-    );
-  }, [
+  const value = useMemo(() => ({
+    locale: settings.language,
     settings,
+    updateSettings,
+    direction: getLocaleConfig(settings.language).direction,
+    calendar: settings.calendar,
+    languages: SUPPORTED_LOCALES.map((code) => ({
+      code,
+      name: translations[code].languageName,
+    })),
+    changeLocale,
     dark,
+    setDark,
+    toggleDark,
     hydrated,
-  ]);
-
-  /* Updates one or more global settings. */
-  const updateSettings = useCallback(
-    (nextSettings) => {
-      setSettings((currentSettings) => {
-        if (
-          typeof nextSettings ===
-          "function"
-        ) {
-          return nextSettings(
-            currentSettings,
-          );
-        }
-
-        return {
-          ...currentSettings,
-          ...nextSettings,
-        };
-      });
-    },
-    [],
-  );
-
-  /* Changes the language and its calendar defaults. */
-  const changeLocale = useCallback(
-    (nextLocale) => {
-      const locale =
-        normalizeLocale(nextLocale);
-
-      const localeConfig =
-        getLocaleConfig(locale);
-
-      updateSettings(
-        (currentSettings) => ({
-          ...currentSettings,
-
-          language: locale,
-
-          calendar:
-            localeConfig.calendar,
-
-          secondaryCalendar:
-            localeConfig.secondaryCalendar,
-
-          firstDay:
-            localeConfig.firstDay,
-        }),
-      );
-    },
-    [updateSettings],
-  );
-
-  const value = useMemo(() => {
-    const locale =
-      normalizeLocale(
-        settings.language,
-      );
-
-    return {
-      locale,
-      settings,
-      updateSettings,
-
-      direction:
-        getLocaleConfig(
-          locale,
-        ).direction,
-
-      calendar:
-        settings.calendar,
-
-      languages:
-        SUPPORTED_LOCALES.map(
-          (languageCode) => ({
-            code: languageCode,
-
-            name:
-              translations[
-                languageCode
-              ].languageName,
-          }),
-        ),
-
-      changeLocale,
-      dark,
-      setDark,
-
-      toggleDark: () => {
-        setDark(
-          (currentDark) =>
-            !currentDark,
-        );
-      },
-
-      hydrated,
-
-      t: (key, variables) =>
-        tr(
-          locale,
-          key,
-          variables,
-        ),
-    };
-  }, [
+    t: (key, variables) =>
+      tr(settings.language, key, variables),
+  }), [
     settings,
     updateSettings,
     changeLocale,
     dark,
+    setDark,
+    toggleDark,
     hydrated,
   ]);
 
-  /*
-   * Prevents the default English interface from flashing
-   * before stored preferences are loaded.
-   */
-  if (!hydrated) {
-    return null;
-  }
+  if (!hydrated) return null;
 
   return (
-    <LanguageContext.Provider
-      value={value}
-    >
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
 }
 
-/* Returns the shared application language context. */
+/* Uses IndexedDB as the source of saved preferences. */
+function DatabaseLanguageProvider({ children }) {
+  const [storedSettings, saveSettings, settingsLoaded] =
+    useStoredState(STORAGE_KEYS.settings, defaultSettings);
+
+  const [dark, saveDark, darkLoaded] =
+    useStoredState(STORAGE_KEYS.darkMode, false);
+
+  const hydrated = settingsLoaded && darkLoaded;
+
+  const settings = useMemo(
+    () => normalizeSettings(storedSettings),
+    [storedSettings],
+  );
+
+  const updateSettings = useCallback((next) => {
+    return saveSettings((stored) => {
+      const current = normalizeSettings(stored);
+
+      return normalizeSettings(
+        typeof next === "function"
+          ? next(current)
+          : { ...current, ...next },
+      );
+    });
+  }, [saveSettings]);
+
+  const setDark = useCallback((next) => {
+    return saveDark((current) => {
+      const value = typeof next === "function"
+        ? next(current)
+        : next;
+
+      return Boolean(value);
+    });
+  }, [saveDark]);
+
+  /* Keeps a small fallback for the recovery screen. */
+  useEffect(() => {
+    if (!hydrated) return;
+
+    writeStorage(STORAGE_KEYS.settings, settings);
+    writeStorageText(STORAGE_KEYS.darkMode, dark ? "1" : "0");
+  }, [settings, dark, hydrated]);
+
+  return (
+    <PreferencesContext
+      settings={settings}
+      dark={dark}
+      hydrated={hydrated}
+      updateSettings={updateSettings}
+      setDark={setDark}
+    >
+      {children}
+    </PreferencesContext>
+  );
+}
+
+/* Displays recovery without attempting to load missing DB records. */
+function RecoveryLanguageProvider({ children }) {
+  const [preferences, setPreferences] = useState(null);
+
+  useEffect(() => {
+    setPreferences({
+      settings: normalizeSettings(
+        readStorage(STORAGE_KEYS.settings, defaultSettings),
+      ),
+      dark: readStorageText(STORAGE_KEYS.darkMode) === "1",
+    });
+  }, []);
+
+  const ignoreUpdate = useCallback(() => { }, []);
+
+  return (
+    <PreferencesContext
+      settings={preferences?.settings ?? defaultSettings}
+      dark={preferences?.dark ?? false}
+      hydrated={preferences !== null}
+      updateSettings={ignoreUpdate}
+      setDark={ignoreUpdate}
+    >
+      {children}
+    </PreferencesContext>
+  );
+}
+
+export function LanguageProvider({
+  children,
+  recoveryMode = false,
+}) {
+  return recoveryMode
+    ? (
+      <RecoveryLanguageProvider>
+        {children}
+      </RecoveryLanguageProvider>
+    )
+    : (
+      <DatabaseLanguageProvider>
+        {children}
+      </DatabaseLanguageProvider>
+    );
+}
+
 export function useLanguage() {
-  const context =
-    useContext(LanguageContext);
+  const context = useContext(LanguageContext);
 
   if (!context) {
     throw new Error(

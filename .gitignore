@@ -21,6 +21,9 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.mysql
+.env.docker
 
 # Deployment
 .vercel/
@@ -31,3 +34,5 @@ yarn-error.log*
 # Editors
 .vscode/
 .idea/
+/lib/generated/prisma
+/generated/prisma/

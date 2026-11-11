@@ -87,6 +87,15 @@ export default function usePlannerDashboard() {
         }
     }, []);
 
+    useEffect(() => {
+        function openNewTask() {
+            setDate(getLocalIsoDate());
+            setModal("add");
+        }
+        window.addEventListener("dapl:new-task", openNewTask);
+        return () => window.removeEventListener("dapl:new-task", openNewTask);
+    }, []);
+
     const weekday =
         WEEKDAYS[
         new Date(

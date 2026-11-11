@@ -1,0 +1,30 @@
+.account {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-width: 0;
+  min-height: 2.75rem;
+  max-width: 13rem;
+  padding: .625rem .875rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--control-radius);
+  color: var(--text-primary);
+  background: var(--card-background);
+  text-decoration: none;
+  font-size: var(--font-small);
+  font-weight: var(--weight-semibold);
+  transition: background 180ms ease, border-color 180ms ease;
+  &:hover { background: var(--primarySoft); border-color: var(--primary-600); }
+  &:focus-visible { outline: 2px solid var(--control-border-focus); outline-offset: 3px; }
+  > svg { flex: none; }
+}
+.name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loading { font-size: var(--font-caption); color: var(--text-secondary); }
+:global([dir="rtl"]) .account > svg { transform: rotate(180deg); }
+@media (max-width: 600px) {
+  .account { max-width: 9rem; padding-inline: .625rem; }
+}
+@media (max-width: 380px) {
+  .account { max-width: 6.5rem; }
+}

@@ -1,0 +1,32 @@
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0.85rem;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: start;
+  cursor: pointer;
+  transition: background 180ms ease;
+
+  svg {
+    flex: none;
+  }
+
+  &:hover {
+    background: #8871c114;
+  }
+
+  &:focus-visible {
+    outline: 3px solid #8871c1;
+    outline-offset: 3px;
+  }
+}

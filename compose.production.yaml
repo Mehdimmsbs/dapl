@@ -1,0 +1,49 @@
+name: dapl-production
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: dapl
+      MYSQL_USER: dapl
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+    volumes:
+      - production_mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$$MYSQL_PASSWORD"
+          mysql --protocol=TCP
+          -h 127.0.0.1
+          -u "$$MYSQL_USER"
+          -D "$$MYSQL_DATABASE"
+          -e "SELECT 1" >/dev/null 2>&1
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
+  app:
+    image: dapl-production-app
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://dapl:${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}@db:3306/dapl
+      SHADOW_DATABASE_URL: mysql://dapl:${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}@db:3306/dapl_shadow
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  production_mysql_data:

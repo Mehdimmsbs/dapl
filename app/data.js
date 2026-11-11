@@ -18,4 +18,8 @@ export const defaultSettings = {
   secondaryCalendar: "none",
   firstDay: "monday",
   hijriMethod: "ummalqura",
+  backup: {
+    enabled: true,
+    time: "23:59",
+  },
 };
