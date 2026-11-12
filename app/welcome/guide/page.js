@@ -9,14 +9,16 @@ import { WaveBackdrop } from "../OrbitScene";
 import styles from "../../../styles/pages/_welcome.module.scss";
 
 export default function GuidePage() {
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
   const copy = messages[locale] ?? messages.en;
   return (
     <div className={styles.welcome}>
       <WaveBackdrop />
       <PublicHeader guide copy={copy} />
       <main className={styles.guideMain}>
-        <p className={styles.eyebrow}>MY DAY / {copy.guide}</p>
+        <p className={styles.eyebrow}>
+          <bdi>{t("brandName")}</bdi> / {copy.guide}
+        </p>
         <h1>{copy.guideTitle}</h1>
         <p className={styles.intro}>{copy.guideIntro}</p>
         <ol className={styles.guideSteps}>
@@ -37,13 +39,13 @@ export default function GuidePage() {
             </details>
           ))}
         </div>
-        <Link href="/" className={styles.primary}>
+        <Link href="/planner" className={styles.primary}>
           {copy.open}
           <ArrowUpRight size={20} />
         </Link>
       </main>
       <footer className={styles.footer}>
-        <strong>My Day</strong>
+        <strong>{t("brandName")}</strong>
         <p>{copy.footer}</p>
       </footer>
     </div>

@@ -42,7 +42,7 @@ const ITEMS = [
 ];
 
 export default function WelcomePage() {
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
   const copy = messages[locale] ?? messages.en;
   const router = useRouter();
 
@@ -107,8 +107,8 @@ export default function WelcomePage() {
             <div className={styles.heroActions}>
               <Link
                 className={styles.primary}
-                href="/"
-                onClick={(event) => enter(event, "/", "open")}
+                href="/planner"
+                onClick={(event) => enter(event, "/planner", "open")}
               >
                 {copy.open}
                 <ArrowUpRight size={22} aria-hidden="true" />
@@ -139,7 +139,7 @@ export default function WelcomePage() {
 
         <section className={styles.features} aria-labelledby="welcome-features">
           <div className={styles.sectionHeading}>
-            <span>01 — MY DAY</span>
+            <span>01 — <bdi>{t("brandName")}</bdi></span>
             <h2 id="welcome-features">{copy.section}</h2>
             <p>{copy.sectionSub}</p>
           </div>

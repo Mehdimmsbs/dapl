@@ -126,7 +126,7 @@ self.addEventListener("notificationclick", (event) => {
 
   event.waitUntil(
     (async () => {
-      const target = new URL("/", self.location.origin).href;
+      const target = new URL("/planner", self.location.origin).href;
 
       const windows = await self.clients.matchAll({
         type: "window",
