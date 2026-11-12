@@ -880,3 +880,15 @@ sudo iptables-legacy -C DOCKER-USER \
 
   ## Migration databank
   docker compose --env-file .env.production -f compose.production.yaml run --rm --pull never app npx prisma migrate deploy --config prisma7.config.ts
+
+  ## To check databank tables => https://CODESPACE-NAME-8080.app.github.dev
+  docker run -d --rm \
+  --name dapl-db-viewer \
+  --network dapl-production_default \
+  -p 127.0.0.1:8080:8080 \
+  adminer:4
+
+  # And to finish run docker stop dapl-db-viewer
+  # To see db names and infos:
+  docker compose --env-file .env.production -f compose.production.yaml exec db sh -lc 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root -e "SELECT User, Host FROM mysql.user WHERE User IN ('\''root'\'', '\''dapl'\'');"'
+
